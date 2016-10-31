@@ -1,0 +1,13 @@
+extends _layout/page
+
+prepend variables
+    - var title = "lolprogres";
+
+append main
+
+    #app
+        //- button(v-on:click="getSummoners") get users
+        select( id="" data-selector v-model='usersModel')
+            option( v-for="option in users" v-bind:value="option.value" ) {{ option.text }}
+        p {{ usersModel }}
+        button(v-on:click="getSummonerData") get user data
