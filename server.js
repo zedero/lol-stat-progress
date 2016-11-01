@@ -326,19 +326,6 @@ var server = app.listen(8080, 'localhost', function () {
    var host = server.address().address
    var port = server.address().port
    console.log("Api listening at http://%s:%s", host, port);
-   //requestStaticChampionData();
-   //requestUserData('I am zedero, vuile hond, CBasher, flemg, pienaarsteven, Frozenw0lf');
-   //requestLatestMatches(65002229); //I am Zedero
-   //requestMatchData(2319936292);
-   //formatSummonersAvailableMatchData(64952242); //SELECT id FROM summoners
-   //65002229   zed
-   //64882059   vuile
-   //47646370   flemg
-   //37762998   Frozenw0lf
-   //69850999   pienaarsteven
-   //64952242   CBasher
-   //formatMatchData(2319936292 , 65002229)
-
 
    startUpdateLoop();
    formatAllChampionData();
