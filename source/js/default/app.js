@@ -244,28 +244,30 @@ function gamesWonChart(_v) {
     chart.draw(data, options);
 
     */
+
     var dataTable = new google.visualization.DataTable();
     var average = .5;
     var index = 100;
 
     dataTable.addColumn('number', 'Match');
-    dataTable.addColumn('number', 'Win %');
-    //dataTable.addColumn({type: 'string', role: 'tooltip'});
+    dataTable.addColumn('number', 'Winrate');
     dataTable.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}})
 
     _v.this.matchesData.forEach(function(data){
         if(data.role == _v.this.filterRole || _v.this.filterRole == "ALL") {
-            data.winner = parseInt(data.winner);
-            average = ((average * index) + data.winner) / (index + 1);
+            var won = parseInt(data.winner);
+
+            average = ((average * index) + won) / (index + 1);
             if(index == 0) average = .5;
-            if(data.winner == 0) { data.winner = 'No'} else {data.winner = "Yes"}
+            if(won == 0) { won = 'No'} else {won = "Yes"}
             dataTable.addRows([
-              [index-100, average*100, getTooltip(data.matchId,'Winner',data.winner)]
+              [index-100, average*100, getTooltip(data.matchId,'Winrate',(Math.round(average * 10000) / 100) +'%')]
             ]);
             index++;
         }
     });
     var options = {
+        title: 'Winrate',
         tooltip: {isHtml: true},
         legend: 'none'
     };
