@@ -17,6 +17,9 @@ const RIOT_API_QUERRIES = {
     }
 };
 
+/*
+ *  Create database connection
+ */
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
@@ -26,15 +29,73 @@ var connection = mysql.createConnection({
 connection.connect();
 
 
-app.get(SUBDOMAIN + '/test', function (req, res) {
+//==============================================================================
+/*
+ *  Test functions
+ */
+app.get(SUBDOMAIN + '/test', function(req, res) {
     res.writeHead(200, {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
     });
-
-    res.end( JSON.stringify( {test:"succes"} ) );
+    res.end(JSON.stringify({
+        test: "succes"
+    }));
 });
 
+
+
+//==============================================================================
+/*
+ *  RIOT api functions
+ */
+var callRiotApi = function(url, queryObject, callback) {
+    let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryObject);
+    console.log(url + queryString);
+    request(url + queryString, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+            callback(body, response);
+        } else {
+            console.log(response.headers);
+            /*
+            'x-rate-limit-count': '1:10,4:600',
+            'content-length': '60',
+            */
+        }
+    });
+}
+
+//==============================================================================
+/*
+ *  Helper functions
+ */
+var createQueryUrl = function(params) {
+    var esc = encodeURIComponent;
+    var query = Object.keys(params)
+        .map(k => esc(k) + '=' + esc(params[k]))
+        .join('&');
+    return query;
+}
+
+var updateLoop;
+var startUpdateLoop = function() {
+    updateLoop = setInterval(function() {
+        getMissingRawData();
+    }, 2000);
+}
+var stopUpdateLoop = function() {
+    clearInterval(updateLoop);
+}
+var stopUpdateLoopAndFormat = function() {
+    formatAllChampionData();
+    clearInterval(updateLoop);
+}
+
+
+//==============================================================================
+/*
+ * i/o functions for the site
+ */
 app.get(SUBDOMAIN + '/getSummoners', function (req, res) {
     //console.log(req)
     res.writeHead(200, {
@@ -89,23 +150,10 @@ app.get(SUBDOMAIN + '/updateSummonerMatchData', function (req, res) {
 
 });
 
-
-var callRiotApi = function(url,queryObject,callback) {
-    let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryObject);
-    console.log(url + queryString);
-    request(url + queryString, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            callback(body, response);
-        } else {
-            //console.log(response)//.caseless.dict)
-            console.log(response.headers);
-            /*
-            'x-rate-limit-count': '1:10,4:600',
-            'content-length': '60',
-            */
-        }
-    });
-}
+//==============================================================================
+/*
+ * LOL data request and format functions
+ */
 
 var requestUserData = function(username) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_name + username, {
@@ -165,13 +213,7 @@ var requestMatchData = function(matchid) {
     });
 }
 
-var createQueryUrl = function(params) {
-    var esc = encodeURIComponent;
-    var query = Object.keys(params)
-        .map(k => esc(k) + '=' + esc(params[k]))
-        .join('&');
-    return query;
-}
+
 
 var formatMatchData = function(matchId,userId) {
     var QUERY = 'SELECT * FROM raw_match_data';
@@ -305,23 +347,11 @@ var formatAllChampionData = function() {
     });
 }
 
-var updateLoop;
 
-var startUpdateLoop = function() {
-    updateLoop = setInterval(function(){
-        getMissingRawData();
-    }, 2000);
-}
-
-var stopUpdateLoop = function () {
-    clearInterval(updateLoop);
-}
-
-var stopUpdateLoopAndFormat = function () {
-    formatAllChampionData();
-    clearInterval(updateLoop);
-}
-
+//==============================================================================
+/*
+ * Server initialization
+ */
 var server = app.listen(8080, 'localhost', function () {
    var host = server.address().address
    var port = server.address().port

@@ -22,24 +22,28 @@ append main
         .user-stats
             .row
                 .col-sm-6
-                    #gametime.data-chart
+                    .user-stats__chart-container
+                        #gametime.data-chart
                 .col-sm-6
-                    #gameswon.data-chart
+                    .user-stats__chart-container
+                        #gameswon.data-chart
                 .col-sm-6
-                    #wards-per-min.data-chart
+                    .user-stats__chart-container
+                        #wards-per-min.data-chart
                 .col-sm-6
-                    #CS.data-chart
+                    .user-stats__chart-container
+                        #CS.data-chart
                 .col-sm-6
-                    #GOLD.data-chart
+                    .user-stats__chart-container
+                        #GOLD.data-chart
                 .col-sm-6
-                    #KDA.data-chart
+                    .user-stats__chart-container
+                        #KDA.data-chart
                 .col-sm-6
-                    #kill-pressence.data-chart
+                    .user-stats__chart-container
+                        #kill-pressence.data-chart
 
 
         h2 Last match data
         p
             | {{ matchesData[matchesData.length-1] }}
-
-
-//- STAT FOR GAMETIME

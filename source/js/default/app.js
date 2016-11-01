@@ -1,6 +1,6 @@
 
 /*  TODO
-    NONE
+    Fix average calculation -- FIXED, rounding caused issues
 */
 (function() {
 
@@ -102,6 +102,10 @@ var app = new Vue({
                             value: user.id
                         })
                     })
+
+                    setTimeout(function(){
+                        _v.this.getSummonerData()
+                    }, 1000)
                 })
                 .catch(function(data){
                     //console.log('error', JSON.parse(data));
@@ -197,6 +201,36 @@ var renderUi = function(_v) {
     kdaChart(_v);
     killPressenceChart(_v);
 }
+var chartOptions = {
+    titleTextStyle: { color: '#FFF' },
+    backgroundColor: '#263646',
+    colors: ['#01689b','#6bdb8d'],
+
+    hAxis: {
+        textStyle: {
+            color: '#FFF'
+        }
+    },
+    vAxis: {
+        textStyle: {
+            color: '#FFF'
+        }
+    },
+    title: {
+        textStyle: {
+            color: '#FFF'
+        }
+    },
+    title: 'placeholder text',
+    legend: {
+        position: 'bottom',
+        position: 'none',
+        textStyle: {
+            color: '#FFF'
+        }
+    }
+};
+
 function gametimeChart(_v) {
     var dataArr = [['Match', 'Gametime','Average']];
     var average = 0;
@@ -219,7 +253,8 @@ function gametimeChart(_v) {
         }
     };
     var chart = new google.visualization.LineChart(document.getElementById('gametime'));
-    chart.draw(data, options);
+    chartOptions.title = 'Gametime in minutes';
+    chart.draw(data, chartOptions);
 }
 
 function gamesWonChart(_v) {
@@ -231,6 +266,7 @@ function gamesWonChart(_v) {
     dataTable.addColumn('number', 'Match');
     dataTable.addColumn('number', 'Winrate');
     dataTable.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}})
+    dataTable.addColumn({type: 'string', role: 'style'});
 
     _v.this.matchesData.forEach(function(data){
         if(data.role == _v.this.filterRole || _v.this.filterRole == "ALL") {
@@ -240,7 +276,7 @@ function gamesWonChart(_v) {
             if(index == 0) average = .5;
             if(won == 0) { won = 'No'} else {won = "Yes"}
             dataTable.addRows([
-              [index-100, average*100, getTooltip(data.matchId,'Winrate',(Math.round(average * 10000) / 100) +'%')]
+              [index-100, average*100, getTooltip(data.matchId,'Winrate',(Math.round(average * 10000) / 100) +'%'),'color: #6bdb8d']
             ]);
             index++;
         }
@@ -253,7 +289,9 @@ function gamesWonChart(_v) {
         }
     };
     var chart = new google.visualization.LineChart(document.getElementById('gameswon'));
-    chart.draw(dataTable, options);
+    chartOptions.title = 'Winrate';
+    chartOptions.tooltip = {isHtml: true};
+    chart.draw(dataTable, chartOptions);
 
 }
 
@@ -285,7 +323,8 @@ function wardsPerMinChart(_v) {
         }
     };
     var chart = new google.visualization.LineChart(document.getElementById('wards-per-min'));
-    chart.draw(data, options);
+    chartOptions.title = 'Warding statistics';
+    chart.draw(data, chartOptions);
 }
 
 function csChart(_v) {
@@ -309,7 +348,8 @@ function csChart(_v) {
         }
     };
     var chart = new google.visualization.LineChart(document.getElementById('CS'));
-    chart.draw(data, options);
+    chartOptions.title = 'Creep score per minute';
+    chart.draw(data, chartOptions);
 }
 
 function goldChart(_v) {
@@ -333,11 +373,12 @@ function goldChart(_v) {
         }
     };
     var chart = new google.visualization.LineChart(document.getElementById('GOLD'));
-    chart.draw(data, options);
+    chartOptions.title = 'Gold per minute';
+    chart.draw(data, chartOptions);
 }
 
 function kdaChart(_v) {
-    var dataArr = [['Match', 'Kills' , 'Deaths' , 'Assists' ,'Average']];
+    var dataArr = [['Match', 'KDA' ,'Average']];
     var average = 0;
     var index = 0;
 
@@ -352,7 +393,7 @@ function kdaChart(_v) {
             }
             average = ((average * index) + KDA ) / (index + 1);
             if(index == 0) average = KDA;
-            dataArr.push([index, data.kills, data.deaths, data.assists, average])
+            dataArr.push([index, KDA, average])
             index ++;
         }
     });
@@ -365,7 +406,8 @@ function kdaChart(_v) {
         }
     };
     var chart = new google.visualization.LineChart(document.getElementById('KDA'));
-    chart.draw(data, options);
+    chartOptions.title = 'KDA';
+    chart.draw(data, chartOptions);
 }
 function killPressenceChart(_v) {
     var dataArr = [['Match', 'Pressence' ,'Average']];
@@ -398,7 +440,8 @@ function killPressenceChart(_v) {
         }
     };
     var chart = new google.visualization.LineChart(document.getElementById('kill-pressence'));
-    chart.draw(data, options);
+    chartOptions.title = 'Kill pressence';
+    chart.draw(data, chartOptions);
 }
 
 var limitData = function(arr) {
