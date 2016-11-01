@@ -4,33 +4,42 @@ prepend variables
     - var title = "lolprogres";
 
 append main
-
     #app
-        //- button(v-on:click="getSummoners") get users
-        select( id="" data-selector v-model='usersModel' @change="getSummonerData")
-            option( v-for="option in users" v-bind:value="option.value" ) {{ option.text }}
-        button(v-on:click="updateSummonerData") update user
-        p {{ usersModel }}
-        button(v-on:click="getSummonerData") get user data
-        select( id="" data-selector v-model='filterRole' @change="renderCharts" v-show="summonerDataLoaded")
-            option( value="ALL") All
-            option( value="TOP" ) Top
-            option( value="JUNGLE" ) Jungle
-            option( value="MID" ) Mid
-            option( value="CARRY" ) Carry
-            option( value="SUPPORT" ) Support
-        #gametime(style='width: 95vw; height: 500px')
-        #gameswon(style='width: 95vw; height: 500px')
-        #wards-per-min(style='width: 95vw; height: 500px')
-        #CS(style='width: 95vw; height: 500px')
-        #GOLD(style='width: 95vw; height: 500px')
-        #KDA(style='width: 95vw; height: 500px')
-        #kill-pressence(style='width: 95vw; height: 500px')
+        .user-control
+            //- button(v-on:click="getSummoners") get users
+            select( id="" data-selector v-model='usersModel' @change="getSummonerData")
+                option( v-for="option in users" v-bind:value="option.value" ) {{ option.text }}
+            button(v-on:click="updateSummonerData") update user
+            p {{ usersModel }}
+            button(v-on:click="getSummonerData") get user data
+            select( id="" data-selector v-model='filterRole' @change="renderCharts" v-show="summonerDataLoaded")
+                option( value="ALL") All
+                option( value="TOP" ) Top
+                option( value="JUNGLE" ) Jungle
+                option( value="MID" ) Mid
+                option( value="CARRY" ) Carry
+                option( value="SUPPORT" ) Support
+        .user-stats
+            .row
+                .col-sm-6
+                    #gametime.data-chart
+                .col-sm-6
+                    #gameswon.data-chart
+                .col-sm-6
+                    #wards-per-min.data-chart
+                .col-sm-6
+                    #CS.data-chart
+                .col-sm-6
+                    #GOLD.data-chart
+                .col-sm-6
+                    #KDA.data-chart
+                .col-sm-6
+                    #kill-pressence.data-chart
 
 
         h2 Last match data
         p
-            | {{ matchesData[0] }}
+            | {{ matchesData[matchesData.length-1] }}
 
 
 //- STAT FOR GAMETIME

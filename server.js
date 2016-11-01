@@ -35,15 +35,6 @@ app.get(SUBDOMAIN + '/test', function (req, res) {
     res.end( JSON.stringify( {test:"succes"} ) );
 });
 
-app.get(SUBDOMAIN + '/saveUser', function(req, res) {
-    var username = 'I am zedero';
-    request(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_name + username + RIOT_API_KEY, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            //console.log(body)
-        }
-    });
-});
-
 app.get(SUBDOMAIN + '/getSummoners', function (req, res) {
     //console.log(req)
     res.writeHead(200, {
@@ -97,14 +88,7 @@ app.get(SUBDOMAIN + '/updateSummonerMatchData', function (req, res) {
     res.end( JSON.stringify( {startedUpdate:true} ) );
 
 });
-/*
-requestLatestMatches
-requestLatestMatches(65002229);
 
-
-
-
-*/
 
 var callRiotApi = function(url,queryObject,callback) {
     let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryObject);
@@ -160,6 +144,7 @@ var requestLatestMatches = function(userid) {
             _data.summonerId = userid;
             connection.query('REPLACE INTO matches SET ?', _data, function(err, result) {
                 if (err) throw err;
+                stopUpdateLoop();
                 startUpdateLoop();
             });
         });
@@ -176,7 +161,6 @@ var requestMatchData = function(matchid) {
         }
         connection.query('REPLACE INTO raw_match_data SET ?', data, function(err, result) {
             if (err) throw err;
-            console.log('get championupdate function to work.')
         });
     });
 }
@@ -306,7 +290,7 @@ var getMissingRawData = function() {
         });
 
         if(rows.length == 0) {
-            stopUpdateLoop()
+            stopUpdateLoopAndFormat()
         }
     });
 }
@@ -330,6 +314,10 @@ var startUpdateLoop = function() {
 }
 
 var stopUpdateLoop = function () {
+    clearInterval(updateLoop);
+}
+
+var stopUpdateLoopAndFormat = function () {
     formatAllChampionData();
     clearInterval(updateLoop);
 }

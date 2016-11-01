@@ -1,3 +1,7 @@
+
+/*  TODO
+    NONE
+*/
 (function() {
 
     'use strict';
@@ -200,9 +204,9 @@ function gametimeChart(_v) {
     _v.this.matchesData.forEach(function(data){
         if(data.role == _v.this.filterRole || _v.this.filterRole == "ALL") {
             var gametime = Math.round(data.matchDuration / 60);
-            average =  Math.round(   ((average * index) + gametime) / (index + 1)      );
+            average = ((average * index) + gametime) / (index + 1);
             if(index == 0) average = gametime;
-            dataArr.push([index,gametime,average])
+            dataArr.push([index, gametime, Math.round( average ) ]);
             index++;
         }
     });
@@ -219,31 +223,6 @@ function gametimeChart(_v) {
 }
 
 function gamesWonChart(_v) {
-    /*var dataArr = [['Match','Win %']];
-    var average = .5;
-    var index = 100;
-    _v.this.matchesData.forEach(function(data){
-        if(data.role == _v.this.filterRole || _v.this.filterRole == "ALL") {
-            data.winner = parseInt(data.winner);
-            average = ((average * index) + data.winner) / (index + 1);
-            if(index == 0) average = .5;
-            dataArr.push([index-100,average*100])
-            index++;
-        }
-    });
-
-    var data = google.visualization.arrayToDataTable(dataArr);
-    console.log(data)
-    var options = {
-        title: 'Games won',
-        legend: {
-            position: 'bottom'
-        }
-    };
-    var chart = new google.visualization.LineChart(document.getElementById('gameswon'));
-    chart.draw(data, options);
-
-    */
 
     var dataTable = new google.visualization.DataTable();
     var average = .5;
@@ -269,7 +248,9 @@ function gamesWonChart(_v) {
     var options = {
         title: 'Winrate',
         tooltip: {isHtml: true},
-        legend: 'none'
+        legend: {
+            position: 'bottom'
+        }
     };
     var chart = new google.visualization.LineChart(document.getElementById('gameswon'));
     chart.draw(dataTable, options);
