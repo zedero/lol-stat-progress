@@ -57,6 +57,19 @@ app.get(SUBDOMAIN + '/getSummoners', function (req, res) {
     });
 });
 
+app.get(SUBDOMAIN + '/getChampions', function (req, res) {
+    //console.log(req)
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+    });
+    var QUERY = 'SELECT * FROM static_champions';
+    connection.query(QUERY, function(err, rows) {
+        if (err) throw err;
+        res.end( JSON.stringify( rows ) );
+    });
+});
+
 app.get(SUBDOMAIN + '/getSummonerMatchData', function (req, res) {
     res.writeHead(200, {
         'Content-Type': 'application/json',
@@ -73,6 +86,17 @@ app.get(SUBDOMAIN + '/getSummonerMatchData', function (req, res) {
     });
 });
 
+app.get(SUBDOMAIN + '/updateSummonerMatchData', function (req, res) {
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+    });
+    var queryData = qs.parse(req._parsedUrl.query)
+    let userId = queryData.userId;
+    requestLatestMatches(userId);
+    res.end( JSON.stringify( {startedUpdate:true} ) );
+
+});
 /*
 requestLatestMatches
 requestLatestMatches(65002229);
@@ -136,6 +160,7 @@ var requestLatestMatches = function(userid) {
             _data.summonerId = userid;
             connection.query('REPLACE INTO matches SET ?', _data, function(err, result) {
                 if (err) throw err;
+                startUpdateLoop();
             });
         });
     });
@@ -151,6 +176,7 @@ var requestMatchData = function(matchid) {
         }
         connection.query('REPLACE INTO raw_match_data SET ?', data, function(err, result) {
             if (err) throw err;
+            console.log('get championupdate function to work.')
         });
     });
 }
@@ -175,6 +201,8 @@ var formatMatchData = function(matchId,userId) {
         if(row.length > 0) {
             let rawdata = JSON.parse(row[0].data);
             let pId = getParticipantId(rawdata.participantIdentities , userId);
+            let teamwin = getHasTeamWon(rawdata.teams,pId);
+            let teamscore = getTeamScore(rawdata.participants , pId);
             let arrPos = pId -1;
             let data = {
                 userId : userId,
@@ -197,7 +225,11 @@ var formatMatchData = function(matchId,userId) {
                 queue : row[0].queue,
                 season : row[0].season,
                 date : row[0].timestamp,
-                timeline : JSON.stringify(rawdata.participants[arrPos].timeline)
+                teamKills : teamscore.teamKills,
+                teamDeaths : teamscore.teamDeaths,
+                teamAssists : teamscore.teamAssists,
+                timeline : JSON.stringify(rawdata.participants[arrPos].timeline),
+                winner : teamwin
             }
             //console.log(data)
             connection.query('REPLACE INTO formatted_match_data SET ?', data, function(err, result) {
@@ -228,6 +260,35 @@ var getParticipantId = function(participantIdentities , userId) {
     return id;
 }
 
+var getTeamScore = function(participants, pId) {
+    let team = {
+        teamKills: 0,
+        teamDeaths: 0,
+        teamAssists: 0
+    }
+    if(pId > 5) {
+        pId = 5;
+    } else {
+        pId = 0;
+    }
+    for (i = pId; i <= pId + 4; i++) {
+        team.teamKills += participants[i].stats.kills
+        team.teamAssists += participants[i].stats.assists
+        team.teamDeaths += participants[i].stats.deaths
+    }
+    return team;
+}
+var getHasTeamWon = function(teams, pId) {
+
+    if(pId > 5) {
+        pId = 1;
+    } else {
+        pId = 0;
+    }
+
+    return teams[pId].winner;
+}
+
 var getMissingRawData = function() {
     var QUERY = 'SELECT distinct matchId FROM matches';
     QUERY = 'SELECT distinct matchId FROM matches WHERE NOT EXISTS (SELECT raw_match_data.matchId FROM raw_match_data WHERE matches.matchId = raw_match_data.matchId)';
@@ -235,13 +296,42 @@ var getMissingRawData = function() {
         if (err) throw err;
         var limit = 1;
         var limCount = 0;
+
         rows.forEach(function(row){
+            console.log('Total requests left:',rows.length)
             if(limCount < limit) {
                 requestMatchData(row.matchId);
             }
             limCount++;
+        });
+
+        if(rows.length == 0) {
+            stopUpdateLoop()
+        }
+    });
+}
+
+var formatAllChampionData = function() {
+    var QUERY = 'SELECT * FROM summoners';
+    connection.query(QUERY, function(err, rows) {
+        if (err) throw err;
+        rows.forEach(function(data){
+            formatSummonersAvailableMatchData(data.id);
         })
     });
+}
+
+var updateLoop;
+
+var startUpdateLoop = function() {
+    updateLoop = setInterval(function(){
+        getMissingRawData();
+    }, 2000);
+}
+
+var stopUpdateLoop = function () {
+    formatAllChampionData();
+    clearInterval(updateLoop);
 }
 
 var server = app.listen(8080, 'localhost', function () {
@@ -252,11 +342,16 @@ var server = app.listen(8080, 'localhost', function () {
    //requestUserData('I am zedero, vuile hond, CBasher, flemg, pienaarsteven, Frozenw0lf');
    //requestLatestMatches(65002229); //I am Zedero
    //requestMatchData(2319936292);
-   //formatSummonersAvailableMatchData(65002229); //SELECT id FROM summoners
+   //formatSummonersAvailableMatchData(64952242); //SELECT id FROM summoners
+   //65002229   zed
+   //64882059   vuile
+   //47646370   flemg
+   //37762998   Frozenw0lf
+   //69850999   pienaarsteven
+   //64952242   CBasher
+   //formatMatchData(2319936292 , 65002229)
 
 
-   /*setInterval(function(){
-       getMissingRawData();
-   }, 2000);*/
-   //formatMatchData(2319936292,65002229);
+   startUpdateLoop();
+   formatAllChampionData();
 });
