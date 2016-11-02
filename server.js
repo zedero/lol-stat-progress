@@ -226,41 +226,46 @@ var formatMatchData = function(matchId,userId) {
         if (err) throw err;
         if(row.length > 0) {
             let rawdata = JSON.parse(row[0].data);
-            let pId = getParticipantId(rawdata.participantIdentities , userId);
-            let teamwin = getHasTeamWon(rawdata.teams,pId);
-            let teamscore = getTeamScore(rawdata.participants , pId);
-            let arrPos = pId -1;
-            let data = {
-                userId : userId,
-                matchId : matchId,
-                participantId : pId,
-                matchDuration : rawdata.matchDuration,
-                goldEarned : rawdata.participants[arrPos].stats.goldEarned,
-                visionWardsBoughtInGame: rawdata.participants[arrPos].stats.visionWardsBoughtInGame,
-                wardsPlaced: rawdata.participants[arrPos].stats.wardsPlaced,
-                wardsKilled: rawdata.participants[arrPos].stats.wardsKilled,
-                kills : rawdata.participants[arrPos].stats.kills,
-                deaths : rawdata.participants[arrPos].stats.deaths,
-                assists : rawdata.participants[arrPos].stats.assists,
-                minionsKilled : rawdata.participants[arrPos].stats.minionsKilled,
-                neutralMinionsKilled : rawdata.participants[arrPos].stats.neutralMinionsKilled,
-                champLevel : rawdata.participants[arrPos].stats.champLevel,
-                champion : rawdata.participants[arrPos].championId,
-                lane : row[0].lane,
-                role : row[0].role,
-                queue : row[0].queue,
-                season : row[0].season,
-                date : row[0].timestamp,
-                teamKills : teamscore.teamKills,
-                teamDeaths : teamscore.teamDeaths,
-                teamAssists : teamscore.teamAssists,
-                timeline : JSON.stringify(rawdata.participants[arrPos].timeline),
-                winner : teamwin
+
+            if(rawdata.participantIdentities[0].hasOwnProperty("player") ) {
+                let pId = getParticipantId(rawdata.participantIdentities , userId);
+                let teamwin = getHasTeamWon(rawdata.teams,pId);
+                let teamscore = getTeamScore(rawdata.participants , pId);
+                let arrPos = pId -1;
+                let data = {
+                    userId : userId,
+                    matchId : matchId,
+                    participantId : pId,
+                    matchDuration : rawdata.matchDuration,
+                    goldEarned : rawdata.participants[arrPos].stats.goldEarned,
+                    visionWardsBoughtInGame: rawdata.participants[arrPos].stats.visionWardsBoughtInGame,
+                    wardsPlaced: rawdata.participants[arrPos].stats.wardsPlaced,
+                    wardsKilled: rawdata.participants[arrPos].stats.wardsKilled,
+                    kills : rawdata.participants[arrPos].stats.kills,
+                    deaths : rawdata.participants[arrPos].stats.deaths,
+                    assists : rawdata.participants[arrPos].stats.assists,
+                    minionsKilled : rawdata.participants[arrPos].stats.minionsKilled,
+                    neutralMinionsKilled : rawdata.participants[arrPos].stats.neutralMinionsKilled,
+                    champLevel : rawdata.participants[arrPos].stats.champLevel,
+                    champion : rawdata.participants[arrPos].championId,
+                    lane : row[0].lane,
+                    role : row[0].role,
+                    queue : row[0].queue,
+                    season : row[0].season,
+                    date : row[0].timestamp,
+                    teamKills : teamscore.teamKills,
+                    teamDeaths : teamscore.teamDeaths,
+                    teamAssists : teamscore.teamAssists,
+                    timeline : JSON.stringify(rawdata.participants[arrPos].timeline),
+                    winner : teamwin
+                }
+                //console.log(data)
+                connection.query('REPLACE INTO formatted_match_data SET ?', data, function(err, result) {
+                    if (err) throw err;
+                });
+            }   else {
+                console.log('Corrupt data: ',matchId,userId)
             }
-            //console.log(data)
-            connection.query('REPLACE INTO formatted_match_data SET ?', data, function(err, result) {
-                if (err) throw err;
-            });
         }
     });
 }
@@ -324,8 +329,9 @@ var getMissingRawData = function() {
         var limCount = 0;
 
         rows.forEach(function(row){
-            console.log('Total requests left:',rows.length)
+
             if(limCount < limit) {
+                console.log('Total requests left:',rows.length)
                 requestMatchData(row.matchId);
             }
             limCount++;
@@ -356,7 +362,7 @@ var server = app.listen(8080, 'localhost', function () {
    var host = server.address().address
    var port = server.address().port
    console.log("Api listening at http://%s:%s", host, port);
-
    startUpdateLoop();
+   //getMissingRawData();
    formatAllChampionData();
 });

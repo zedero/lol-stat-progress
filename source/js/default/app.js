@@ -84,7 +84,8 @@ var app = new Vue({
         matchesData : [],
         champions : [],
         filterRole : "ALL",
-        summonerDataLoaded : false
+        summonerDataLoaded : false,
+        avgGameTime : 0
     },
     methods: {
         renderCharts: function() {
@@ -247,7 +248,7 @@ function gametimeChart(_v) {
 
     var data = google.visualization.arrayToDataTable(dataArr);
     var options = {
-        title: 'Gametime in minutes',
+        title: 'Gametime in minutes ( avg: '+ Math.round( average ) +' minutes )',
         legend: {
             position: 'bottom'
         }
@@ -255,6 +256,7 @@ function gametimeChart(_v) {
     var chart = new google.visualization.LineChart(document.getElementById('gametime'));
     chartOptions.title = 'Gametime in minutes';
     chart.draw(data, chartOptions);
+    _v.this.avgGameTime = Math.round( average );
 }
 
 function gamesWonChart(_v) {
