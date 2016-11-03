@@ -93,6 +93,11 @@
     justify-content: center;
     align-items: center;
     box-shadow: inset 0px 0px 1rem 0px rgba(0,0,0,0.75);
+    &.___small {
+        width: 3.5rem;
+        height: 3.5rem;
+        margin-right: 1rem;
+    }
 }
 
 .user-control__user-select {
@@ -132,7 +137,7 @@
     padding: 0 5rem;
     background-color:  @color-background;
     z-index: 100;
-    transition: background-color .05s ease;
+    //transition: background-color .05s ease;
 
 
     .___header-is-fixed &{
@@ -149,6 +154,10 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity .05s ease;
+    display: flex;
+    align-items: center;
+
+
     .___header-is-fixed &{
         opacity: 1;
         pointer-events: all;

@@ -213,13 +213,19 @@ var getRole = function(lane,role) {
 }
 
 var renderUi = function(_v) {
-    gametimeChart(_v);
-    gamesWonChart(_v);
-    wardsPerMinChart(_v);
-    csChart(_v);
-    goldChart(_v);
-    kdaChart(_v);
-    killPressenceChart(_v);
+    /*
+     *  Only render charts when google chart is available
+     */
+    
+    google.charts.setOnLoadCallback(function(){
+        gametimeChart(_v);
+        gamesWonChart(_v);
+        wardsPerMinChart(_v);
+        csChart(_v);
+        goldChart(_v);
+        kdaChart(_v);
+        killPressenceChart(_v);
+    });
 }
 var chartOptions = {
     titleTextStyle: { color: '#FFF' },

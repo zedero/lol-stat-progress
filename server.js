@@ -49,20 +49,70 @@ app.get(SUBDOMAIN + '/test', function(req, res) {
 /*
  *  RIOT api functions
  */
-var callRiotApi = function(url, queryObject, callback) {
+var callRiotApiQueue = [];
+var callRiotApi = function(url, queryObject, callback, priority=false) {
     let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryObject);
-    console.log(url + queryString);
-    request(url + queryString, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            callback(body, response);
-        } else {
-            console.log(response.headers);
+    var fullUrl = url + queryString;
+    if(searchArrayForMatchingCall(callRiotApiQueue,fullUrl) == false) {
+        if(priority) {
             /*
-            'x-rate-limit-count': '1:10,4:600',
-            'content-length': '60',
+                Add new call to the 2nd position within the array.
+                It may never be the 1st position as when a call is
+                finished it takes the callback from the 1st item.
             */
+            callRiotApiQueue.splice(1,0,{
+                url:        fullUrl,
+                callback:   callback,
+                isCalled:   false,
+                retryCount : 0
+            });
+        } else {
+            callRiotApiQueue.push({
+                url:        fullUrl,
+                callback:   callback,
+                isCalled:   false,
+                retryCount : 0
+            });
         }
-    });
+    }
+}
+
+var callRiotApiLoop = setInterval(function() {
+    callRiotApiQueueLoop();
+}, 1300);
+
+var callRiotApiQueueLoop = function() {
+    if(callRiotApiQueue.length > 0 ) {
+        if(!callRiotApiQueue[0].isCalled){
+            console.log('Queue size:',callRiotApiQueue.length);
+            callRiotApiQueue[0].isCalled = true;
+
+            request(callRiotApiQueue[0].url, function(error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    callRiotApiQueue[0].callback(body, response);
+                    callRiotApiQueue.shift();
+
+                    if(callRiotApiQueue.length == 0 ) {
+                        console.log('Queue empty');
+                    }
+                } else {
+                    console.log('==== RIOT API error ====');
+                    console.log(response.headers);//['x-rate-limit-count']
+                    if(callRiotApiQueue[0].retryCount >= 5) {
+                        callRiotApiQueue.shift();
+                        console.log('Reached retry limit. Removing call from queue.')
+                    } else {
+                        callRiotApiQueue[0].isCalled = false;
+                        callRiotApiQueue[0].retryCount++;
+                        console.log(callRiotApiQueue[0].url);
+                        console.log('Error, preforming retry: '+ callRiotApiQueue[0].retryCount + ' of 5');
+                    }
+                    console.log('========================');
+                }
+            });
+            //--------
+        }
+    }
 }
 
 //==============================================================================
@@ -77,18 +127,14 @@ var createQueryUrl = function(params) {
     return query;
 }
 
-var updateLoop;
-var startUpdateLoop = function() {
-    updateLoop = setInterval(function() {
-        getMissingRawData();
-    }, 1500);
-}
-var stopUpdateLoop = function() {
-    clearInterval(updateLoop);
-}
-var stopUpdateLoopAndFormat = function() {
-    formatAllChampionData();
-    clearInterval(updateLoop);
+var searchArrayForMatchingCall = function(arr,query) {
+    var found = false;
+    arr.forEach(function(data){
+        if(data.url === query) {
+            found = true;
+        }
+    })
+    return found;
 }
 
 
@@ -166,7 +212,7 @@ var requestUserData = function(username) {
               if (err) throw err;
           });
         });
-    });
+    },true);
 }
 
 var requestStaticChampionData = function() {
@@ -179,7 +225,7 @@ var requestStaticChampionData = function() {
               if (err) throw err;
           });
         });
-    });
+    },true);
 }
 
 
@@ -192,11 +238,10 @@ var requestLatestMatches = function(userid) {
             _data.summonerId = userid;
             connection.query('REPLACE INTO matches SET ?', _data, function(err, result) {
                 if (err) throw err;
-                stopUpdateLoop();
-                startUpdateLoop();
+                getMissingRawData();
             });
         });
-    });
+    },true);
 }
 
 var requestMatchData = function(matchid) {
@@ -209,8 +254,9 @@ var requestMatchData = function(matchid) {
         }
         connection.query('REPLACE INTO raw_match_data SET ?', data, function(err, result) {
             if (err) throw err;
+            formatAllChampionData()
         });
-    });
+    },false);
 }
 
 
@@ -264,7 +310,7 @@ var formatMatchData = function(matchId,userId) {
                     if (err) throw err;
                 });
             }   else {
-                console.log('Corrupt data: ',matchId,userId)
+                console.log('Corrupt data: ',matchId,userId);
             }
         }
     });
@@ -275,12 +321,18 @@ var formatSummonersAvailableMatchData = function (userId) {
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
         rows.forEach(function(row){
-            formatMatchData(row.matchId , userId)
+             setTimeout(function(){
+                formatMatchData(row.matchId , userId)
+            }, 10);
+            //formatMatchData(row.matchId , userId);
         })
     });
 }
 
 var getParticipantId = function(participantIdentities , userId) {
+    /*
+        TODO add an extra method to get the pId when identity list is empty
+    */
     var id = -1;
     Object.keys(participantIdentities).forEach(function(element, index, array){
         var participant = participantIdentities[index];
@@ -330,15 +382,15 @@ var getMissingRawData = function() {
 
         rows.forEach(function(row){
 
-            if(limCount < limit) {
-                console.log('Total requests left:',rows.length)
+            //if(limCount < limit) {
+                //console.log('Total requests left:',rows.length)
                 requestMatchData(row.matchId);
-            }
-            limCount++;
+            //}
+            //limCount++;
         });
 
         if(rows.length == 0) {
-            stopUpdateLoopAndFormat()
+            formatAllChampionData();
         }
     });
 }
@@ -362,13 +414,27 @@ var server = app.listen(8080, 'localhost', function () {
    var host = server.address().address
    var port = server.address().port
    console.log("Api listening at http://%s:%s", host, port);
+   /*
+    *   Update static data
+    */
    requestStaticChampionData();
-   startUpdateLoop();
-   //getMissingRawData();
+
+
+   /*
+    *   Format any matches that is not yet formatted
+    */
    formatAllChampionData();
+
+   /*
+    *   Start the update cycle. This gets missing match data
+    */
+
+   getMissingRawData();
+
 });
 
 /*TODO
+
     GET TOTAL OBJECTIVES
     GET OBJECTIVES / MINUTE or 10 minutes
 
