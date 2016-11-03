@@ -81,7 +81,7 @@ var updateLoop;
 var startUpdateLoop = function() {
     updateLoop = setInterval(function() {
         getMissingRawData();
-    }, 2000);
+    }, 1500);
 }
 var stopUpdateLoop = function() {
     clearInterval(updateLoop);
@@ -362,7 +362,29 @@ var server = app.listen(8080, 'localhost', function () {
    var host = server.address().address
    var port = server.address().port
    console.log("Api listening at http://%s:%s", host, port);
+   requestStaticChampionData();
    startUpdateLoop();
    //getMissingRawData();
    formatAllChampionData();
 });
+
+/*TODO
+    GET TOTAL OBJECTIVES
+    GET OBJECTIVES / MINUTE or 10 minutes
+
+    "teamId": 100,
+    "winner": false,
+    "firstBlood": false,
+    "firstTower": true,
+    "firstInhibitor": false,
+    "firstBaron": false,
+    "firstDragon": true,
+    "firstRiftHerald": true,
+    "towerKills": 2,
+    "inhibitorKills": 0,
+    "baronKills": 0,
+    "dragonKills": 1,
+    "riftHeraldKills": 1,
+    "vilemawKills": 0,
+    "dominionVictoryScore": 0
+*/

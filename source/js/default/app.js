@@ -85,7 +85,14 @@ var app = new Vue({
         champions : [],
         filterRole : "ALL",
         summonerDataLoaded : false,
-        avgGameTime : 0
+        avgGameTime : 0,
+        winrate : 0,
+        wardsplaced : 0,
+        creepScore : 0,
+        goldPerMin : 0,
+        KDA : 0,
+        killPressence : 0,
+        userIcon : ''
     },
     methods: {
         renderCharts: function() {
@@ -100,7 +107,8 @@ var app = new Vue({
                     data.forEach(function(user,index){
                         _v.this.users.push({
                             text: user.name,
-                            value: user.id
+                            value: user.id,
+                            icon: user.profileIconId
                         })
                     })
 
@@ -132,6 +140,7 @@ var app = new Vue({
                 .then(function(data){
                     _v.this.matchesData = formatMatchesData( JSON.parse(data) ) ;
                     _v.this.summonerDataLoaded = true;
+                    _v.this.setIconUrl();
                     renderUi(_v);
 
                 })
@@ -139,6 +148,16 @@ var app = new Vue({
                     //console.log('error', JSON.parse(data));
                 });
 
+        },
+        setIconUrl: function(){
+            let userid = this.usersModel;
+            let iconId = 588;
+            this.users.forEach(function(data){
+                if(data.value == userid) {
+                    iconId = data.icon;
+                }
+            })
+            this.userIcon = 'http://ddragon.leagueoflegends.com/cdn/6.21.1/img/profileicon/'+iconId+'.png';
         },
         updateSummonerData: function() {
             let _v = {this:this};
@@ -283,6 +302,7 @@ function gamesWonChart(_v) {
             index++;
         }
     });
+    _v.this.winrate = (Math.round(average * 10000) / 100);
     var options = {
         title: 'Winrate',
         tooltip: {isHtml: true},
@@ -324,6 +344,7 @@ function wardsPerMinChart(_v) {
             position: 'bottom'
         }
     };
+    _v.this.wardsplaced = Math.round(average * 100) / 100;
     var chart = new google.visualization.LineChart(document.getElementById('wards-per-min'));
     chartOptions.title = 'Warding statistics';
     chart.draw(data, chartOptions);
@@ -349,6 +370,7 @@ function csChart(_v) {
             position: 'bottom'
         }
     };
+    _v.this.creepScore = Math.round(average * 100 ) / 100;
     var chart = new google.visualization.LineChart(document.getElementById('CS'));
     chartOptions.title = 'Creep score per minute';
     chart.draw(data, chartOptions);
@@ -374,6 +396,7 @@ function goldChart(_v) {
             position: 'bottom'
         }
     };
+    _v.this.goldPerMin = Math.round(average * 100) / 100;
     var chart = new google.visualization.LineChart(document.getElementById('GOLD'));
     chartOptions.title = 'Gold per minute';
     chart.draw(data, chartOptions);
@@ -407,6 +430,7 @@ function kdaChart(_v) {
             position: 'bottom'
         }
     };
+    _v.this.KDA = Math.round(average*100) / 100;
     var chart = new google.visualization.LineChart(document.getElementById('KDA'));
     chartOptions.title = 'KDA';
     chart.draw(data, chartOptions);
@@ -441,6 +465,7 @@ function killPressenceChart(_v) {
             position: 'bottom'
         }
     };
+    _v.this.killPressence = Math.round(average * 100 ) / 100;
     var chart = new google.visualization.LineChart(document.getElementById('kill-pressence'));
     chartOptions.title = 'Kill pressence';
     chart.draw(data, chartOptions);

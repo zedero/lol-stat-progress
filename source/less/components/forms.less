@@ -20,12 +20,24 @@ button {
 
 select {
     border: none;
-    background: @color-primary;
+    background-color: transparent;
     color: white;
     border-radius: 0;
     height: 4.6rem;
-    padding: 0 2rem;
+    padding: 0 3rem 0 1rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    transition: background-color .2s;
+    appearance: none;
+    outline:none;
+
+    &:hover,
+    &:focus {
+        background: rgba(0,0,0,.6);
+    }
+}
+
+option {
+    border: none;
 }

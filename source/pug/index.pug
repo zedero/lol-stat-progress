@@ -6,43 +6,85 @@ prepend variables
 append main
     #app
         .user-control
+            .user-control__background
+            .row
+                .col-sm-8
+                    .user-control__user
+                        .user-control__user-icon
+                            img.user-control__user-img-icon(v-bind:src="userIcon")
+                            //-| {{ usersModel }}
+                        .user-control__user-select
+                            select( id="" data-selector v-model='usersModel' @change="getSummonerData")
+                                option( v-for="option in users" v-bind:value="option.value") {{ option.text }}
+
+                .col-sm-4
+                    .user-control__controls
+                        button(v-on:click="updateSummonerData") update user
+                        button(v-on:click="getSummonerData") get user data
+            .row
+                .col-sm-12
+                    .user-control__nav
+                        .user-control__nav-link.___active Statistics
+                        .user-control__nav-link Settings
+            //- img(src="http://ddragon.leagueoflegends.com/cdn/6.21.1/img/profileicon/588.png")
             //- button(v-on:click="getSummoners") get users
-            select( id="" data-selector v-model='usersModel' @change="getSummonerData")
-                option( v-for="option in users" v-bind:value="option.value" ) {{ option.text }}
-            button(v-on:click="updateSummonerData") update user
-            p {{ usersModel }}
-            button(v-on:click="getSummonerData") get user data
-            select( id="" data-selector v-model='filterRole' @change="renderCharts" v-show="summonerDataLoaded")
-                option( value="ALL") All
-                option( value="TOP" ) Top
-                option( value="JUNGLE" ) Jungle
-                option( value="MID" ) Mid
-                option( value="CARRY" ) Carry
-                option( value="SUPPORT" ) Support
+        .user-filter
+            .user-filter__user
+                select( id="" data-selector v-model='usersModel' @change="getSummonerData")
+                    option( v-for="option in users" v-bind:value="option.value") {{ option.text }}
+            .user-filter__filter
+                span Filter by role
+                select( id="" data-selector v-model='filterRole' @change="renderCharts" v-show="summonerDataLoaded")
+                    option( value="ALL" ) All
+                    option( value="TOP" ) Top
+                    option( value="JUNGLE" ) Jungle
+                    option( value="MID" ) Mid
+                    option( value="CARRY" ) Carry
+                    option( value="SUPPORT" ) Support
         .user-stats
             .row
                 .col-sm-6
                     .user-stats__chart-container
-                        | {{ avgGameTime }}
+                        .user-stats__average
+                            |Average gametime:
+                            span  {{ avgGameTime }}
+                            |  minutes
                         #gametime.data-chart
                 .col-sm-6
                     .user-stats__chart-container
-                        | {{ avgGameTime }}
+                        .user-stats__average
+                            | Winrate:
+                            span  {{ winrate }}%
                         #gameswon.data-chart
                 .col-sm-6
                     .user-stats__chart-container
+                        .user-stats__average
+                            | Wards placed per minute:
+                            span  {{ wardsplaced }}
                         #wards-per-min.data-chart
                 .col-sm-6
                     .user-stats__chart-container
+                        .user-stats__average
+                            | Creep score:
+                            span  {{ creepScore }}
                         #CS.data-chart
                 .col-sm-6
                     .user-stats__chart-container
+                        .user-stats__average
+                            | Gold per minute:
+                            span  {{ goldPerMin }}
                         #GOLD.data-chart
                 .col-sm-6
                     .user-stats__chart-container
+                        .user-stats__average
+                            | KDA:
+                            span  {{ KDA }}
                         #KDA.data-chart
                 .col-sm-6
                     .user-stats__chart-container
+                        .user-stats__average
+                            | Kill pressence:
+                            span  {{ killPressence }}
                         #kill-pressence.data-chart
 
 
