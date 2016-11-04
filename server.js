@@ -1,3 +1,4 @@
+var memwatch = require('memwatch-next');
 var express = require('express');
 var qs = require('querystring');
 var mysql = require('mysql');
@@ -16,7 +17,7 @@ const RIOT_API_QUERRIES = {
         champions : 'v1.2/champion'
     }
 };
-
+memwatch.on('leak', function(info) { console.log(info) });
 /*
  *  Create database connection
  */
@@ -60,7 +61,10 @@ var callRiotApi = function(url, queryObject, callback, priority=false) {
                 It may never be the 1st position as when a call is
                 finished it takes the callback from the 1st item.
             */
-            callRiotApiQueue.splice(1,0,{
+
+            var pos = 0;
+            if(callRiotApiQueue.length > 0) pos = 1;
+            callRiotApiQueue.splice(pos,0,{
                 url:        fullUrl,
                 callback:   callback,
                 isCalled:   false,
@@ -76,7 +80,7 @@ var callRiotApi = function(url, queryObject, callback, priority=false) {
         }
     }
 }
-
+console.log('Started queue system')
 var callRiotApiLoop = setInterval(function() {
     callRiotApiQueueLoop();
 }, 1300);
@@ -96,18 +100,32 @@ var callRiotApiQueueLoop = function() {
                         console.log('Queue empty');
                     }
                 } else {
-                    console.log('==== RIOT API error ====');
-                    console.log(response.headers);//['x-rate-limit-count']
-                    if(callRiotApiQueue[0].retryCount >= 5) {
-                        callRiotApiQueue.shift();
-                        console.log('Reached retry limit. Removing call from queue.')
+                    if (!error && response.statusCode == 503) {
+                        callRiotApiQueue =[];
+                        console.log('==== RIOT API error ====');
+                        console.log('API not available');
+                        console.log('')
+                        console.log(' - Clearing queue');
+                        console.log('========================');
+
                     } else {
-                        callRiotApiQueue[0].isCalled = false;
-                        callRiotApiQueue[0].retryCount++;
-                        console.log(callRiotApiQueue[0].url);
-                        console.log('Error, preforming retry: '+ callRiotApiQueue[0].retryCount + ' of 5');
+                        console.log('==== RIOT API error ====');
+                        console.log('Status code: ',response.statusCode);
+                        if( response != undefined ){
+                            console.log(response.headers);//['x-rate-limit-count']
+                        }
+                        if(callRiotApiQueue[0].retryCount >= 5) {
+                            callRiotApiQueue.shift();
+                            console.log('Reached retry limit. Removing call from queue.')
+                        } else {
+                            callRiotApiQueue[0].isCalled = false;
+                            callRiotApiQueue[0].retryCount++;
+                            console.log(callRiotApiQueue[0].url);
+                            console.log('Error, preforming retry: '+ callRiotApiQueue[0].retryCount + ' of 5');
+                        }
+                        console.log('========================');
                     }
-                    console.log('========================');
+
                 }
             });
             //--------
@@ -120,15 +138,15 @@ var callRiotApiQueueLoop = function() {
  *  Helper functions
  */
 var createQueryUrl = function(params) {
-    var esc = encodeURIComponent;
-    var query = Object.keys(params)
+    let esc = encodeURIComponent;
+    let query = Object.keys(params)
         .map(k => esc(k) + '=' + esc(params[k]))
         .join('&');
     return query;
 }
 
 var searchArrayForMatchingCall = function(arr,query) {
-    var found = false;
+    let found = false;
     arr.forEach(function(data){
         if(data.url === query) {
             found = true;
@@ -148,7 +166,7 @@ app.get(SUBDOMAIN + '/getSummoners', function (req, res) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
     });
-    var QUERY = 'SELECT * FROM summoners';
+    let QUERY = 'SELECT * FROM summoners';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
         res.end( JSON.stringify( rows ) );
@@ -161,7 +179,7 @@ app.get(SUBDOMAIN + '/getChampions', function (req, res) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
     });
-    var QUERY = 'SELECT * FROM static_champions';
+    let QUERY = 'SELECT * FROM static_champions';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
         res.end( JSON.stringify( rows ) );
@@ -173,11 +191,11 @@ app.get(SUBDOMAIN + '/getSummonerMatchData', function (req, res) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
     });
-    var queryData = qs.parse(req._parsedUrl.query)
+    let queryData = qs.parse(req._parsedUrl.query)
     let userId = queryData.userId;
 
     formatSummonersAvailableMatchData(userId);
-    var QUERY = 'SELECT * FROM formatted_match_data WHERE userId = ' + userId;
+    let QUERY = 'SELECT * FROM formatted_match_data WHERE userId = ' + userId;
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
         res.end( JSON.stringify( rows ) );
@@ -189,10 +207,12 @@ app.get(SUBDOMAIN + '/updateSummonerMatchData', function (req, res) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
     });
-    var queryData = qs.parse(req._parsedUrl.query)
+    let queryData = qs.parse(req._parsedUrl.query)
     let userId = queryData.userId;
-    requestLatestMatches(userId);
-    res.end( JSON.stringify( {startedUpdate:true} ) );
+    requestLatestMatches(userId,function(){
+        res.end( JSON.stringify( {startedUpdate:true} ) );
+    });
+
 
 });
 
@@ -227,18 +247,23 @@ var requestStaticChampionData = function() {
         });
     },true);
 }
-
-
-var requestLatestMatches = function(userid) {
+var getMissingDataCounter = 0;
+var requestLatestMatches = function(userid,callback = function(){}) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.matchlist + userid, {
         seasons: "SEASON2016"
     }, function(body) {
         let data = JSON.parse(body)['matches'];
+        callback();
+        getMissingDataCounter += data.length;
         data.forEach(function(_data){
             _data.summonerId = userid;
             connection.query('REPLACE INTO matches SET ?', _data, function(err, result) {
                 if (err) throw err;
-                getMissingRawData();
+                getMissingDataCounter--;
+                if(getMissingDataCounter==0) {
+                    getMissingRawData();
+                }
+                //getMissingRawData(); //WARNING THIS CAUSES MEMORY OVERFLOW
             });
         });
     },true);
@@ -262,7 +287,7 @@ var requestMatchData = function(matchid) {
 
 
 var formatMatchData = function(matchId,userId) {
-    var QUERY = 'SELECT * FROM raw_match_data';
+    let QUERY = 'SELECT * FROM raw_match_data';
         QUERY += ' LEFT JOIN matches ON raw_match_data.matchId =  ' + matchId;
         QUERY += ' AND raw_match_data.matchId=matches.matchId AND matches.summonerId = '+ userId;
         QUERY += ' WHERE raw_match_data.matchId = ' + matchId;
@@ -317,7 +342,7 @@ var formatMatchData = function(matchId,userId) {
 }
 
 var formatSummonersAvailableMatchData = function (userId) {
-    var QUERY = 'SELECT matchId FROM matches WHERE summonerId = ' + userId;
+    let QUERY = 'SELECT matchId FROM matches WHERE summonerId = ' + userId;
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
         rows.forEach(function(row){
@@ -333,7 +358,7 @@ var getParticipantId = function(participantIdentities , userId) {
     /*
         TODO add an extra method to get the pId when identity list is empty
     */
-    var id = -1;
+    let id = -1;
     Object.keys(participantIdentities).forEach(function(element, index, array){
         var participant = participantIdentities[index];
         if(participant.player.summonerId == userId) {
@@ -373,7 +398,7 @@ var getHasTeamWon = function(teams, pId) {
 }
 
 var getMissingRawData = function() {
-    var QUERY = 'SELECT distinct matchId FROM matches';
+    let QUERY = 'SELECT distinct matchId FROM matches';
     QUERY = 'SELECT distinct matchId FROM matches WHERE NOT EXISTS (SELECT raw_match_data.matchId FROM raw_match_data WHERE matches.matchId = raw_match_data.matchId)';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
@@ -396,7 +421,7 @@ var getMissingRawData = function() {
 }
 
 var formatAllChampionData = function() {
-    var QUERY = 'SELECT * FROM summoners';
+    let QUERY = 'SELECT * FROM summoners';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
         rows.forEach(function(data){
@@ -411,8 +436,8 @@ var formatAllChampionData = function() {
  * Server initialization
  */
 var server = app.listen(8080, 'localhost', function () {
-   var host = server.address().address
-   var port = server.address().port
+   let host = server.address().address
+   let port = server.address().port
    console.log("Api listening at http://%s:%s", host, port);
    /*
     *   Update static data

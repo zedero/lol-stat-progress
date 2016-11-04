@@ -92,7 +92,10 @@ var app = new Vue({
         goldPerMin : 0,
         KDA : 0,
         killPressence : 0,
-        userIcon : ''
+        userIcon : '',
+        updating : false,
+        apiError : false,
+        activeTab : 1
     },
     methods: {
         renderCharts: function() {
@@ -162,15 +165,21 @@ var app = new Vue({
         updateSummonerData: function() {
             let _v = {this:this};
             let userid = this.usersModel;
+            this.updating = true;
             vueHttp(HOST + '/updateSummonerMatchData?userId=' + userid).get()
                 .then(function(data){
                     /*_v.this.matchesData = formatMatchesData( JSON.parse(data) ) ;
                     _v.this.summonerDataLoaded = true;
                     renderUi(_v);*/
+                    _v.this.updating = false;
+                    _v.this.apiError = false;
+                    _v.this.getSummonerData();
 
                 })
                 .catch(function(data){
                     //console.log('error', JSON.parse(data));
+                    _v.this.apiError = true;
+                    _v.this.updating = false;
                 });
         }
     }
@@ -216,7 +225,7 @@ var renderUi = function(_v) {
     /*
      *  Only render charts when google chart is available
      */
-    
+
     google.charts.setOnLoadCallback(function(){
         gametimeChart(_v);
         gamesWonChart(_v);

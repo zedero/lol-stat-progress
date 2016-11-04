@@ -19,77 +19,134 @@ append main
 
                 .col-sm-4
                     .user-control__controls
-                        button(v-on:click="updateSummonerData") update user
+                        button.___update(
+                            v-on:click="updateSummonerData"
+                            v-bind:class="{ ___updating : updating, ___error : apiError }"
+                            alt="update user data"
+                        ) update user
                         button(v-on:click="getSummonerData") get user data
             .row
                 .col-sm-12
                     .user-control__nav
-                        .user-control__nav-link.___active Statistics
-                        .user-control__nav-link Settings
-            //- img(src="http://ddragon.leagueoflegends.com/cdn/6.21.1/img/profileicon/588.png")
-            //- button(v-on:click="getSummoners") get users
-        .user-filter
-            .user-filter__user
-                .user-control__user-icon.___small
-                    img.user-control__user-img-icon(v-bind:src="userIcon")
-                select.___small( id="" data-selector v-model='usersModel' @change="getSummonerData")
-                    option( v-for="option in users" v-bind:value="option.value") {{ option.text }}
-            .user-filter__filter
-                span Filter by role
-                select.___small( id="" data-selector v-model='filterRole' @change="renderCharts" v-show="summonerDataLoaded")
-                    option( value="ALL" ) All
-                    option( value="TOP" ) Top
-                    option( value="JUNGLE" ) Jungle
-                    option( value="MID" ) Mid
-                    option( value="CARRY" ) Carry
-                    option( value="SUPPORT" ) Support
-        .user-stats
+                        .user-control__nav-link(
+                            v-on:click="activeTab = 1;getSummonerData()"
+                            v-bind:class="{ ___active : activeTab == 1 }"
+                        ) Progression
+                        .user-control__nav-link(
+                            v-on:click="activeTab = 2"
+                            v-bind:class="{ ___active : activeTab == 2 }"
+                        ) Last match
+                        .user-control__nav-link(
+                            v-on:click="activeTab = 3"
+                            v-bind:class="{ ___active : activeTab == 3 }"
+                        ) Settings
+        .tab(v-if="activeTab == 1")
+            .user-filter
+                .user-filter__user
+                    .user-control__user-icon.___small
+                        img.user-control__user-img-icon(v-bind:src="userIcon")
+                    select.___small( id="" data-selector v-model='usersModel' @change="getSummonerData")
+                        option( v-for="option in users" v-bind:value="option.value") {{ option.text }}
+                    button.button-loaddata.___small(
+                        v-on:click="getSummonerData"
+                        v-bind:class="{ ___updating : updating , ___error : apiError}"
+                        alt="load user data"
+                    )
+                    button.button-update.___small(
+                        v-on:click="updateSummonerData"
+                        v-bind:class="{ ___updating : updating , ___error : apiError}"
+                        alt="update user data"
+                    )
+
+                .user-filter__filter
+                    span Filter by role
+                    select.___small( id="" data-selector v-model='filterRole' @change="renderCharts" v-show="summonerDataLoaded")
+                        option( value="ALL" ) All
+                        option( value="TOP" ) Top
+                        option( value="JUNGLE" ) Jungle
+                        option( value="MID" ) Mid
+                        option( value="CARRY" ) Carry
+                        option( value="SUPPORT" ) Support
+            .user-stats
+                .row
+                    .col-sm-6
+                        .user-stats__chart-container
+                            .user-stats__average
+                                |Average gametime:
+                                span  {{ avgGameTime }}
+                                |  minutes
+                            #gametime.data-chart
+                    .col-sm-6
+                        .user-stats__chart-container
+                            .user-stats__average
+                                | Winrate:
+                                span  {{ winrate }}%
+                            #gameswon.data-chart
+                    .col-sm-6
+                        .user-stats__chart-container
+                            .user-stats__average
+                                | Wards placed per minute:
+                                span  {{ wardsplaced }}
+                            #wards-per-min.data-chart
+                    .col-sm-6
+                        .user-stats__chart-container
+                            .user-stats__average
+                                | Creep score:
+                                span  {{ creepScore }}
+                            #CS.data-chart
+                    .col-sm-6
+                        .user-stats__chart-container
+                            .user-stats__average
+                                | Gold per minute:
+                                span  {{ goldPerMin }}
+                            #GOLD.data-chart
+                    .col-sm-6
+                        .user-stats__chart-container
+                            .user-stats__average
+                                | KDA:
+                                span  {{ KDA }}
+                            #KDA.data-chart
+                    .col-sm-6
+                        .user-stats__chart-container
+                            .user-stats__average
+                                | Kill pressence:
+                                span  {{ killPressence }}
+                            #kill-pressence.data-chart
+
+        .tab(v-if="activeTab == 2")
             .row
-                .col-sm-6
-                    .user-stats__chart-container
-                        .user-stats__average
-                            |Average gametime:
-                            span  {{ avgGameTime }}
-                            |  minutes
-                        #gametime.data-chart
-                .col-sm-6
-                    .user-stats__chart-container
-                        .user-stats__average
-                            | Winrate:
-                            span  {{ winrate }}%
-                        #gameswon.data-chart
-                .col-sm-6
-                    .user-stats__chart-container
-                        .user-stats__average
-                            | Wards placed per minute:
-                            span  {{ wardsplaced }}
-                        #wards-per-min.data-chart
-                .col-sm-6
-                    .user-stats__chart-container
-                        .user-stats__average
-                            | Creep score:
-                            span  {{ creepScore }}
-                        #CS.data-chart
-                .col-sm-6
-                    .user-stats__chart-container
-                        .user-stats__average
-                            | Gold per minute:
-                            span  {{ goldPerMin }}
-                        #GOLD.data-chart
-                .col-sm-6
-                    .user-stats__chart-container
-                        .user-stats__average
-                            | KDA:
-                            span  {{ KDA }}
-                        #KDA.data-chart
-                .col-sm-6
-                    .user-stats__chart-container
-                        .user-stats__average
-                            | Kill pressence:
-                            span  {{ killPressence }}
-                        #kill-pressence.data-chart
+                .col-sm-4
+                    .last-match
+                        | Gametime:
+                        span  {{ Math.round( matchesData[matchesData.length-1].matchDuration / 60 ) }}
+                        |  Minutes
+                .col-sm-4
+                    .last-match
+                        | KDA
+                        span  {{ Math.round( matchesData[matchesData.length-1].kda * 100 ) / 100 }}
+                .col-sm-4
+                    .last-match
+                        span  {{ Math.round( matchesData[matchesData.length-1].wardsPerMin * 100 ) / 100 }}
+                        |  Wards per minute
+                .col-sm-4
+                    .last-match
+                        span  {{ Math.round( matchesData[matchesData.length-1].csPerMin * 100 ) / 100 }}
+                        |  Creep score per Minutes
+                .col-sm-4
+                    .last-match
+                        | Gold per minute
+                        span  {{ Math.round( matchesData[matchesData.length-1].goldPerMin ) }}
+                        |  Minutes
+                .col-sm-4
+                    .last-match
+                        | Kill pressence
+                        span  {{ Math.round( (100* (matchesData[matchesData.length-1].kills + matchesData[matchesData.length-1].assists) / matchesData[matchesData.length-1].teamKills) )}}%
 
-
-        h2 Last match data
-        p
-            | {{ matchesData[matchesData.length-1] }}
+            .row
+                .col-sm-12
+                    br
+                    br
+                    br
+                    h2 Last match data
+                    p
+                        | {{ matchesData[matchesData.length-1] }}
