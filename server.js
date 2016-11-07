@@ -121,7 +121,7 @@ var callRiotApiQueueLoop = function() {
                             callRiotApiQueue[0].isCalled = false;
                             callRiotApiQueue[0].retryCount++;
                             console.log(callRiotApiQueue[0].url);
-                            console.log('Error, preforming retry: '+ callRiotApiQueue[0].retryCount + ' of 5');
+                            console.log('Performing retry: '+ callRiotApiQueue[0].retryCount + ' of 5');
                         }
                         console.log('========================');
                     }
@@ -297,7 +297,6 @@ var formatMatchData = function(matchId,userId) {
         if (err) throw err;
         if(row.length > 0) {
             let rawdata = JSON.parse(row[0].data);
-
             if(rawdata.participantIdentities[0].hasOwnProperty("player") ) {
                 let pId = getParticipantId(rawdata.participantIdentities , userId);
                 let teamwin = getHasTeamWon(rawdata.teams,pId);
@@ -323,16 +322,16 @@ var formatMatchData = function(matchId,userId) {
                     role : row[0].role,
                     queue : row[0].queue,
                     season : row[0].season,
-                    date : row[0].timestamp,
+                    matchCreation : rawdata.matchCreation,
                     teamKills : teamscore.teamKills,
                     teamDeaths : teamscore.teamDeaths,
                     teamAssists : teamscore.teamAssists,
                     timeline : JSON.stringify(rawdata.participants[arrPos].timeline),
                     winner : teamwin
                 }
-                //console.log(data)
                 connection.query('REPLACE INTO formatted_match_data SET ?', data, function(err, result) {
                     if (err) throw err;
+
                 });
             }   else {
                 console.log('Corrupt data: ',matchId,userId);
@@ -342,6 +341,9 @@ var formatMatchData = function(matchId,userId) {
 }
 
 var formatSummonersAvailableMatchData = function (userId) {
+    /*
+     *  TODO Make query more efficient by checking if an formatted match exists.
+     */
     let QUERY = 'SELECT matchId FROM matches WHERE summonerId = ' + userId;
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;

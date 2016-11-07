@@ -16,6 +16,7 @@ append main
                         .user-control__user-select
                             select( id="" data-selector v-model='usersModel' @change="getSummonerData")
                                 option( v-for="option in users" v-bind:value="option.value") {{ option.text }}
+                            span Level {{summonerLevel}} summoner
 
                 .col-sm-4
                     .user-control__controls
@@ -40,7 +41,7 @@ append main
                             v-on:click="activeTab = 3"
                             v-bind:class="{ ___active : activeTab == 3 }"
                         ) Settings
-        .tab(v-if="activeTab == 1")
+        .tab(v-show="activeTab == 1" v-if="matchesData.length > 0")
             .user-filter
                 .user-filter__user
                     .user-control__user-icon.___small
@@ -49,7 +50,7 @@ append main
                         option( v-for="option in users" v-bind:value="option.value") {{ option.text }}
                     button.button-loaddata.___small(
                         v-on:click="getSummonerData"
-                        v-bind:class="{ ___updating : updating , ___error : apiError}"
+                        v-bind:class="{ ___error : apiError}"
                         alt="load user data"
                     )
                     button.button-update.___small(
@@ -113,7 +114,25 @@ append main
                                 span  {{ killPressence }}
                             #kill-pressence.data-chart
 
-        .tab(v-if="activeTab == 2")
+        .tab(v-show="activeTab == 2" v-if="matchesData.length > 0")
+            .user-filter
+                .user-filter__user
+                    .user-control__user-icon.___small
+                        img.user-control__user-img-icon(v-bind:src="userIcon")
+                    select.___small( id="" data-selector v-model='usersModel' @change="getSummonerData")
+                        option( v-for="option in users" v-bind:value="option.value") {{ option.text }}
+                    button.button-loaddata.___small(
+                        v-on:click="getSummonerData"
+                        v-bind:class="{ ___error : apiError}"
+                        alt="load user data"
+                    )
+                    button.button-update.___small(
+                        v-on:click="updateSummonerData"
+                        v-bind:class="{ ___updating : updating , ___error : apiError}"
+                        alt="update user data"
+                    )
+
+                .user-filter__filter
             .row
                 .col-sm-4
                     .last-match
@@ -122,26 +141,52 @@ append main
                         |  Minutes
                 .col-sm-4
                     .last-match
+                        | Role:
+                        span  {{ matchesData[matchesData.length-1].role.toLowerCase() }}
+                .col-sm-4
+                    .last-match
+                        | Champion:
+                        span  {{ matchesData[matchesData.length-1].champion.name }}
+
+                .col-sm-4
+                    .last-match
                         | KDA
                         span  {{ Math.round( matchesData[matchesData.length-1].kda * 100 ) / 100 }}
                 .col-sm-4
                     .last-match
-                        span  {{ Math.round( matchesData[matchesData.length-1].wardsPerMin * 100 ) / 100 }}
-                        |  Wards per minute
+                        span  {{ matchesData[matchesData.length-1].wardsPlaced }}
+                        |  Wards placed
+                .col-sm-4
+                    .last-match
+                        span  {{ matchesData[matchesData.length-1].visionWardsBoughtInGame }}
+                        |  Vision wards bought
+                .col-sm-4
+                    .last-match
+                        span  {{ matchesData[matchesData.length-1].wardsKilled }}
+                        |  Wards destroyed
                 .col-sm-4
                     .last-match
                         span  {{ Math.round( matchesData[matchesData.length-1].csPerMin * 100 ) / 100 }}
                         |  Creep score per Minutes
                 .col-sm-4
                     .last-match
-                        | Gold per minute
                         span  {{ Math.round( matchesData[matchesData.length-1].goldPerMin ) }}
-                        |  Minutes
+                        |  Gold per minute
                 .col-sm-4
                     .last-match
                         | Kill pressence
                         span  {{ Math.round( (100* (matchesData[matchesData.length-1].kills + matchesData[matchesData.length-1].assists) / matchesData[matchesData.length-1].teamKills) )}}%
-
+            .row
+                .col-sm-6
+                    .user-stats__chart-container
+                        | Creeps per min timeline
+                    #timeline.data-chart
+                .col-sm-6
+                    | XP per min timeline
+                .col-sm-6
+                    | Gold timeline
+                .col-sm-6
+                    | Damage taken per min
             .row
                 .col-sm-12
                     br

@@ -95,7 +95,8 @@ var app = new Vue({
         userIcon : '',
         updating : false,
         apiError : false,
-        activeTab : 1
+        activeTab : 1,
+        summonerLevel : 30
     },
     methods: {
         renderCharts: function() {
@@ -150,7 +151,6 @@ var app = new Vue({
                 .catch(function(data){
                     //console.log('error', JSON.parse(data));
                 });
-
         },
         setIconUrl: function(){
             let userid = this.usersModel;
@@ -234,6 +234,7 @@ var renderUi = function(_v) {
         goldChart(_v);
         kdaChart(_v);
         killPressenceChart(_v);
+        timeline(_v);
     });
 }
 var chartOptions = {
@@ -484,6 +485,41 @@ function killPressenceChart(_v) {
     var chart = new google.visualization.LineChart(document.getElementById('kill-pressence'));
     chartOptions.title = 'Kill pressence';
     chart.draw(data, chartOptions);
+}
+function timeline(_v) {
+    let type = 'creepsPerMinDeltas';
+
+    let dataArr = [['Match', type ,'Average']];
+    let average = 1;
+    let index = 0;
+
+    if(_v.this.matchesData.length > 0) {
+        let data = JSON.parse(_v.this.matchesData[_v.this.matchesData.length-1].timeline);
+
+        if(data.hasOwnProperty(type)){
+            dataArr.push([0, 0 , average])
+            if(data[type].hasOwnProperty('zeroToTen')) {
+                dataArr.push([10, Math.round(data[type].zeroToTen * 100) / 100 , average])
+            }
+            if(data[type].hasOwnProperty('tenToTwenty')) {
+                dataArr.push([20, Math.round(data[type].tenToTwenty * 100) / 100 , average])
+            }
+            if(data[type].hasOwnProperty('twentyToThirty')) {
+                dataArr.push([30, Math.round(data[type].twentyToThirty * 100) / 100 , average])
+            }
+            if(data[type].hasOwnProperty('thirtyToEnd')) {
+                dataArr.push([40, Math.round(data[type].thirtyToEnd * 100) / 100 , average])
+            }
+        }
+
+        //console.log(_v.this.matchesData[_v.this.matchesData.length-1].csPerMin)
+
+        var _data = google.visualization.arrayToDataTable(dataArr);
+        var chart = new google.visualization.BarChart(document.getElementById('timeline'));
+        chartOptions.title = 'Creeps per minute timeline';
+        chart.draw(_data, chartOptions);
+    }
+
 }
 
 var limitData = function(arr) {
