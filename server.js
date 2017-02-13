@@ -250,22 +250,28 @@ var requestStaticChampionData = function() {
 var getMissingDataCounter = 0;
 var requestLatestMatches = function(userid,callback = function(){}) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.matchlist + userid, {
-        seasons: "SEASON2016"
+        seasons: ""
     }, function(body) {
-        let data = JSON.parse(body)['matches'];
+        let temp = JSON.parse(body);
         callback();
-        getMissingDataCounter += data.length;
-        data.forEach(function(_data){
-            _data.summonerId = userid;
-            connection.query('REPLACE INTO matches SET ?', _data, function(err, result) {
-                if (err) throw err;
-                getMissingDataCounter--;
-                if(getMissingDataCounter==0) {
-                    getMissingRawData();
-                }
-                //getMissingRawData(); //WARNING THIS CAUSES MEMORY OVERFLOW
+        if(temp.totalGames > 0) {
+            let data = temp['matches'];
+            getMissingDataCounter += data.length;
+            data.forEach(function(_data){
+                _data.summonerId = userid;
+                connection.query('REPLACE INTO matches SET ?', _data, function(err, result) {
+                    if (err) throw err;
+                    getMissingDataCounter--;
+                    if(getMissingDataCounter==0) {
+                        getMissingRawData();
+                    }
+                    //getMissingRawData(); //WARNING THIS CAUSES MEMORY OVERFLOW
+                });
             });
-        });
+        } else {
+            console.log("No recorded matches available for " + userid + " during season SEASON2017")
+        }
+        temp = "";
     },true);
 }
 
@@ -333,6 +339,7 @@ var formatMatchData = function(matchId,userId) {
                     if (err) throw err;
 
                 });
+                rawdata = "";
             }   else {
                 console.log('Corrupt data: ',matchId,userId);
             }

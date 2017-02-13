@@ -41,157 +41,36 @@ append main
                             v-on:click="activeTab = 3"
                             v-bind:class="{ ___active : activeTab == 3 }"
                         ) Settings
-        .tab(v-show="activeTab == 1" v-if="matchesData.length > 0")
-            .user-filter
-                .user-filter__user
-                    .user-control__user-icon.___small
-                        img.user-control__user-img-icon(v-bind:src="userIcon")
-                    select.___small( id="" data-selector v-model='usersModel' @change="getSummonerData")
-                        option( v-for="option in users" v-bind:value="option.value") {{ option.text }}
-                    button.button-loaddata.___small(
-                        v-on:click="getSummonerData"
-                        v-bind:class="{ ___error : apiError}"
-                        alt="load user data"
-                    )
-                    button.button-update.___small(
-                        v-on:click="updateSummonerData"
-                        v-bind:class="{ ___updating : updating , ___error : apiError}"
-                        alt="update user data"
-                    )
 
-                .user-filter__filter
-                    span Filter by role
-                    select.___small( id="" data-selector v-model='filterRole' @change="renderCharts" v-show="summonerDataLoaded")
-                        option( value="ALL" ) All
-                        option( value="TOP" ) Top
-                        option( value="JUNGLE" ) Jungle
-                        option( value="MID" ) Mid
-                        option( value="CARRY" ) Carry
-                        option( value="SUPPORT" ) Support
-            .user-stats
-                .row
-                    .col-sm-6
-                        .user-stats__chart-container
-                            .user-stats__average
-                                |Average gametime:
-                                span  {{ avgGameTime }}
-                                |  minutes
-                            #gametime.data-chart
-                    .col-sm-6
-                        .user-stats__chart-container
-                            .user-stats__average
-                                | Winrate:
-                                span  {{ winrate }}%
-                            #gameswon.data-chart
-                    .col-sm-6
-                        .user-stats__chart-container
-                            .user-stats__average
-                                | Wards placed per minute:
-                                span  {{ wardsplaced }}
-                            #wards-per-min.data-chart
-                    .col-sm-6
-                        .user-stats__chart-container
-                            .user-stats__average
-                                | Creep score:
-                                span  {{ creepScore }}
-                            #CS.data-chart
-                    .col-sm-6
-                        .user-stats__chart-container
-                            .user-stats__average
-                                | Gold per minute:
-                                span  {{ goldPerMin }}
-                            #GOLD.data-chart
-                    .col-sm-6
-                        .user-stats__chart-container
-                            .user-stats__average
-                                | KDA:
-                                span  {{ KDA }}
-                            #KDA.data-chart
-                    .col-sm-6
-                        .user-stats__chart-container
-                            .user-stats__average
-                                | Kill pressence:
-                                span  {{ killPressence }}
-                            #kill-pressence.data-chart
+        .user-filter
+            .user-filter__user
+                .user-control__user-icon.___small
+                    img.user-control__user-img-icon(v-bind:src="userIcon")
+                select.___small( id="" data-selector v-model='usersModel' @change="getSummonerData")
+                    option( v-for="option in users" v-bind:value="option.value") {{ option.text }}
+                button.button-loaddata.___small(
+                    v-on:click="getSummonerData"
+                    v-bind:class="{ ___error : apiError}"
+                    alt="load user data"
+                )
+                button.button-update.___small(
+                    v-on:click="updateSummonerData"
+                    v-bind:class="{ ___updating : updating , ___error : apiError}"
+                    alt="update user data"
+                )
+
+            .user-filter__filter(v-show="activeTab != 2")
+                //-v-show="activeTab == 2"
+                span Filter by role
+                select.___small( id="" data-selector v-model='filterRole' @change="renderCharts" v-show="summonerDataLoaded")
+                    option( value="ALL" ) All
+                    option( value="TOP" ) Top
+                    option( value="JUNGLE" ) Jungle
+                    option( value="MID" ) Mid
+                    option( value="CARRY" ) Carry
+                    option( value="SUPPORT" ) Support
+        .tab(v-show="activeTab == 1" v-if="matchesData.length > 0")
+            include _pages/home
 
         .tab(v-show="activeTab == 2" v-if="matchesData.length > 0")
-            .user-filter
-                .user-filter__user
-                    .user-control__user-icon.___small
-                        img.user-control__user-img-icon(v-bind:src="userIcon")
-                    select.___small( id="" data-selector v-model='usersModel' @change="getSummonerData")
-                        option( v-for="option in users" v-bind:value="option.value") {{ option.text }}
-                    button.button-loaddata.___small(
-                        v-on:click="getSummonerData"
-                        v-bind:class="{ ___error : apiError}"
-                        alt="load user data"
-                    )
-                    button.button-update.___small(
-                        v-on:click="updateSummonerData"
-                        v-bind:class="{ ___updating : updating , ___error : apiError}"
-                        alt="update user data"
-                    )
-
-                .user-filter__filter
-            .row
-                .col-sm-4
-                    .last-match
-                        | Gametime:
-                        span  {{ Math.round( matchesData[matchesData.length-1].matchDuration / 60 ) }}
-                        |  Minutes
-                .col-sm-4
-                    .last-match
-                        | Role:
-                        span  {{ matchesData[matchesData.length-1].role.toLowerCase() }}
-                .col-sm-4
-                    .last-match
-                        | Champion:
-                        span  {{ matchesData[matchesData.length-1].champion.name }}
-
-                .col-sm-4
-                    .last-match
-                        | KDA
-                        span  {{ Math.round( matchesData[matchesData.length-1].kda * 100 ) / 100 }}
-                .col-sm-4
-                    .last-match
-                        span  {{ matchesData[matchesData.length-1].wardsPlaced }}
-                        |  Wards placed
-                .col-sm-4
-                    .last-match
-                        span  {{ matchesData[matchesData.length-1].visionWardsBoughtInGame }}
-                        |  Vision wards bought
-                .col-sm-4
-                    .last-match
-                        span  {{ matchesData[matchesData.length-1].wardsKilled }}
-                        |  Wards destroyed
-                .col-sm-4
-                    .last-match
-                        span  {{ Math.round( matchesData[matchesData.length-1].csPerMin * 100 ) / 100 }}
-                        |  Creep score per Minutes
-                .col-sm-4
-                    .last-match
-                        span  {{ Math.round( matchesData[matchesData.length-1].goldPerMin ) }}
-                        |  Gold per minute
-                .col-sm-4
-                    .last-match
-                        | Kill pressence
-                        span  {{ Math.round( (100* (matchesData[matchesData.length-1].kills + matchesData[matchesData.length-1].assists) / matchesData[matchesData.length-1].teamKills) )}}%
-            .row
-                .col-sm-6
-                    .user-stats__chart-container
-                        | Creeps per min timeline
-                    #timeline.data-chart
-                .col-sm-6
-                    | XP per min timeline
-                .col-sm-6
-                    | Gold timeline
-                .col-sm-6
-                    | Damage taken per min
-            .row
-                .col-sm-12
-                    br
-                    br
-                    br
-                    h2 Last match data
-                    p
-                        | {{ matchesData[matchesData.length-1] }}
+            include _pages/lastmatch

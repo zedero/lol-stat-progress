@@ -1,0 +1,45 @@
+.user-stats
+    .row
+        .col-sm-6
+            .user-stats__chart-container
+                .user-stats__average
+                    |Average gametime:
+                    span  {{ avgGameTime }}
+                    |  minutes
+                #gametime.data-chart
+        .col-sm-6
+            .user-stats__chart-container
+                .user-stats__average
+                    | Winrate:
+                    span  {{ winrate }}%
+                #gameswon.data-chart
+        .col-sm-6
+            .user-stats__chart-container
+                .user-stats__average
+                    | Wards placed per minute:
+                    span  {{ wardsplaced }}
+                #wards-per-min.data-chart
+        .col-sm-6
+            .user-stats__chart-container
+                .user-stats__average
+                    | Creep score:
+                    span  {{ creepScore }}
+                #CS.data-chart
+        .col-sm-6
+            .user-stats__chart-container
+                .user-stats__average
+                    | Gold per minute:
+                    span  {{ goldPerMin }}
+                #GOLD.data-chart
+        .col-sm-6
+            .user-stats__chart-container
+                .user-stats__average
+                    | KDA:
+                    span  {{ KDA }}
+                #KDA.data-chart
+        .col-sm-6
+            .user-stats__chart-container
+                .user-stats__average
+                    | Kill pressence:
+                    span  {{ killPressence }}
+                #kill-pressence.data-chart

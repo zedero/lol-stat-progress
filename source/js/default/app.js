@@ -63,9 +63,11 @@
 })();
 
 const SERVER_ADRESS = 'http://localhost';
+//const SERVER_ADRESS = 'http://85.214.156.29';
 const PORT = 8080;
 const LOCATION = '/api';
 const HOST = SERVER_ADRESS + ":" + PORT + LOCATION;
+//const HOST = SERVER_ADRESS + LOCATION;
 var   CHAMPIONS = [];
 google.charts.load('current', {
     'packages': ['corechart']
@@ -108,6 +110,7 @@ var app = new Vue({
                 .then(function(data){
                     _v.this.users = [];
                     data = JSON.parse(data);
+                    console.log(data)
                     data.forEach(function(user,index){
                         _v.this.users.push({
                             text: user.name,

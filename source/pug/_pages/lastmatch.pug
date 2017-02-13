@@ -1,0 +1,62 @@
+.row
+    .col-sm-4
+        .last-match
+            | Gametime:
+            span  {{ Math.round( matchesData[matchesData.length-1].matchDuration / 60 ) }}
+            |  Minutes
+    .col-sm-4
+        .last-match
+            | Role:
+            span  {{ matchesData[matchesData.length-1].role.toLowerCase() }}
+    .col-sm-4
+        .last-match
+            | Champion:
+            span  {{ matchesData[matchesData.length-1].champion.name }}
+
+    .col-sm-4
+        .last-match
+            | KDA
+            span  {{ Math.round( matchesData[matchesData.length-1].kda * 100 ) / 100 }}
+    .col-sm-4
+        .last-match
+            span  {{ matchesData[matchesData.length-1].wardsPlaced }}
+            |  Wards placed
+    .col-sm-4
+        .last-match
+            span  {{ matchesData[matchesData.length-1].visionWardsBoughtInGame }}
+            |  Vision wards bought
+    .col-sm-4
+        .last-match
+            span  {{ matchesData[matchesData.length-1].wardsKilled }}
+            |  Wards destroyed
+    .col-sm-4
+        .last-match
+            span  {{ Math.round( matchesData[matchesData.length-1].csPerMin * 100 ) / 100 }}
+            |  Creep score per Minutes
+    .col-sm-4
+        .last-match
+            span  {{ Math.round( matchesData[matchesData.length-1].goldPerMin ) }}
+            |  Gold per minute
+    .col-sm-4
+        .last-match
+            | Kill pressence
+            span  {{ Math.round( (100* (matchesData[matchesData.length-1].kills + matchesData[matchesData.length-1].assists) / matchesData[matchesData.length-1].teamKills) )}}%
+.row
+    .col-sm-6
+        .user-stats__chart-container
+            | Creeps per min timeline
+        #timeline.data-chart
+    .col-sm-6
+        | XP per min timeline
+    .col-sm-6
+        | Gold timeline
+    .col-sm-6
+        | Damage taken per min
+.row
+    .col-sm-12
+        br
+        br
+        br
+        h2 Last match data
+        p
+            | {{ matchesData[matchesData.length-1] }}
