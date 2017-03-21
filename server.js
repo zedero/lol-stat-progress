@@ -1,9 +1,9 @@
-var memwatch = require('memwatch-next');
+//var memwatch = require('memwatch-next');
 var express = require('express');
 var qs = require('querystring');
 var mysql = require('mysql');
 var app = express();
-var fs = require("fs");
+//var fs = require("fs");
 var request = require('request');
 const SUBDOMAIN = '/api';
 const RIOT_API_KEY = 'RGAPI-1765509c-a68e-4e52-8bd7-0350a7211a3b';
@@ -17,7 +17,7 @@ const RIOT_API_QUERRIES = {
         champions : 'v1.2/champion'
     }
 };
-memwatch.on('leak', function(info) { console.log(info) });
+//memwatch.on('leak', function(info) { console.log(info) });
 /*
  *  Create database connection
  */
@@ -53,7 +53,7 @@ app.get(SUBDOMAIN + '/test', function(req, res) {
 var callRiotApiQueue = [];
 var callRiotApi = function(url, queryObject, callback, priority=false) {
     let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryObject);
-    var fullUrl = url + queryString;
+    let fullUrl = url + queryString;
     if(searchArrayForMatchingCall(callRiotApiQueue,fullUrl) == false) {
         if(priority) {
             /*
@@ -62,7 +62,7 @@ var callRiotApi = function(url, queryObject, callback, priority=false) {
                 finished it takes the callback from the 1st item.
             */
 
-            var pos = 0;
+            let pos = 0;
             if(callRiotApiQueue.length > 0) pos = 1;
             callRiotApiQueue.splice(pos,0,{
                 url:        fullUrl,
@@ -271,7 +271,7 @@ var requestLatestMatches = function(userid,callback = function(){}) {
         } else {
             console.log("No recorded matches available for " + userid + " during season SEASON2017")
         }
-        temp = "";
+        temp = null;
     },true);
 }
 
@@ -369,7 +369,7 @@ var getParticipantId = function(participantIdentities , userId) {
     */
     let id = -1;
     Object.keys(participantIdentities).forEach(function(element, index, array){
-        var participant = participantIdentities[index];
+        let participant = participantIdentities[index];
         if(participant.player.summonerId == userId) {
             id = participant.participantId;
         };
@@ -411,8 +411,8 @@ var getMissingRawData = function() {
     QUERY = 'SELECT distinct matchId FROM matches WHERE NOT EXISTS (SELECT raw_match_data.matchId FROM raw_match_data WHERE matches.matchId = raw_match_data.matchId)';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
-        var limit = 1;
-        var limCount = 0;
+        let limit = 1;
+        let limCount = 0;
 
         rows.forEach(function(row){
 
