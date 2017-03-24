@@ -1,0 +1,5 @@
+<select id="" data-selector="" >
+    <option *ngFor="let summoner of summoners | async" value="{{summoner.id}}">{{summoner.name}}</option>
+</select>
+<br>
+<button (click)="getSummoners();">test</button>
