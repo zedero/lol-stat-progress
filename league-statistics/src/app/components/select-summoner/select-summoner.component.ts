@@ -1,7 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {SummonerDataService} from "../../services/summoner-data.service";
 
-
+import { SummonersData } from '../../summoners-data';
+import 'rxjs/add/operator/toPromise';
 
 @Component({
     selector: 'select-summoner',
@@ -10,6 +11,16 @@ import {SummonerDataService} from "../../services/summoner-data.service";
 })
 export class SelectSummonerComponent implements OnInit {
     summoners;
+    selectedSummoner = {
+        "id": -1,
+        "name": "",
+        "summonerLevel": 0,
+        "revisionDate": 0,
+        "profileIconId": 0
+    };
+    test;
+    updating = false;
+    apiError = false;
 
     constructor(private summonerDataService: SummonerDataService) {
     }
@@ -19,12 +30,60 @@ export class SelectSummonerComponent implements OnInit {
     }
 
     getSummoners() {
-        this.summoners = this.summonerDataService.getSummonersList()
-            //.subscribe(data => console.log(data))
-
-        /*this.summonerDataService.getHeroes()
-            .subscribe(
-                heroes => this.heroes = heroes,
-                error =>  this.errorMessage = <any>error);*/
+        //this.summoners = this.summonerDataService.getSummonersList();
+        this.summonerDataService.getSummonersList()
+            .subscribe(data => {
+                if(this.summoners == undefined && data.length != 0) {
+                    this.selectedSummoner = data[0];
+                }
+                if(data.length > 0) {
+                    this.summoners = data;
+                }
+            },err => {
+                this.handleError(err);
+                let fthis = this;
+                setTimeout(function(){
+                    fthis.getSummoners();
+                }, 1000);
+            });
     }
+
+    updateSummoner() {
+        this.apiError = false;
+
+        if (!this.updating) {
+            this.updating = true;
+            this.summonerDataService.updateSummoner()
+                .subscribe(
+                    data => {
+                        this.updating = false;
+                        if(!data.startedUpdate) {
+                            console.log(data);
+                        }
+                    },
+                    err => {
+                        this.handleError(err);
+                    })
+
+        }
+    }
+
+    selectSummoner(event) {
+        let id = event.target.value;
+        this.summonerDataService.getSummonersList()
+            .subscribe(data => this.getSummonerData(id,data));
+    }
+
+    getSummonerData(id :number, summonersData) {
+        this.selectedSummoner = summonersData.filter(function ( obj ) {
+            return obj.id == id;
+        })[0];
+    }
+
+    private handleError(error: any) {
+        this.updating = false;
+        this.apiError = true;
+        console.error('An error occurred', error);
+    }
+
 }

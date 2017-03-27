@@ -1,5 +1,38 @@
-<select id="" data-selector="" >
-    <option *ngFor="let summoner of summoners | async" value="{{summoner.id}}">{{summoner.name}}</option>
-</select>
-<br>
-<button (click)="getSummoners();">test</button>
+<div class="user-control">
+    <div class="user-control__background"></div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="user-control__user">
+                <div class="user-control__user-icon">
+                    <img class="user-control__user-img-icon" style="opacity: .05;" src="{{ 'http://ddragon.leagueoflegends.com/cdn/6.21.1/img/profileicon/' + selectedSummoner.profileIconId + '.png' }}">
+                </div>
+                <div class="user-control__user-select">
+                    <select (change)="selectSummoner($event)">
+                        <option *ngFor="let summoner of summoners" value="{{summoner.id}}">{{summoner.name}}</option>
+                    </select>
+                    <span>Level {{selectedSummoner.summonerLevel}} summoner</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="user-control__controls">
+                <button class="___update" alt="update user data" (click)="updateSummoner();" [ngClass]="{___updating : updating, ___error : apiError}">update user</button>
+                <button>get user data</button>
+                <button (click)="getSummoners();">get summoners</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="user-control__nav">
+                <div class="user-control__nav-link" >Progression</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<pre style="position:fixed; bottom: 10rem; right: 10rem; height: 10rem; width: 10rem;">{{ selectedSummoner | json }}</pre>
+
+
+
+

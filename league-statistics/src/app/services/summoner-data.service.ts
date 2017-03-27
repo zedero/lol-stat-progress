@@ -12,13 +12,20 @@ export class SummonerDataService {
     private LOCATION = '/api';
     private HOST = this.SERVER_ADRESS + ":" + this.PORT + this.LOCATION;
 
-    constructor(private http: Http) {}
+    constructor(private http: Http) {
+    }
 
     getSummonersList() {
-        console.log("GETTING DATA");
         return this.http
             .get(this.HOST + '/getSummoners')
-            .map((res:Response) => res.json());
+            .map((res: Response) => res.json());
+    }
+
+    updateSummoner() {
+        return this.http
+            .get(this.HOST + '/updateSummonerMatchData?userId=37762998')
+            .map((res: Response) => res.json());
     }
 
 }
+
