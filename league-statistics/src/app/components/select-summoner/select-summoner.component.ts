@@ -53,18 +53,6 @@ export class SelectSummonerComponent implements OnInit {
 
         if (!this.updating) {
             this.updating = true;
-            this.summonerDataService.updateSummonerMatchData(this.selectedSummoner.id)
-                .subscribe(
-                    data => {
-                        this.updating = false;
-                        if(!data.startedUpdate) {
-                            console.log(data);
-                        }
-                    },
-                    err => {
-                        this.handleError(err);
-                    });
-
             this.summonerDataService.updateSummonerProfileData(this.selectedSummoner.id)
                 .subscribe(
                     data => {
@@ -77,6 +65,19 @@ export class SelectSummonerComponent implements OnInit {
                     err => {
                         this.handleError(err);
                     });
+            this.summonerDataService.updateSummonerMatchData(this.selectedSummoner.id)
+                .subscribe(
+                    data => {
+                        this.updating = false;
+                        if(!data.startedUpdate) {
+                            console.log(data);
+                        }
+                    },
+                    err => {
+                        this.handleError(err);
+                    });
+
+
 
         }
     }

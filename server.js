@@ -26,8 +26,7 @@ let connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
   password : 'root',
-  database: 'lolstat',
-    debug: true
+  database: 'lolstat',debug:true
 });//socketPath: '/Applications/MAMP/tmp/mysql/mysql.sock'
 connection.connect();
 
@@ -243,7 +242,7 @@ let requestUserData = function(username) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_name + username, {
 
     }, function(body) {
-        console.log(body);
+        //console.log(body);
         body = JSON.parse(body);
         Object.keys(body).forEach(function(key) {
             connection.query('REPLACE INTO summoners SET ?', body[key], function(err, result) {
@@ -386,12 +385,30 @@ let formatSummonersAvailableMatchData = function (userId) {
     /*
      *  TODO Make query more efficient by checking if an formatted match exists.
      */
+    //QUERY = 'SELECT distinct matchId FROM matches WHERE NOT EXISTS (SELECT raw_match_data.matchId FROM raw_match_data WHERE matches.matchId = raw_match_data.matchId)';
     let QUERY = 'SELECT matchId FROM matches WHERE summonerId = ' + userId;
+        QUERY = 'SELECT distinct matchId FROM raw_match_data WHERE NOT EXISTS (SELECT formatted_match_data.matchId FROM formatted_match_data WHERE raw_match_data.matchId = formatted_match_data.matchId)';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
         rows.forEach(function(row){
              setTimeout(function(){
                 formatMatchData(row.matchId , userId)
+            }, 10);
+            //formatMatchData(row.matchId , userId);
+        })
+    });
+};
+
+let formatAllSummonersAvailableMatchData = function (userId) {
+    /*
+     *  WARNING This method formats all available data from a summoner. This is an expensive task. Use with care!!!
+     */
+    let QUERY = 'SELECT matchId FROM matches WHERE summonerId = ' + userId;
+    connection.query(QUERY, function (err, rows) {
+        if (err) throw err;
+        rows.forEach(function (row) {
+            setTimeout(function () {
+                formatMatchData(row.matchId, userId)
             }, 10);
             //formatMatchData(row.matchId , userId);
         })
@@ -468,6 +485,7 @@ let formatAllChampionData = function() {
     let QUERY = 'SELECT * FROM summoners';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
+        //console.log(rows);
         rows.forEach(function(data){
             formatSummonersAvailableMatchData(data.id);
         })
