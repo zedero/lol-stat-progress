@@ -26,7 +26,7 @@ let connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
   password : 'root',
-  database: 'lolstat',debug:true
+  database: 'lolstat'
 });//socketPath: '/Applications/MAMP/tmp/mysql/mysql.sock'
 connection.connect();
 
@@ -385,7 +385,6 @@ let formatSummonersAvailableMatchData = function (userId) {
     /*
      *  TODO Make query more efficient by checking if an formatted match exists.
      */
-    //QUERY = 'SELECT distinct matchId FROM matches WHERE NOT EXISTS (SELECT raw_match_data.matchId FROM raw_match_data WHERE matches.matchId = raw_match_data.matchId)';
     let QUERY = 'SELECT matchId FROM matches WHERE summonerId = ' + userId;
         QUERY = 'SELECT distinct matchId FROM raw_match_data WHERE NOT EXISTS (SELECT formatted_match_data.matchId FROM formatted_match_data WHERE raw_match_data.matchId = formatted_match_data.matchId)';
     connection.query(QUERY, function(err, rows) {
