@@ -299,7 +299,6 @@ let requestLatestMatches = function(userid,callback = function(){}) {
                     if(getMissingDataCounter==0) {
                         getMissingRawData();
                     }
-                    //getMissingRawData(); //WARNING THIS CAUSES MEMORY OVERFLOW
                 });
             });
         } else {

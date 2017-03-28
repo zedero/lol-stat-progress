@@ -59,6 +59,7 @@ export class SelectSummonerComponent implements OnInit {
                         if(!data.startedUpdate) {
                             if(data.length > 0) {
                                 this.summoners = data;
+                                this.selectSummoner({target: {value: this.selectedSummoner.id}});
                             }
                         }
                     },
@@ -76,9 +77,6 @@ export class SelectSummonerComponent implements OnInit {
                     err => {
                         this.handleError(err);
                     });
-
-
-
         }
     }
 

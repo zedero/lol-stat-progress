@@ -8,7 +8,12 @@
                 </div>
                 <div class="user-control__user-select">
                     <select (change)="selectSummoner($event)">
-                        <option *ngFor="let summoner of summoners" value="{{summoner.id}}">{{summoner.name}}</option>
+                        <option
+                            *ngFor="let summoner of summoners" value="{{summoner.id}}"
+                            [selected]="summoner.id == selectedSummoner.id"
+                        >
+                            {{summoner.name}}
+                        </option>
                     </select>
                     <span>Level {{selectedSummoner.summonerLevel}} summoner</span>
                 </div>
@@ -30,8 +35,6 @@
         </div>
     </div>
 </div>
-
-<pre style="position:fixed; bottom: 10rem; right: 10rem; height: 10rem; width: 10rem;">{{ selectedSummoner | json }}</pre>
 
 
 
