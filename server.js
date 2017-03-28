@@ -26,7 +26,8 @@ let connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
   password : 'root',
-  database: 'lolstat'
+  database: 'lolstat',
+    debug: true
 });//socketPath: '/Applications/MAMP/tmp/mysql/mysql.sock'
 connection.connect();
 
@@ -83,9 +84,7 @@ let callRiotApi = function(url, queryObject, callback, priority=false) {
 };
 console.log('Started queue system');
 let callRiotApiLoop = setInterval(function() {
-    console.time("tag");
     callRiotApiQueueLoop();
-    console.timeEnd("tag");
 }, 1300);
 
 let callRiotApiQueueLoop = function() {
@@ -223,8 +222,10 @@ app.get(SUBDOMAIN + '/updateSummonerData', function (req, res) {
     });
     let queryData = qs.parse(req._parsedUrl.query);
     let userId = queryData.userId;
+
     requestSummonerData(userId,function(){
         //res.end( JSON.stringify( {startedUpdate:true} ) );
+
         let QUERY = 'SELECT * FROM summoners';
         connection.query(QUERY, function(err, rows) {
             if (err) throw err;
@@ -242,7 +243,7 @@ let requestUserData = function(username) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_name + username, {
 
     }, function(body) {
-        console.log(body)
+        console.log(body);
         body = JSON.parse(body);
         Object.keys(body).forEach(function(key) {
             connection.query('REPLACE INTO summoners SET ?', body[key], function(err, result) {
@@ -256,12 +257,13 @@ let requestSummonerData = function(id,callback = function(){}) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_id + id, {
 
     }, function(body) {
+
         body = JSON.parse(body);
-        callback();
         Object.keys(body).forEach(function(key) {
             connection.query('REPLACE INTO summoners SET ?', body[key], function(err, result) {
-              if (err) throw err;
-          });
+                if (err) throw err;
+                callback();
+            });
         });
     },true);
 };

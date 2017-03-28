@@ -69,7 +69,9 @@ export class SelectSummonerComponent implements OnInit {
                 .subscribe(
                     data => {
                         if(!data.startedUpdate) {
-                            console.log(data);
+                            if(data.length > 0) {
+                                this.summoners = data;
+                            }
                         }
                     },
                     err => {

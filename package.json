@@ -37,8 +37,8 @@
     ]
   },
   "dependencies": {
-    "express": "^4.14.0",
-    "mysql": "^2.11.1",
+    "express": "^4.15.2",
+    "mysql": "^2.13.0",
     "querystring": "^0.2.0",
     "request": "^2.76.0",
     "xhr": "^2.2.2"
