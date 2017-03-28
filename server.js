@@ -1,16 +1,17 @@
 //var memwatch = require('memwatch-next');
-var express = require('express');
-var qs = require('querystring');
-var mysql = require('mysql');
-var app = express();
+let express = require('express');
+let qs = require('querystring');
+let mysql = require('mysql');
+let app = express();
 //var fs = require("fs");
-var request = require('request');
+let request = require('request');
 const SUBDOMAIN = '/api';
 const RIOT_API_KEY = 'RGAPI-1765509c-a68e-4e52-8bd7-0350a7211a3b';
 const RIOT_API_URL = 'https://na.api.pvp.net/api/lol/na/';
 const RIOT_API_URL_STATIC = 'https://global.api.pvp.net/api/lol/static-data/na/';
 const RIOT_API_QUERRIES = {
     summoner_by_name : 'v1.4/summoner/by-name/',
+    summoner_by_id : 'v1.4/summoner/',
     matchlist : 'v2.2/matchlist/by-summoner/',
     match : 'v2.2/match/',
     static : {
@@ -21,7 +22,7 @@ const RIOT_API_QUERRIES = {
 /*
  *  Create database connection
  */
-var connection = mysql.createConnection({
+let connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
   password : 'root',
@@ -50,8 +51,8 @@ app.get(SUBDOMAIN + '/test', function(req, res) {
 /*
  *  RIOT api functions
  */
-var callRiotApiQueue = [];
-var callRiotApi = function(url, queryObject, callback, priority=false) {
+let callRiotApiQueue = [];
+let callRiotApi = function(url, queryObject, callback, priority=false) {
     let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryObject);
     let fullUrl = url + queryString;
     if(searchArrayForMatchingCall(callRiotApiQueue,fullUrl) == false) {
@@ -79,13 +80,15 @@ var callRiotApi = function(url, queryObject, callback, priority=false) {
             });
         }
     }
-}
-console.log('Started queue system')
-var callRiotApiLoop = setInterval(function() {
+};
+console.log('Started queue system');
+let callRiotApiLoop = setInterval(function() {
+    console.time("tag");
     callRiotApiQueueLoop();
+    console.timeEnd("tag");
 }, 1300);
 
-var callRiotApiQueueLoop = function() {
+let callRiotApiQueueLoop = function() {
     if(callRiotApiQueue.length > 0 ) {
         if(!callRiotApiQueue[0].isCalled){
             console.log('Queue size:',callRiotApiQueue.length);
@@ -137,7 +140,7 @@ var callRiotApiQueueLoop = function() {
 /*
  *  Helper functions
  */
-var createQueryUrl = function(params) {
+let createQueryUrl = function(params) {
     let esc = encodeURIComponent;
     let query = Object.keys(params)
         .map(k => esc(k) + '=' + esc(params[k]))
@@ -145,7 +148,7 @@ var createQueryUrl = function(params) {
     return query;
 }
 
-var searchArrayForMatchingCall = function(arr,query) {
+let searchArrayForMatchingCall = function(arr,query) {
     let found = false;
     arr.forEach(function(data){
         if(data.url === query) {
@@ -174,7 +177,6 @@ app.get(SUBDOMAIN + '/getSummoners', function (req, res) {
 });
 
 app.get(SUBDOMAIN + '/getChampions', function (req, res) {
-    //console.log(req)
     res.writeHead(200, {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
@@ -191,7 +193,7 @@ app.get(SUBDOMAIN + '/getSummonerMatchData', function (req, res) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
     });
-    let queryData = qs.parse(req._parsedUrl.query)
+    let queryData = qs.parse(req._parsedUrl.query);
     let userId = queryData.userId;
 
     formatSummonersAvailableMatchData(userId);
@@ -207,13 +209,28 @@ app.get(SUBDOMAIN + '/updateSummonerMatchData', function (req, res) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
     });
-    let queryData = qs.parse(req._parsedUrl.query)
+    let queryData = qs.parse(req._parsedUrl.query);
     let userId = queryData.userId;
     requestLatestMatches(userId,function(){
         res.end( JSON.stringify( {startedUpdate:true} ) );
     });
+});
 
-
+app.get(SUBDOMAIN + '/updateSummonerData', function (req, res) {
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+    });
+    let queryData = qs.parse(req._parsedUrl.query);
+    let userId = queryData.userId;
+    requestSummonerData(userId,function(){
+        //res.end( JSON.stringify( {startedUpdate:true} ) );
+        let QUERY = 'SELECT * FROM summoners';
+        connection.query(QUERY, function(err, rows) {
+            if (err) throw err;
+            res.end( JSON.stringify( rows ) );
+        });
+    });
 });
 
 //==============================================================================
@@ -221,7 +238,7 @@ app.get(SUBDOMAIN + '/updateSummonerMatchData', function (req, res) {
  * LOL data request and format functions
  */
 
-var requestUserData = function(username) {
+let requestUserData = function(username) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_name + username, {
 
     }, function(body) {
@@ -233,9 +250,25 @@ var requestUserData = function(username) {
           });
         });
     },true);
-}
+};
 
-var requestStaticChampionData = function() {
+let requestSummonerData = function(id,callback = function(){}) {
+    callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_id + id, {
+
+    }, function(body) {
+        body = JSON.parse(body);
+        callback();
+        Object.keys(body).forEach(function(key) {
+            connection.query('REPLACE INTO summoners SET ?', body[key], function(err, result) {
+              if (err) throw err;
+          });
+        });
+    },true);
+};
+
+
+
+let requestStaticChampionData = function() {
     callRiotApi(RIOT_API_URL_STATIC + RIOT_API_QUERRIES.static.champions, {
         dataById : true
     }, function(body) {
@@ -246,9 +279,9 @@ var requestStaticChampionData = function() {
           });
         });
     },true);
-}
-var getMissingDataCounter = 0;
-var requestLatestMatches = function(userid,callback = function(){}) {
+};
+let getMissingDataCounter = 0;
+let requestLatestMatches = function(userid,callback = function(){}) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.matchlist + userid, {
         seasons: ""
     }, function(body) {
@@ -273,26 +306,26 @@ var requestLatestMatches = function(userid,callback = function(){}) {
         }
         temp = null;
     },true);
-}
+};
 
-var requestMatchData = function(matchid) {
+let requestMatchData = function(matchid) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.match + matchid, {
         includeTimeline: false
     }, function(body) {
         let data = {
             matchId : matchid,
             data: body
-        }
+        };
         connection.query('REPLACE INTO raw_match_data SET ?', data, function(err, result) {
             if (err) throw err;
             formatAllChampionData()
         });
     },false);
-}
+};
 
 
 
-var formatMatchData = function(matchId,userId) {
+let formatMatchData = function(matchId,userId) {
     let QUERY = 'SELECT * FROM raw_match_data';
         QUERY += ' LEFT JOIN matches ON raw_match_data.matchId =  ' + matchId;
         QUERY += ' AND raw_match_data.matchId=matches.matchId AND matches.summonerId = '+ userId;
@@ -334,7 +367,7 @@ var formatMatchData = function(matchId,userId) {
                     teamAssists : teamscore.teamAssists,
                     timeline : JSON.stringify(rawdata.participants[arrPos].timeline),
                     winner : teamwin
-                }
+                };
                 connection.query('REPLACE INTO formatted_match_data SET ?', data, function(err, result) {
                     if (err) throw err;
 
@@ -345,9 +378,9 @@ var formatMatchData = function(matchId,userId) {
             }
         }
     });
-}
+};
 
-var formatSummonersAvailableMatchData = function (userId) {
+let formatSummonersAvailableMatchData = function (userId) {
     /*
      *  TODO Make query more efficient by checking if an formatted match exists.
      */
@@ -361,9 +394,9 @@ var formatSummonersAvailableMatchData = function (userId) {
             //formatMatchData(row.matchId , userId);
         })
     });
-}
+};
 
-var getParticipantId = function(participantIdentities , userId) {
+let getParticipantId = function(participantIdentities , userId) {
     /*
         TODO add an extra method to get the pId when identity list is empty
     */
@@ -372,12 +405,12 @@ var getParticipantId = function(participantIdentities , userId) {
         let participant = participantIdentities[index];
         if(participant.player.summonerId == userId) {
             id = participant.participantId;
-        };
-    })
+        }
+    });
     return id;
-}
+};
 
-var getTeamScore = function(participants, pId) {
+let getTeamScore = function(participants, pId) {
     let team = {
         teamKills: 0,
         teamDeaths: 0,
@@ -394,8 +427,8 @@ var getTeamScore = function(participants, pId) {
         team.teamDeaths += participants[i].stats.deaths
     }
     return team;
-}
-var getHasTeamWon = function(teams, pId) {
+};
+let getHasTeamWon = function(teams, pId) {
 
     if(pId > 5) {
         pId = 1;
@@ -404,9 +437,9 @@ var getHasTeamWon = function(teams, pId) {
     }
 
     return teams[pId].winner;
-}
+};
 
-var getMissingRawData = function() {
+let getMissingRawData = function() {
     let QUERY = 'SELECT distinct matchId FROM matches';
     QUERY = 'SELECT distinct matchId FROM matches WHERE NOT EXISTS (SELECT raw_match_data.matchId FROM raw_match_data WHERE matches.matchId = raw_match_data.matchId)';
     connection.query(QUERY, function(err, rows) {
@@ -427,9 +460,9 @@ var getMissingRawData = function() {
             formatAllChampionData();
         }
     });
-}
+};
 
-var formatAllChampionData = function() {
+let formatAllChampionData = function() {
     let QUERY = 'SELECT * FROM summoners';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
@@ -437,16 +470,16 @@ var formatAllChampionData = function() {
             formatSummonersAvailableMatchData(data.id);
         })
     });
-}
+};
 
 
 //==============================================================================
 /*
  * Server initialization
  */
-var server = app.listen(8080, 'localhost', function () {
-   let host = server.address().address
-   let port = server.address().port
+let server = app.listen(8080, 'localhost', function () {
+   let host = server.address().address;
+   let port = server.address().port;
    console.log("Api listening at http://%s:%s", host, port);
    /*
     *   Update static data

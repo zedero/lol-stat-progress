@@ -53,7 +53,7 @@ export class SelectSummonerComponent implements OnInit {
 
         if (!this.updating) {
             this.updating = true;
-            this.summonerDataService.updateSummoner()
+            this.summonerDataService.updateSummonerMatchData(this.selectedSummoner.id)
                 .subscribe(
                     data => {
                         this.updating = false;
@@ -63,7 +63,18 @@ export class SelectSummonerComponent implements OnInit {
                     },
                     err => {
                         this.handleError(err);
-                    })
+                    });
+
+            this.summonerDataService.updateSummonerProfileData(this.selectedSummoner.id)
+                .subscribe(
+                    data => {
+                        if(!data.startedUpdate) {
+                            console.log(data);
+                        }
+                    },
+                    err => {
+                        this.handleError(err);
+                    });
 
         }
     }
@@ -71,13 +82,11 @@ export class SelectSummonerComponent implements OnInit {
     selectSummoner(event) {
         let id = event.target.value;
         this.summonerDataService.getSummonersList()
-            .subscribe(data => this.getSummonerData(id,data));
-    }
-
-    getSummonerData(id :number, summonersData) {
-        this.selectedSummoner = summonersData.filter(function ( obj ) {
-            return obj.id == id;
-        })[0];
+            .subscribe(data => {
+                this.selectedSummoner = data.filter(function ( obj ) {
+                    return obj.id == id;
+                })[0];
+            });
     }
 
     private handleError(error: any) {

@@ -1,7 +1,7 @@
 import {Injectable}                from '@angular/core';
 import { Http, Response }          from '@angular/http';
 
-import {Observable}     from 'rxjs/Observable';
+//import {Observable}     from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 //import 'rxjs/add/operator/catch';
 
@@ -21,9 +21,15 @@ export class SummonerDataService {
             .map((res: Response) => res.json());
     }
 
-    updateSummoner() {
+    updateSummonerMatchData(summonerId) {
         return this.http
-            .get(this.HOST + '/updateSummonerMatchData?userId=37762998')
+            .get(this.HOST + '/updateSummonerMatchData?userId=' + summonerId)
+            .map((res: Response) => res.json());
+    }
+
+    updateSummonerProfileData(summonerId) {
+        return this.http
+            .get(this.HOST + '/updateSummonerData?userId=' + summonerId)
             .map((res: Response) => res.json());
     }
 
