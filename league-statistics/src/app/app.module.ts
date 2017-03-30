@@ -6,11 +6,16 @@ import {HttpModule, JsonpModule} from '@angular/http';
 import {AppComponent} from './app.component';
 import {SelectSummonerComponent} from './components/select-summoner/select-summoner.component';
 import {SummonerDataService} from "./services/summoner-data.service";
+import {StaticDataService} from "./services/static-data.service";
+import {SummonerGraphsComponent} from './components/summoner-graphs/summoner-graphs.component';
+import {TeamAnalysisComponent} from './components/team-analysis/team-analysis.component';
 
 @NgModule({
     declarations: [
         AppComponent,
-        SelectSummonerComponent
+        SelectSummonerComponent,
+        SummonerGraphsComponent,
+        TeamAnalysisComponent
     ],
     imports: [
         BrowserModule,
@@ -18,7 +23,7 @@ import {SummonerDataService} from "./services/summoner-data.service";
         HttpModule,
         JsonpModule
     ],
-    providers: [SummonerDataService],
+    providers: [SummonerDataService, StaticDataService],
     bootstrap: [AppComponent]
 })
 export class AppModule {

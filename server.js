@@ -8,6 +8,7 @@ let request = require('request');
 const SUBDOMAIN = '/api';
 const RIOT_API_KEY = 'RGAPI-1765509c-a68e-4e52-8bd7-0350a7211a3b';
 const RIOT_API_URL = 'https://na.api.pvp.net/api/lol/na/';
+const RIOT_API_URL_MASTERY = 'https://na.api.riotgames.com/championmastery/location/NA1/';
 const RIOT_API_URL_STATIC = 'https://global.api.pvp.net/api/lol/static-data/na/';
 const RIOT_API_QUERRIES = {
     summoner_by_name : 'v1.4/summoner/by-name/',
@@ -55,7 +56,7 @@ let callRiotApiQueue = [];
 let callRiotApi = function(url, queryObject, callback, priority=false) {
     let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryObject);
     let fullUrl = url + queryString;
-    if(searchArrayForMatchingCall(callRiotApiQueue,fullUrl) == false) {
+    if(searchArrayForMatchingCall(callRiotApiQueue,fullUrl) === false) {
         if(priority) {
             /*
                 Add new call to the 2nd position within the array.
@@ -93,26 +94,26 @@ let callRiotApiQueueLoop = function() {
             callRiotApiQueue[0].isCalled = true;
 
             request(callRiotApiQueue[0].url, function(error, response, body) {
-                if (!error && response.statusCode == 200) {
+                if (!error && response.statusCode === 200) {
                     callRiotApiQueue[0].callback(body, response);
                     callRiotApiQueue.shift();
 
-                    if(callRiotApiQueue.length == 0 ) {
+                    if(callRiotApiQueue.length === 0 ) {
                         console.log('Queue empty');
                     }
                 } else {
-                    if (!error && response.statusCode == 503) {
+                    if (!error && response.statusCode === 503) {
                         callRiotApiQueue =[];
                         console.log('==== RIOT API error ====');
                         console.log('API not available');
-                        console.log('')
+                        console.log('');
                         console.log(' - Clearing queue');
                         console.log('========================');
 
                     } else {
                         console.log('==== RIOT API error ====');
                         console.log('Status code: ',response.statusCode);
-                        if( response != undefined ){
+                        if( response !== undefined ){
                             console.log(response.headers);//['x-rate-limit-count']
                         }
                         if(callRiotApiQueue[0].retryCount >= 5) {
@@ -132,7 +133,7 @@ let callRiotApiQueueLoop = function() {
             //--------
         }
     }
-}
+};
 
 //==============================================================================
 /*
@@ -152,7 +153,7 @@ let searchArrayForMatchingCall = function(arr,query) {
         if(data.url === query) {
             found = true;
         }
-    })
+    });
     return found;
 }
 
@@ -162,7 +163,6 @@ let searchArrayForMatchingCall = function(arr,query) {
  * i/o functions for the site
  */
 app.get(SUBDOMAIN + '/getSummoners', function (req, res) {
-    //console.log(req)
     res.writeHead(200, {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
@@ -271,16 +271,19 @@ let requestSummonerData = function(id,callback = function(){}) {
 
 let requestStaticChampionData = function() {
     callRiotApi(RIOT_API_URL_STATIC + RIOT_API_QUERRIES.static.champions, {
-        dataById : true
+        dataById : true,
+        champData : "tags"
     }, function(body) {
         body = JSON.parse(body)['data'];
         Object.keys(body).forEach(function(key) {
-            connection.query('REPLACE INTO static_champions SET ?', body[key], function(err, result) {
+            body[key].tags = JSON.stringify(body[key].tags);
+            connection.query('INSERT INTO static_champions SET ? ON DUPLICATE KEY UPDATE id=VALUES(id),name=VALUES(name),title=VALUES(title),tags=VALUES(tags),`key`=VALUES(`key`)', body[key], function(err, result) {
               if (err) throw err;
           });
         });
     },true);
 };
+
 let getMissingDataCounter = 0;
 let requestLatestMatches = function(userid,callback = function(){}) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.matchlist + userid, {
@@ -539,3 +542,15 @@ let server = app.listen(8080, 'localhost', function () {
     "vilemawKills": 0,
     "dominionVictoryScore": 0
 */
+
+/*
+ Get all champion mastery entries sorted by number of champion points descending (RPC)
+ /championmastery/location/{location}/player/{playerId}/champions
+
+
+
+
+
+
+
+ */
