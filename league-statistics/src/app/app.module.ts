@@ -7,6 +7,7 @@ import {AppComponent} from './app.component';
 import {SelectSummonerComponent} from './components/select-summoner/select-summoner.component';
 import {SummonerDataService} from "./services/summoner-data.service";
 import {StaticDataService} from "./services/static-data.service";
+import {AnalyzeTeamcompService} from "./factories/analyze-teamcomp.service";
 import {SummonerGraphsComponent} from './components/summoner-graphs/summoner-graphs.component';
 import {TeamAnalysisComponent} from './components/team-analysis/team-analysis.component';
 
@@ -23,7 +24,7 @@ import {TeamAnalysisComponent} from './components/team-analysis/team-analysis.co
         HttpModule,
         JsonpModule
     ],
-    providers: [SummonerDataService, StaticDataService],
+    providers: [SummonerDataService, StaticDataService, AnalyzeTeamcompService],
     bootstrap: [AppComponent]
 })
 export class AppModule {

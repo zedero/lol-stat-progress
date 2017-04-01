@@ -1,5 +1,5 @@
 <br>
-<div class="row">
+<!--<div class="row">
     <div class="col-sm-12">
         <h2>You</h2>
         <select>
@@ -11,65 +11,86 @@
             </option>
         </select>
     </div>
-</div>
+</div>-->
 <div class="row">
     <div class="col-sm-4">
-        <h2>Enemy</h2>
-        <div>
-            <div>Top</div>
-            <select (change)="setChampionInTeam($event.target.value,0)">
-                <option
-                    *ngFor="let champion of champions" value="{{champion.id}}"
-                    [selected]="champion.id == teamdata[0].selectedChamp"
-                >
-                    {{champion.name}}
-                </option>
-            </select>
+        <h2>Blue</h2>
+        <div class="row">
+            <div class="col-sm-4">
+                Top
+            </div>
+            <div class="col-sm-8">
+                <select (change)="setChampionInTeam($event.target.value,0)">
+                    <option
+                        *ngFor="let champion of champions" value="{{champion.id}}"
+                        [selected]="champion.id == teamdata[0].selectedChamp"
+                    >
+                        {{champion.name}}
+                    </option>
+                </select>
+            </div>
         </div>
-        <div>
-            <div>Jungle</div>
-            <select (change)="setChampionInTeam($event.target.value,1)">
-                <option
-                    *ngFor="let champion of champions" value="{{champion.id}}"
-                    [selected]="champion.id == teamdata[1].selectedChamp"
-                >
-                    {{champion.name}}
-                </option>
-            </select>
+        <div class="row">
+            <div class="col-sm-4">
+                Jungle
+            </div>
+            <div class="col-sm-8">
+                <select (change)="setChampionInTeam($event.target.value,1)">
+                    <option
+                        *ngFor="let champion of champions" value="{{champion.id}}"
+                        [selected]="champion.id == teamdata[1].selectedChamp"
+                    >
+                        {{champion.name}}
+                    </option>
+                </select>
+            </div>
         </div>
-        <div>
-            <div>Mid</div>
-            <select (change)="setChampionInTeam($event.target.value,2)">
-                <option
-                    *ngFor="let champion of champions" value="{{champion.id}}"
-                    [selected]="champion.id == teamdata[2].selectedChamp"
-                >
-                    {{champion.name}}
-                </option>
-            </select>
+        <div class="row">
+            <div class="col-sm-4">
+                Mid
+            </div>
+            <div class="col-sm-8">
+                <select (change)="setChampionInTeam($event.target.value,2)">
+                    <option
+                        *ngFor="let champion of champions" value="{{champion.id}}"
+                        [selected]="champion.id == teamdata[2].selectedChamp"
+                    >
+                        {{champion.name}}
+                    </option>
+                </select>
+            </div>
         </div>
-        <div>
-            <div>Adc</div>
-            <select (change)="setChampionInTeam($event.target.value,3)">
-                <option
-                    *ngFor="let champion of champions" value="{{champion.id}}"
-                    [selected]="champion.id == teamdata[3].selectedChamp"
-                >
-                    {{champion.name}}
-                </option>
-            </select>
+        <div class="row">
+            <div class="col-sm-4">
+                ADC
+            </div>
+            <div class="col-sm-8">
+                <select (change)="setChampionInTeam($event.target.value,3)">
+                    <option
+                        *ngFor="let champion of champions" value="{{champion.id}}"
+                        [selected]="champion.id == teamdata[3].selectedChamp"
+                    >
+                        {{champion.name}}
+                    </option>
+                </select>
+            </div>
         </div>
-        <div>
-            <div>Support</div>
-            <select (change)="setChampionInTeam($event.target.value,4)">
-                <option
-                    *ngFor="let champion of champions" value="{{champion.id}}"
-                    [selected]="champion.id == teamdata[4].selectedChamp"
-                >
-                    {{champion.name}}
-                </option>
-            </select>
+        <div class="row">
+            <div class="col-sm-4">
+                Support
+            </div>
+            <div class="col-sm-8">
+                <select (change)="setChampionInTeam($event.target.value,4)">
+                    <option
+                        *ngFor="let champion of champions" value="{{champion.id}}"
+                        [selected]="champion.id == teamdata[4].selectedChamp"
+                    >
+                        {{champion.name}}
+                    </option>
+                </select>
+            </div>
         </div>
+
         <div>
             <button (click)="analyseTeamcomp($event)">analyze</button>
         </div>

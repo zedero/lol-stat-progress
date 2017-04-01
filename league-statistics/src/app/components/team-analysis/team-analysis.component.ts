@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {StaticDataService} from '../../services/static-data.service'
+import {AnalyzeTeamcompService} from '../../factories/analyze-teamcomp.service'
 
 @Component({
     selector: 'app-team-analysis',
@@ -31,6 +32,8 @@ export class TeamAnalysisComponent implements OnInit {
         data : []
     }];
 
+
+
     teamdata = [{
         lane:"top",
         selectedChamp: 0,
@@ -53,10 +56,16 @@ export class TeamAnalysisComponent implements OnInit {
         data : []
     }];
 
-    constructor(private staticDataService: StaticDataService) {
+    constructor(private staticDataService: StaticDataService, private analyzeTeamcompService: AnalyzeTeamcompService) {
     }
 
     ngOnInit() {
+        /*this.lanes[0].champ = 82;
+        this.lanes[1].champ = 82;
+        this.lanes[2].champ = 82;
+        this.lanes[3].champ = 82;
+        this.lanes[4].champ = 82;*/
+
         this.getChampions();
     }
 
@@ -66,6 +75,7 @@ export class TeamAnalysisComponent implements OnInit {
                 if(data.length > 0) {
 
                     let first = data.shift();
+                    this.analyzeTeamcompService.setStaticData(data);
                     data.sort((a, b) => a.name.localeCompare(b.name));
                     data.unshift(first);
                     this.champions = data;
@@ -87,20 +97,24 @@ export class TeamAnalysisComponent implements OnInit {
 
     analyseTeamcomp() {
         if(this.teamdata.every(data => data.selectedChamp > 0)) {
-            let ad,
-                md,
-                defa,
-                defm,
-                cc,
-                heal,
-                shield;
+            /*let ad = this.analyzeTeamcompService.getAttackStrength(this.teamdata),
+                md = this.analyzeTeamcompService.getMagicStrength(this.teamdata),
+                defa = this.analyzeTeamcompService.getDefenceArmourStrength(this.teamdata),
+                defm = this.analyzeTeamcompService.getDefenceMagicStrength(this.teamdata),
+                cc = this.analyzeTeamcompService.getCrowdControlStrength(this.teamdata),
+                heal = this.analyzeTeamcompService.getHealStrength(this.teamdata),
+                shield = this.analyzeTeamcompService.getShieldStrength(this.teamdata);
             console.log("AD: ",ad);
             console.log("MD: ",md);
             console.log("DefA: ",defa);
             console.log("DefM: ",defm);
             console.log("CC: ",cc);
             console.log("Heal: ",heal);
-            console.log("Shield: ",shield);
+            console.log("Shield: ",shield);*/
+
+            this.analyzeTeamcompService.judgementOnData(this.teamdata);
+        }else{
+            this.analyzeTeamcompService.judgementOnData(this.teamdata);
         }
     }
 
