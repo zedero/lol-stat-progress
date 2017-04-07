@@ -146,9 +146,9 @@ export class TeamAnalysisComponent implements OnInit {
 
     /**/
     calculateEffectiveHealth(event) {
-        let level = 0; //(0-17) = level 1-18
+        let level = 8; //(0-17) = level 1-18
         let champStats = JSON.parse(this.champions.find(data => data.id == this.champIdForEffectiveHealth).stats);
-        let base_armor   = Math.round(champStats.armor + (champStats.armorperlevel * level)) ,
+        let base_armor   = Math.round(champStats.armor + (champStats.armorperlevel * level)),
             base_mr      = Math.round(champStats.spellblock + (champStats.spellblockperlevel * level)),
             base_hp      = Math.round(champStats.hp + (champStats.hpperlevel * level)),
             effeciveHpArmor = Math.round((base_hp * ((100 + base_armor) / 100))),
@@ -158,31 +158,40 @@ export class TeamAnalysisComponent implements OnInit {
         console.log("Effective health (magic): ",effeciveMrArmor);
         console.log("Effective health (armor): ",effeciveHpArmor);
         let arr = this.getEffectiveHealtItemList(base_hp,base_mr,base_armor,this.items);
-        console.log('--------------');
+        console.log('-------------- Armor:');
         arr = arr.sort(function(b,a) {return a.effHpArmor - b.effHpArmor});
-        arr.slice(0,8).forEach((data,index) => {
-            console.log(data.name,data.effHpArmor);
+        arr.slice(0,12).forEach((data,index) => {
+            console.log(data.name,data.effHpArmor,"("+data.gold+"g)");
         });
-        console.log('--------------');
+        console.log('-------------- Magic:');
         arr = arr.sort(function(b,a) {return a.effHpMagic - b.effHpMagic});
-        arr.slice(0,8).forEach((data,index) => {
-            console.log(data.name,data.effHpMagic);
+        arr.slice(0,12).forEach((data,index) => {
+            console.log(data.name,data.effHpMagic,"("+data.gold+"g)");
+        });
+        console.log('-------------- Mixed:');
+        arr = arr.sort(function(b,a) {return a.effHpMixed - b.effHpMixed});
+        arr.slice(0,12).forEach((data,index) => {
+            console.log(data.name,data.effHpMixed,"("+data.gold+"g)");
         });
     }
 
     getEffectiveHealtItemList(health,magicresists,armor,items) {
         let arr = [];
         items.forEach((data,index) => {
-            let hp,mr,ar;
+            let hp,mr,ar,effHpArmor,effHpMagic;
                 hp = health + data.health;
                 mr = magicresists + data.magicresistance;
                 ar = armor + data.armor;
+                effHpArmor = Math.round((hp * ((100 + ar) / 100))) - Math.round((health * ((100 + armor) / 100)));
+                effHpMagic = Math.round((hp * ((100 + mr) / 100))) - Math.round((health * ((100 + magicresists) / 100)));
 
                 let item = {
                     id : data.id,
                     name : data.name,
-                    effHpArmor : Math.round((hp * ((100 + ar) / 100))) - Math.round((health * ((100 + armor) / 100))),
-                    effHpMagic : Math.round((hp * ((100 + mr) / 100))) - Math.round((health * ((100 + magicresists) / 100)))
+                    gold : data.gold,
+                    effHpArmor : effHpArmor,
+                    effHpMagic : effHpMagic,
+                    effHpMixed : effHpArmor + effHpMagic
                 }
                 arr.push(item);
 
