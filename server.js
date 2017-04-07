@@ -16,7 +16,8 @@ const RIOT_API_QUERRIES = {
     matchlist : 'v2.2/matchlist/by-summoner/',
     match : 'v2.2/match/',
     static : {
-        champions : 'v1.2/champion'
+        champions : 'v1.2/champion',
+        items : ''
     }
 };
 //memwatch.on('leak', function(info) { console.log(info) });

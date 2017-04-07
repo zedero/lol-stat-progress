@@ -82,7 +82,8 @@ export class TeamAnalysisComponent implements OnInit {
 
                     // SET DEFAULT CHAMPS FOR TESTING
                     this.lanes.forEach((lane,index) => {
-                        this.setChampionInTeam(lane.champ,index);
+                        //this.setChampionInTeam(lane.champ,index);
+                        this.setChampionInTeam(0,index);
                     })
 
                 }
