@@ -17,7 +17,7 @@ const RIOT_API_QUERRIES = {
     match : 'v2.2/match/',
     static : {
         champions : 'v1.2/champion',
-        items : ''
+        items : 'v3/items'
     }
 };
 //memwatch.on('leak', function(info) { console.log(info) });
@@ -273,12 +273,13 @@ let requestSummonerData = function(id,callback = function(){}) {
 let requestStaticChampionData = function() {
     callRiotApi(RIOT_API_URL_STATIC + RIOT_API_QUERRIES.static.champions, {
         dataById : true,
-        champData : "tags"
+        champData : "tags,stats"
     }, function(body) {
         body = JSON.parse(body)['data'];
         Object.keys(body).forEach(function(key) {
             body[key].tags = JSON.stringify(body[key].tags);
-            connection.query('INSERT INTO static_champions SET ? ON DUPLICATE KEY UPDATE id=VALUES(id),name=VALUES(name),title=VALUES(title),tags=VALUES(tags),`key`=VALUES(`key`)', body[key], function(err, result) {
+            body[key].stats = JSON.stringify(body[key].stats);
+            connection.query('INSERT INTO static_champions SET ? ON DUPLICATE KEY UPDATE id=VALUES(id),name=VALUES(name),title=VALUES(title),tags=VALUES(tags),`key`=VALUES(`key`),`stats`=VALUES(`stats`)', body[key], function(err, result) {
               if (err) throw err;
           });
         });
