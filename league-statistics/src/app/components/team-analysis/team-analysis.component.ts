@@ -9,6 +9,8 @@ import {AnalyzeTeamcompService} from '../../factories/analyze-teamcomp.service'
 })
 export class TeamAnalysisComponent implements OnInit {
     champions;
+    items;
+    champIdForEffectiveHealth = 412;
 
     lanes = [{
         lane:"top",
@@ -67,6 +69,7 @@ export class TeamAnalysisComponent implements OnInit {
         this.lanes[4].champ = 82;*/
 
         this.getChampions();
+        this.getItems();
     }
 
     getChampions() {
@@ -92,6 +95,22 @@ export class TeamAnalysisComponent implements OnInit {
                 let fthis = this;
                 setTimeout(function(){
                     fthis.getChampions();
+                }, 1000);
+            });
+    }
+
+    getItems() {
+        this.staticDataService.getItems()
+            .subscribe(data => {
+                if(data.length > 0) {
+                    this.items = data;
+
+                }
+            },err => {
+                this.handleError(err);
+                let fthis = this;
+                setTimeout(function(){
+                    fthis.getItems();
                 }, 1000);
             });
     }
@@ -125,6 +144,54 @@ export class TeamAnalysisComponent implements OnInit {
 
     }
 
+    /**/
+    calculateEffectiveHealth(event) {
+        let level = 0; //(0-17) = level 1-18
+        let champStats = JSON.parse(this.champions.find(data => data.id == this.champIdForEffectiveHealth).stats);
+        let base_armor   = Math.round(champStats.armor + (champStats.armorperlevel * level)) ,
+            base_mr      = Math.round(champStats.spellblock + (champStats.spellblockperlevel * level)),
+            base_hp      = Math.round(champStats.hp + (champStats.hpperlevel * level)),
+            effeciveHpArmor = Math.round((base_hp * ((100 + base_armor) / 100))),
+            effeciveMrArmor = Math.round((base_hp * ((100 + base_mr) / 100)));
+
+        console.log(  "hp/mr/armor: ",base_hp,base_mr,base_armor  );
+        console.log("Effective health (magic): ",effeciveMrArmor);
+        console.log("Effective health (armor): ",effeciveHpArmor);
+        let arr = this.getEffectiveHealtItemList(base_hp,base_mr,base_armor,this.items);
+        console.log('--------------');
+        arr = arr.sort(function(b,a) {return a.effHpArmor - b.effHpArmor});
+        arr.slice(0,8).forEach((data,index) => {
+            console.log(data.name,data.effHpArmor);
+        });
+        console.log('--------------');
+        arr = arr.sort(function(b,a) {return a.effHpMagic - b.effHpMagic});
+        arr.slice(0,8).forEach((data,index) => {
+            console.log(data.name,data.effHpMagic);
+        });
+    }
+
+    getEffectiveHealtItemList(health,magicresists,armor,items) {
+        let arr = [];
+        items.forEach((data,index) => {
+            let hp,mr,ar;
+                hp = health + data.health;
+                mr = magicresists + data.magicresistance;
+                ar = armor + data.armor;
+
+                let item = {
+                    id : data.id,
+                    name : data.name,
+                    effHpArmor : Math.round((hp * ((100 + ar) / 100))) - Math.round((health * ((100 + armor) / 100))),
+                    effHpMagic : Math.round((hp * ((100 + mr) / 100))) - Math.round((health * ((100 + magicresists) / 100)))
+                }
+                arr.push(item);
+
+        });
+
+        return arr;
+    }
+
+    /**/
     private handleError(error: any) {
         console.error('An error occurred', error);
     }

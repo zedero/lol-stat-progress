@@ -21,5 +21,11 @@ export class StaticDataService {
             .map((res: Response) => res.json());
     }
 
+    getItems() {
+        return this.http
+            .get(this.HOST + '/getItems')
+            .map((res: Response) => res.json());
+    }
+
 }
 

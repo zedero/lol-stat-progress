@@ -1,17 +1,5 @@
 <br>
-<!--<div class="row">
-    <div class="col-sm-12">
-        <h2>You</h2>
-        <select>
-            <option
-                *ngFor="let champion of champions" value="{{champion.id}}"
-                [selected]="champion.name === 'Thresh'"
-            >
-                {{champion.name}}
-            </option>
-        </select>
-    </div>
-</div>-->
+
 <div class="row">
     <div class="col-sm-4">
         <h2>Blue</h2>
@@ -94,5 +82,22 @@
         <div>
             <button (click)="analyseTeamcomp($event)">analyze</button>
         </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-sm-12">
+        <h2>You are: {{champIdForEffectiveHealth}}</h2>
+        <select [(ngModel)]="champIdForEffectiveHealth">
+            <option
+                *ngFor="let champion of champions" value="{{champion.id}}"
+            >
+                {{champion.name}}
+            </option>
+        </select>
+    </div>
+    <div class="col-sm-12">
+        <button (click)="calculateEffectiveHealth($event)">Calculate effective health</button>
     </div>
 </div>

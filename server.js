@@ -187,6 +187,18 @@ app.get(SUBDOMAIN + '/getChampions', function (req, res) {
     });
 });
 
+app.get(SUBDOMAIN + '/getItems', function (req, res) {
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+    });
+    let QUERY = 'SELECT * FROM static_items';
+    connection.query(QUERY, function(err, rows) {
+        if (err) throw err;
+        res.end( JSON.stringify( rows ) );
+    });
+});
+
 app.get(SUBDOMAIN + '/getSummonerMatchData', function (req, res) {
     res.writeHead(200, {
         'Content-Type': 'application/json',
