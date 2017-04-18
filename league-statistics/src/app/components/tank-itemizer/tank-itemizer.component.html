@@ -1,15 +1,121 @@
 <div class="row">
     <div class="col-sm-12">
-        <h2>You are: {{champIdForEffectiveHealth}}</h2>
-        <select [(ngModel)]="champIdForEffectiveHealth">
-            <option
-                *ngFor="let champion of champions" value="{{champion.id}}"
-            >
-                {{champion.name}}
-            </option>
-        </select>
+        <h1>Tank itemizer tool</h1>
+        <h2>Choose your champion</h2>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <select [(ngModel)]="champIdForEffectiveHealth" (change)="calculateEffectiveHealth()">
+                            <option
+                                *ngFor="let champion of champions" value="{{champion.id}}"
+                            >
+                                {{champion.name}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-sm-12">
+                        Level:
+                        <input type="number" min="1" max="18" [(ngModel)]="championLevel" (change)="calculateEffectiveHealth()">
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-6">Base health:</div>
+                            <div class="col-sm-6">{{baseHp}} hp</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-6">Base armour:</div>
+                            <div class="col-sm-6">{{baseArmour}}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-6">Base magic resist: </div>
+                            <div class="col-sm-6">{{baseMagicResist}}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12"><br></div>
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-6">Effective health (Physical):</div>
+                            <div class="col-sm-6">{{effectiveArmourHealth}} hp</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-6">Effective health (Magic):</div>
+                            <div class="col-sm-6">{{effectiveMagicHealth}} hp</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-6">Effective health (Mixed)*:</div>
+                            <div class="col-sm-6">{{effectiveMixedHealth}} hp</div>
+                        </div>
+                    </div>
+                    <small class="col-sm-12">
+                        <br>
+                        * Note that mixed damage is just an estimation based on the predicted damage output from a team. Results may vary ingame!
+                    </small>
+                </div>
+            </div>
+        </div>
+
+
     </div>
     <div class="col-sm-12">
         <button (click)="calculateEffectiveHealth()">Calculate effective health</button>
+    </div>
+    <div class="col-sm-12">
+        Equipped items
+    </div>
+    <div class="col-sm-12">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>top 10 items per type</h3>
+            </div>
+            <div class="col-sm-3">
+                <h3>Itemlist (armour)</h3>
+                <select (change)="equipItem($event.target.value)">
+                    <option
+                        *ngFor="let item of formattedItems | slice:0:9;"
+                        [value]="item.id"
+                    >{{item.name}} ({{item.effHpArmor}}hp)</option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <h3>Itemlist (magic)</h3>
+                <select>
+                    <option></option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <h3>Itemlist (Mixed)</h3>
+                <select>
+                    <option></option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <h3>Itemlist (Gold efficiency)</h3>
+                <select>
+                    <option></option>
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <h3>All available tank items: </h3>
+        </div>
+        <div class="row" *ngFor="let item of formattedItems">
+
+            <div class="col-sm-12">{{item.name}} ({{item.effHpArmor}}hp)</div>
+        </div>
+
     </div>
 </div>
