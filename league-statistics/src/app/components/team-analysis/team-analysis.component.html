@@ -84,20 +84,3 @@
         </div>
     </div>
 </div>
-
-
-<div class="row">
-    <div class="col-sm-12">
-        <h2>You are: {{champIdForEffectiveHealth}}</h2>
-        <select [(ngModel)]="champIdForEffectiveHealth">
-            <option
-                *ngFor="let champion of champions" value="{{champion.id}}"
-            >
-                {{champion.name}}
-            </option>
-        </select>
-    </div>
-    <div class="col-sm-12">
-        <button (click)="calculateEffectiveHealth()">Calculate effective health</button>
-    </div>
-</div>
