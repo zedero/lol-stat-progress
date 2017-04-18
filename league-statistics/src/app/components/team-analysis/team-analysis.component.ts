@@ -145,7 +145,7 @@ export class TeamAnalysisComponent implements OnInit {
     }
 
     /**/
-    calculateEffectiveHealth(event) {
+    calculateEffectiveHealth( ) {
         let level = 8; //(0-17) = level 1-18
         let champStats = JSON.parse(this.champions.find(data => data.id == this.champIdForEffectiveHealth).stats);
         let base_armor   = Math.round(champStats.armor + (champStats.armorperlevel * level)),
@@ -157,27 +157,28 @@ export class TeamAnalysisComponent implements OnInit {
         console.log(  "hp/mr/armor: ",base_hp,base_mr,base_armor  );
         console.log("Effective health (magic): ",effeciveMrArmor);
         console.log("Effective health (armor): ",effeciveHpArmor);
-        let arr = this.getEffectiveHealtItemList(base_hp,base_mr,base_armor,this.items);
+        let arr = this.getEffectiveHealtItemList(base_hp,base_mr,base_armor,this.items,.58);
+        let maxShown = 12;
         console.log('-------------- Armor:');
         arr = arr.sort(function(b,a) {return a.effHpArmor - b.effHpArmor});
-        arr.slice(0,12).forEach((data,index) => {
+        arr.slice(0,maxShown).forEach((data) => {
             console.log(data.name,data.effHpArmor,"("+data.gold+"g)");
         });
         console.log('-------------- Magic:');
         arr = arr.sort(function(b,a) {return a.effHpMagic - b.effHpMagic});
-        arr.slice(0,12).forEach((data,index) => {
+        arr.slice(0,maxShown).forEach((data) => {
             console.log(data.name,data.effHpMagic,"("+data.gold+"g)");
         });
         console.log('-------------- Mixed:');
         arr = arr.sort(function(b,a) {return a.effHpMixed - b.effHpMixed});
-        arr.slice(0,12).forEach((data,index) => {
+        arr.slice(0,maxShown).forEach((data) => {
             console.log(data.name,data.effHpMixed,"("+data.gold+"g)");
         });
     }
 
-    getEffectiveHealtItemList(health,magicresists,armor,items) {
+    getEffectiveHealtItemList(health,magicresists,armor,items,adRatio) {
         let arr = [];
-        items.forEach((data,index) => {
+        items.forEach((data) => {
             let hp,mr,ar,effHpArmor,effHpMagic;
                 hp = health + data.health;
                 mr = magicresists + data.magicresistance;
@@ -191,8 +192,8 @@ export class TeamAnalysisComponent implements OnInit {
                     gold : data.gold,
                     effHpArmor : effHpArmor,
                     effHpMagic : effHpMagic,
-                    effHpMixed : effHpArmor + effHpMagic
-                }
+                    effHpMixed : (effHpArmor * adRatio) + (effHpMagic * (1-adRatio))
+                };
                 arr.push(item);
 
         });
