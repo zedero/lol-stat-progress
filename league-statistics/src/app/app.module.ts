@@ -12,6 +12,7 @@ import {AnalyzeTeamcompService} from "./factories/analyze-teamcomp.service";
 import {SummonerGraphsComponent} from './components/summoner-graphs/summoner-graphs.component';
 import {TeamAnalysisComponent} from './components/team-analysis/team-analysis.component';
 import {TankItemizerComponent} from './components/tank-itemizer/tank-itemizer.component';
+import { OrderByPipe } from './pipes/order-by.pipe';
 
 @NgModule({
     declarations: [
@@ -20,6 +21,7 @@ import {TankItemizerComponent} from './components/tank-itemizer/tank-itemizer.co
         SummonerGraphsComponent,
         TeamAnalysisComponent,
         TankItemizerComponent,
+        OrderByPipe,
     ],
     imports: [
         BrowserModule,

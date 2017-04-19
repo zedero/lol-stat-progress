@@ -16,7 +16,8 @@
                     </div>
                     <div class="col-sm-12">
                         Level:
-                        <input type="number" min="1" max="18" [(ngModel)]="championLevel" (change)="calculateEffectiveHealth()">
+                        <input type="number" min="1" max="18" [(ngModel)]="championLevel"
+                               (change)="calculateEffectiveHealth()">
                     </div>
                 </div>
             </div>
@@ -36,7 +37,7 @@
                     </div>
                     <div class="col-sm-12">
                         <div class="row">
-                            <div class="col-sm-6">Base magic resist: </div>
+                            <div class="col-sm-6">Base magic resist:</div>
                             <div class="col-sm-6">{{baseMagicResist}}</div>
                         </div>
                     </div>
@@ -61,7 +62,8 @@
                     </div>
                     <small class="col-sm-12">
                         <br>
-                        * Note that mixed damage is just an estimation based on the predicted damage output from a team. Results may vary ingame!
+                        * Note that mixed damage is just an estimation based on the predicted damage output from a team.
+                        Results may vary ingame!
                     </small>
                 </div>
             </div>
@@ -73,49 +75,34 @@
         <button (click)="calculateEffectiveHealth()">Calculate effective health</button>
     </div>
     <div class="col-sm-12">
-        Equipped items
-    </div>
-    <div class="col-sm-12">
         <div class="row">
-            <div class="col-sm-12">
-                <h3>top 10 items per type</h3>
+            <div class="col-sm-6">
+                <div>
+                    <h3>All available tank items: </h3>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            sort by:
+                            <select [(ngModel)]="orderedBy">
+                                <option value="armor">Armor</option>
+                                <option value="magic">Magic</option>
+                                <option value="mixed">Mixed</option>
+                                <option value="gold">Gold</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" *ngFor="let item of formattedItems | orderBy : orderedBy">
+                    <div class="col-sm-12" *ngIf="orderedBy=='armor'" (click)="equipItem(item.data)"><button class="button ___equip">+</button>{{item.name}} <span>({{item.effHpArmor}}hp)</span></div>
+                    <div class="col-sm-12" *ngIf="orderedBy=='magic'" (click)="equipItem(item.data)"><button class="button ___equip">+</button>{{item.name}} <span>({{item.effHpMagic}}hp)</span></div>
+                    <div class="col-sm-12" *ngIf="orderedBy=='mixed'" (click)="equipItem(item.data)"><button class="button ___equip">+</button>{{item.name}} <span>({{item.effHpMixed}}hp)</span></div>
+                </div>
             </div>
-            <div class="col-sm-3">
-                <h3>Itemlist (armour)</h3>
-                <select (change)="equipItem($event.target.value)">
-                    <option
-                        *ngFor="let item of formattedItems | slice:0:9;"
-                        [value]="item.id"
-                    >{{item.name}} ({{item.effHpArmor}}hp)</option>
-                </select>
-            </div>
-            <div class="col-sm-3">
-                <h3>Itemlist (magic)</h3>
-                <select>
-                    <option></option>
-                </select>
-            </div>
-            <div class="col-sm-3">
-                <h3>Itemlist (Mixed)</h3>
-                <select>
-                    <option></option>
-                </select>
-            </div>
-            <div class="col-sm-3">
-                <h3>Itemlist (Gold efficiency)</h3>
-                <select>
-                    <option></option>
-                </select>
+            <div class="col-sm-6">
+                <div class="col-sm-12">
+                    <h3>Equipped items</h3>
+                    <div *ngFor="let item of equippedItems; let i = index;" (click)="unequipItem(i)">{{item.name}}</div>
+                </div>
             </div>
         </div>
-
-        <div>
-            <h3>All available tank items: </h3>
-        </div>
-        <div class="row" *ngFor="let item of formattedItems">
-
-            <div class="col-sm-12">{{item.name}} ({{item.effHpArmor}}hp)</div>
-        </div>
-
     </div>
 </div>

@@ -110,7 +110,8 @@ let callRiotApiQueueLoop = function() {
                         console.log('');
                         console.log(' - Clearing queue');
                         console.log('========================');
-
+                        callRiotApiQueue = [];
+                        console.log('Queue empty');
                     } else {
                         console.log('==== RIOT API error ====');
                         console.log('Status code: ',response.statusCode);
