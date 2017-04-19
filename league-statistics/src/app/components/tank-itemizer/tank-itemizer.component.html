@@ -92,15 +92,15 @@
                     </div>
                 </div>
                 <div class="row" *ngFor="let item of formattedItems | orderBy : orderedBy">
-                    <div class="col-sm-12" *ngIf="orderedBy=='armor'" (click)="equipItem(item.data)"><button class="button ___equip">+</button>{{item.name}} <span>({{item.effHpArmor}}hp)</span></div>
-                    <div class="col-sm-12" *ngIf="orderedBy=='magic'" (click)="equipItem(item.data)"><button class="button ___equip">+</button>{{item.name}} <span>({{item.effHpMagic}}hp)</span></div>
-                    <div class="col-sm-12" *ngIf="orderedBy=='mixed'" (click)="equipItem(item.data)"><button class="button ___equip">+</button>{{item.name}} <span>({{item.effHpMixed}}hp)</span></div>
+                    <div class="col-sm-12" *ngIf="orderedBy=='armor'"><button class="button ___equip" (click)="equipItem(item.data)">+</button>{{item.name}} <span>({{item.effHpArmor}}hp)</span></div>
+                    <div class="col-sm-12" *ngIf="orderedBy=='magic'"><button class="button ___equip" (click)="equipItem(item.data)">+</button>{{item.name}} <span>({{item.effHpMagic}}hp)</span></div>
+                    <div class="col-sm-12" *ngIf="orderedBy=='mixed'"><button class="button ___equip" (click)="equipItem(item.data)">+</button>{{item.name}} <span>({{item.effHpMixed}}hp)</span></div>
                 </div>
             </div>
             <div class="col-sm-6">
                 <div class="col-sm-12">
                     <h3>Equipped items</h3>
-                    <div *ngFor="let item of equippedItems; let i = index;" (click)="unequipItem(i)">{{item.name}}</div>
+                    <div *ngFor="let item of equippedItems; let i = index;"><button class="button ___equip" (click)="unequipItem(i)">x</button>{{item.name}}</div>
                 </div>
             </div>
         </div>

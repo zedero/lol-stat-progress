@@ -10,7 +10,7 @@ export class TankItemizerComponent implements OnInit {
     champions;
     items;
     championLevel = 3;
-    champIdForEffectiveHealth = 412;
+    champIdForEffectiveHealth = 0;//412;
 
     baseHp = 0;
     baseArmour = 0;
@@ -67,7 +67,7 @@ export class TankItemizerComponent implements OnInit {
     }
 
     calculateEffectiveHealth() {
-        let adRatio = .58;
+        let adRatio = .5;
         if (this.championLevel > 18) {
             this.championLevel = 18;
         } else if (this.championLevel < 1) {
@@ -76,17 +76,18 @@ export class TankItemizerComponent implements OnInit {
         let level = this.championLevel - 1; //(0-17) = level 1-18
         let itemStats = this.getItemStats();
 
-
         let champStats = JSON.parse(this.champions.find(data => data.id == this.champIdForEffectiveHealth).stats);
         let base_armor = Math.round(champStats.armor + (champStats.armorperlevel * level)) + itemStats.armor,
             base_mr = Math.round(champStats.spellblock + (champStats.spellblockperlevel * level)) + itemStats.magicResist,
-            base_hp = Math.round(champStats.hp + (champStats.hpperlevel * level)) + itemStats.health;
-
+            base_hp = Math.round(
+                champStats.hp + (champStats.hpperlevel * level) + (itemStats.health * ((100 + itemStats.percentBonusHealth)/100))
+            );
+        console.log(itemStats.health,itemStats.percentBonusHealth);
         let effeciveHpArmor = Math.round((base_hp * ((100 + base_armor) / 100))),
             effeciveHpMagic = Math.round((base_hp * ((100 + base_mr) / 100))),
             effeciveHpMixed = Math.round((effeciveHpArmor * adRatio) + (effeciveHpMagic * (1 - adRatio)));
 
-        this.formattedItems = this.getEffectiveHealtItemList(base_hp, base_mr, base_armor, this.items, adRatio);
+        this.formattedItems = this.getEffectiveHealtItemList(base_hp, base_mr, base_armor, itemStats.percentBonusHealth , this.items, adRatio);
 
         this.baseHp = base_hp;
         this.baseArmour = base_armor;
@@ -95,50 +96,26 @@ export class TankItemizerComponent implements OnInit {
         this.effectiveMagicHealth = effeciveHpMagic;
         this.effectiveMixedHealth = effeciveHpMixed;
 
-
-        /*let maxShown = 12;
-        console.log('-------------- Armor:');
-        arr = arr.sort(function (b, a) {
-            return a.effHpArmor - b.effHpArmor
-        });
-        arr.slice(0, maxShown).forEach((data) => {
-            //console.log(data.name, data.effHpArmor, "(" + data.gold + "g)");
-        });
-        console.log('-------------- Magic:');
-        arr = arr.sort(function (b, a) {
-            return a.effHpMagic - b.effHpMagic
-        });
-        arr.slice(0, maxShown).forEach((data) => {
-            //console.log(data.name, data.effHpMagic, "(" + data.gold + "g)");
-        });
-        console.log('-------------- Mixed:');
-        arr = arr.sort(function (b, a) {
-            return a.effHpMixed - b.effHpMixed
-        });
-        arr.slice(0, maxShown).forEach((data) => {
-            //console.log(data.name, data.effHpMixed, "(" + data.gold + "g)");
-        });*/
-
-
     }
 
     getItemStats() {
         let stats = {
-            health:0,
-            armor:0,
-            magicResist:0,
-            cdReduction:0,
-            gold:0
+            health: 0,
+            armor: 0,
+            magicResist: 0,
+            percentBonusHealth: 0,
+            cdReduction: 0,
+            gold: 0
         };
 
         this.equippedItems.forEach(data => {
             stats.health += data.health;
             stats.armor += data.armor;
             stats.magicResist += data.magicresistance;
+            stats.percentBonusHealth += data.percentBonusHealth;
             stats.cdReduction += data.cdReduction;
             stats.gold += data.gold;
         });
-        console.log(stats);
         return stats;
     }
 
@@ -152,15 +129,16 @@ export class TankItemizerComponent implements OnInit {
         this.calculateEffectiveHealth()
     }
 
-    getEffectiveHealtItemList(health, magicresists, armor, items, adRatio) {
+    getEffectiveHealtItemList(health, magicresists, armor, percentBonusHealth, items, adRatio) {
         let arr = [];
         items.forEach((data) => {
-            let hp, mr, ar, effHpArmor, effHpMagic;
+            let hp, mr, ar, effHpArmor, effHpMagic,effHpMixed;
             hp = health + data.health;
             mr = magicresists + data.magicresistance;
             ar = armor + data.armor;
             effHpArmor = Math.round((hp * ((100 + ar) / 100))) - Math.round((health * ((100 + armor) / 100)));
             effHpMagic = Math.round((hp * ((100 + mr) / 100))) - Math.round((health * ((100 + magicresists) / 100)));
+            effHpMixed = Math.round((effHpArmor * adRatio) + (effHpMagic * (1 - adRatio)));
 
             let item = {
                 data: data,
@@ -169,7 +147,7 @@ export class TankItemizerComponent implements OnInit {
                 gold: data.gold,
                 effHpArmor: effHpArmor,
                 effHpMagic: effHpMagic,
-                effHpMixed: Math.round((effHpArmor * adRatio) + (effHpMagic * (1 - adRatio)))
+                effHpMixed: effHpMixed
             };
             arr.push(item);
 
