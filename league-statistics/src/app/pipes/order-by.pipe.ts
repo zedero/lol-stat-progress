@@ -21,6 +21,16 @@ export class OrderByPipe implements PipeTransform {
                 return a.effHpMixed - b.effHpMixed
             });
         }
+        if(args === "gold_armor") {
+            arr = arr.sort(function (b, a) {
+                return a.goldEffHpArmor - b.goldEffHpArmor
+            });
+        }
+        if(args === "gold_magic") {
+            arr = arr.sort(function (b, a) {
+                return a.goldEffHpMagic - b.goldEffHpMagic
+            });
+        }
         return arr;
     }
 

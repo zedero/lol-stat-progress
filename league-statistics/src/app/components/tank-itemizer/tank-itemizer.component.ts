@@ -9,12 +9,15 @@ import {StaticDataService} from '../../services/static-data.service'
 export class TankItemizerComponent implements OnInit {
     champions;
     items;
-    championLevel = 3;
+    championLevel = 1;
     champIdForEffectiveHealth = 0;//412;
 
     baseHp = 0;
     baseArmour = 0;
     baseMagicResist = 0;
+    currentHp = 0;
+    currentArmor = 0;
+    currentMagicResist = 0;
     effectiveArmourHealth = 0;
     effectiveMagicHealth = 0;
     effectiveMixedHealth = 0;
@@ -73,21 +76,26 @@ export class TankItemizerComponent implements OnInit {
         } else if (this.championLevel < 1) {
             this.championLevel = 1
         }
-        let level = this.championLevel - 1; //(0-17) = level 1-18
+        let level = this.championLevel - 1;
         let itemStats = this.getItemStats();
 
         let champStats = JSON.parse(this.champions.find(data => data.id == this.champIdForEffectiveHealth).stats);
-        let base_armor = Math.round(champStats.armor + (champStats.armorperlevel * level)) + itemStats.armor,
-            base_mr = Math.round(champStats.spellblock + (champStats.spellblockperlevel * level)) + itemStats.magicResist,
+        let base_armor = Math.round(champStats.armor + (champStats.armorperlevel * level)),
+            base_mr = Math.round(champStats.spellblock + (champStats.spellblockperlevel * level)),
             base_hp = Math.round(
-                champStats.hp + (champStats.hpperlevel * level) + (itemStats.health * ((100 + itemStats.percentBonusHealth)/100))
+                champStats.hp + (champStats.hpperlevel * level)
             );
-        console.log(itemStats.health,itemStats.percentBonusHealth);
-        let effeciveHpArmor = Math.round((base_hp * ((100 + base_armor) / 100))),
-            effeciveHpMagic = Math.round((base_hp * ((100 + base_mr) / 100))),
-            effeciveHpMixed = Math.round((effeciveHpArmor * adRatio) + (effeciveHpMagic * (1 - adRatio)));
 
-        this.formattedItems = this.getEffectiveHealtItemList(base_hp, base_mr, base_armor, itemStats.percentBonusHealth , this.items, adRatio);
+        let currentHp = base_hp + (itemStats.health * ((100 + itemStats.percentBonusHealth)/100));
+        this.currentHp = Math.round(currentHp);
+        this.currentArmor = Math.round(base_armor + itemStats.armor);
+        this.currentMagicResist = Math.round(base_mr + itemStats.magicResist);
+
+
+        //console.log(itemStats.health,itemStats.percentBonusHealth);
+        let effeciveHpArmor = Math.round((currentHp * ((100 + base_armor + itemStats.armor) / 100))),
+            effeciveHpMagic = Math.round((currentHp * ((100 + base_mr + itemStats.magicResist) / 100))),
+            effeciveHpMixed = Math.round((effeciveHpArmor * adRatio) + (effeciveHpMagic * (1 - adRatio)));
 
         this.baseHp = base_hp;
         this.baseArmour = base_armor;
@@ -96,6 +104,7 @@ export class TankItemizerComponent implements OnInit {
         this.effectiveMagicHealth = effeciveHpMagic;
         this.effectiveMixedHealth = effeciveHpMixed;
 
+        this.formattedItems = this.getEffectiveHealtItemList(itemStats , this.items, adRatio);
     }
 
     getItemStats() {
@@ -129,15 +138,30 @@ export class TankItemizerComponent implements OnInit {
         this.calculateEffectiveHealth()
     }
 
-    getEffectiveHealtItemList(health, magicresists, armor, percentBonusHealth, items, adRatio) {
+    getEffectiveHealtItemList(itemStats, items, adRatio) {
         let arr = [];
         items.forEach((data) => {
-            let hp, mr, ar, effHpArmor, effHpMagic,effHpMixed;
-            hp = health + data.health;
-            mr = magicresists + data.magicresistance;
-            ar = armor + data.armor;
-            effHpArmor = Math.round((hp * ((100 + ar) / 100))) - Math.round((health * ((100 + armor) / 100)));
-            effHpMagic = Math.round((hp * ((100 + mr) / 100))) - Math.round((health * ((100 + magicresists) / 100)));
+            let oldHp,
+                newHp,
+                oldMrHp,
+                newMrHp,
+                oldArHp,
+                newArHp,
+                effHpArmor,
+                effHpMagic,
+                effHpMixed;
+
+            oldHp = this.baseHp + ( itemStats.health * ((100 + itemStats.percentBonusHealth)/100) );
+            newHp = this.baseHp + ( ( itemStats.health + data.health ) * ((100 + itemStats.percentBonusHealth + data.percentBonusHealth)/100) );
+
+            oldArHp = (oldHp * ((100 + this.baseArmour + itemStats.armor) / 100));
+            newArHp = (newHp * ((100 + this.baseArmour + itemStats.armor + data.armor) / 100));
+            effHpArmor = Math.round(newArHp - oldArHp);
+
+            oldMrHp = (oldHp * ((100 + this.baseMagicResist + itemStats.magicResist) / 100));
+            newMrHp = (newHp * ((100 + this.baseMagicResist + itemStats.magicResist + data.magicresistance) / 100));
+            effHpMagic = Math.round(newMrHp - oldMrHp);
+
             effHpMixed = Math.round((effHpArmor * adRatio) + (effHpMagic * (1 - adRatio)));
 
             let item = {
@@ -147,6 +171,8 @@ export class TankItemizerComponent implements OnInit {
                 gold: data.gold,
                 effHpArmor: effHpArmor,
                 effHpMagic: effHpMagic,
+                goldEffHpArmor: this.roundDecimal( effHpArmor / data.gold , 2 ),
+                goldEffHpMagic: this.roundDecimal( effHpMagic / data.gold , 2 ),
                 effHpMixed: effHpMixed
             };
             arr.push(item);
@@ -155,6 +181,12 @@ export class TankItemizerComponent implements OnInit {
 
         return arr;
     }
+
+
+    roundDecimal(number,nrOfDecimals) {
+        return Math.round(number * 100) / 100;
+    }
+
 
 
     private handleError(error: any) {

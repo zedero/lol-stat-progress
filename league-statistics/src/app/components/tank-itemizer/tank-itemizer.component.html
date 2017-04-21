@@ -44,6 +44,25 @@
                     <div class="col-sm-12"><br></div>
                     <div class="col-sm-12">
                         <div class="row">
+                            <div class="col-sm-6">Current health:</div>
+                            <div class="col-sm-6">{{currentHp}} hp</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-6">Current armour:</div>
+                            <div class="col-sm-6">{{currentArmor}}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-6">Current magic resist:</div>
+                            <div class="col-sm-6">{{currentMagicResist}}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12"><br></div>
+                    <div class="col-sm-12">
+                        <div class="row">
                             <div class="col-sm-6">Effective health (Physical):</div>
                             <div class="col-sm-6">{{effectiveArmourHealth}} hp</div>
                         </div>
@@ -71,8 +90,8 @@
 
 
     </div>
-    <div class="col-sm-12">
-        <button (click)="calculateEffectiveHealth()">Calculate effective health</button>
+    <div class="col-sm-12"><br>
+        <!--<button (click)="calculateEffectiveHealth()">Calculate effective health</button>-->
     </div>
     <div class="col-sm-12">
         <div class="row">
@@ -86,7 +105,8 @@
                                 <option value="armor">Armor</option>
                                 <option value="magic">Magic</option>
                                 <option value="mixed">Mixed</option>
-                                <option value="gold">Gold</option>
+                                <option value="gold_armor">Armor gold efficient</option>
+                                <option value="gold_magic">Magic resist gold efficient</option>
                             </select>
                         </div>
                     </div>
@@ -95,6 +115,8 @@
                     <div class="col-sm-12" *ngIf="orderedBy=='armor'"><button class="button ___equip" (click)="equipItem(item.data)">+</button>{{item.name}} <span>({{item.effHpArmor}}hp)</span></div>
                     <div class="col-sm-12" *ngIf="orderedBy=='magic'"><button class="button ___equip" (click)="equipItem(item.data)">+</button>{{item.name}} <span>({{item.effHpMagic}}hp)</span></div>
                     <div class="col-sm-12" *ngIf="orderedBy=='mixed'"><button class="button ___equip" (click)="equipItem(item.data)">+</button>{{item.name}} <span>({{item.effHpMixed}}hp)</span></div>
+                    <div class="col-sm-12" *ngIf="orderedBy=='gold_armor'"><button class="button ___equip" (click)="equipItem(item.data)">+</button>{{item.name}} <span>({{item.goldEffHpArmor}}hp/gold)</span></div>
+                    <div class="col-sm-12" *ngIf="orderedBy=='gold_magic'"><button class="button ___equip" (click)="equipItem(item.data)">+</button>{{item.name}} <span>({{item.goldEffHpMagic}}hp/gold)</span></div>
                 </div>
             </div>
             <div class="col-sm-6">
