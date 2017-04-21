@@ -11,6 +11,7 @@ export class TankItemizerComponent implements OnInit {
     items;
     championLevel = 1;
     champIdForEffectiveHealth = 0;//412;
+    adRatio = 50;
 
     baseHp = 0;
     baseArmour = 0;
@@ -162,7 +163,7 @@ export class TankItemizerComponent implements OnInit {
             newMrHp = (newHp * ((100 + this.baseMagicResist + itemStats.magicResist + data.magicresistance) / 100));
             effHpMagic = Math.round(newMrHp - oldMrHp);
 
-            effHpMixed = Math.round((effHpArmor * adRatio) + (effHpMagic * (1 - adRatio)));
+            effHpMixed = Math.round((effHpArmor * (this.adRatio/100)) + (effHpMagic * ((1 - this.adRatio/100))));
 
             let item = {
                 data: data,

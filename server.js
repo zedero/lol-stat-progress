@@ -344,6 +344,8 @@ let requestMatchData = function(matchid) {
 
 
 let formatMatchData = function(matchId,userId) {
+    //TODO create a worker for this task in the future
+
     let QUERY = 'SELECT * FROM raw_match_data';
         QUERY += ' LEFT JOIN matches ON raw_match_data.matchId =  ' + matchId;
         QUERY += ' AND raw_match_data.matchId=matches.matchId AND matches.summonerId = '+ userId;
