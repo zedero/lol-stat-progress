@@ -31,7 +31,7 @@ import { OrderByPipe } from './pipes/order-by.pipe';
         RouterModule.forRoot([
             {
                 path: '',
-                component: TeamAnalysisComponent //SummonerGraphsComponent
+                component: SummonerGraphsComponent //SummonerGraphsComponent
             },
             {
                 path: 'team-analysis',

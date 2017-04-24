@@ -33,5 +33,10 @@ export class SummonerDataService {
             .map((res: Response) => res.json());
     }
 
+    getSummonerMatchData(summonerId) {
+        return this.http
+            .get(this.HOST + '/getSummonerMatchData?userId=' + summonerId)
+            .map((res: Response) => res.json());
+    }
 }
 
