@@ -75,6 +75,22 @@ export class SummonerGraphsComponent implements OnInit {
     public wardsPerMin_ChartOptions = this.line_ChartOptions;
     public wardsPerMin_average = 0;
 
+    public creepScore_ChartData;
+    public creepScore_ChartOptions = this.line_ChartOptions;
+    public creepScore_average = 0;
+
+    public goldPerMin_ChartData;
+    public goldPerMin_ChartOptions = this.line_ChartOptions;
+    public goldPerMin_average = 0;
+
+    public kda_ChartData;
+    public kda_ChartOptions = this.line_ChartOptions;
+    public kda_average = 0;
+
+    public killPressence_ChartData;
+    public killPressence_ChartOptions = this.line_ChartOptions;
+    public killPressence_average = 0;
+
     constructor(private staticDataService: StaticDataService, private summonerDataService: SummonerDataService) {
     }
 
@@ -120,6 +136,11 @@ export class SummonerGraphsComponent implements OnInit {
         this.renderGameTimeChart();
         this.renderWinrateChart();
         this.renderWardsPerMinChart();
+        this.renderCreepScoreChart();
+        this.renderGoldPerMinChart();
+        this.renderKDAChart();
+        this.renderKillPressenceChart()
+
     }
 
     renderGameTimeChart() {
@@ -183,6 +204,112 @@ export class SummonerGraphsComponent implements OnInit {
         this.wardsPerMin_ChartOptions.title = "Wards per minute";
         this.wardsPerMin_average = Math.round(average * 100) / 100;
         this.wardsPerMin_ChartData = [['Match', 'Wards per minute','Average']].concat(chartData);
+    }
+
+    renderCreepScoreChart() {
+        let average : number = 0;
+        let averageList : Array<any> = [];
+        let chartData : Array<any> = [];
+
+        this.summonerMatchData.forEach((data ,index)=> {
+            if(data.role == this.filterRole || this.filterRole == "ALL") {
+                average = ((average * index) + data.csPerMin) / (index + 1);
+                if(index == 0) average = data.csPerMin;
+
+                if(averageList.length >= this.nrOfMatchesAverage) averageList.shift();
+                averageList.push(data.csPerMin);
+
+                chartData.push([index, data.csPerMin, this.getAverageFromArray(averageList) ]);
+            }
+        });
+
+        this.creepScore_ChartOptions.title = "Creep score per minute";
+        this.creepScore_average = Math.round(average * 100) / 100;
+        this.creepScore_ChartData = [['Match', 'Creep score per minute','Average']].concat(chartData);
+    }
+
+    renderGoldPerMinChart() {
+        let average : number = 0;
+        let averageList : Array<any> = [];
+        let chartData : Array<any> = [];
+
+        this.summonerMatchData.forEach((data ,index)=> {
+            if(data.role == this.filterRole || this.filterRole == "ALL") {
+                average = ((average * index) + data.goldPerMin) / (index + 1);
+                if(index == 0) average = data.goldPerMin;
+
+                if(averageList.length >= this.nrOfMatchesAverage) averageList.shift();
+                averageList.push(data.goldPerMin);
+
+                chartData.push([index, data.goldPerMin, this.getAverageFromArray(averageList) ]);
+            }
+        });
+
+        this.goldPerMin_ChartOptions.title = "Gold score per minute";
+        this.goldPerMin_average = Math.round(average * 100) / 100;
+        this.goldPerMin_ChartData = [['Match', 'Gold score per minute','Average']].concat(chartData);
+    }
+
+    renderKDAChart() {
+        let average : number = 0;
+        let averageList : Array<any> = [];
+        let chartData : Array<any> = [];
+
+        this.summonerMatchData.forEach((data ,index)=> {
+            if(data.role == this.filterRole || this.filterRole == "ALL") {
+                let KDA = 0;
+
+                if (data.deaths == 0) {
+                    KDA = data.kills + data.assists;
+                } else {
+                    KDA = (data.kills + data.assists) / data.deaths;
+                }
+
+                average = ((average * index) + KDA) / (index + 1);
+                if(index == 0) average = KDA;
+
+                if(averageList.length >= this.nrOfMatchesAverage) averageList.shift();
+                averageList.push(KDA);
+
+                chartData.push([index, KDA, this.getAverageFromArray(averageList) ]);
+            }
+        });
+
+        this.kda_ChartOptions.title = "KDA";
+        this.kda_average = Math.round(average * 100) / 100;
+        this.kda_ChartData = [['Match', 'KDA','Average']].concat(chartData);
+    }
+
+    renderKillPressenceChart() {//killPressence
+        let average : number = 0;
+        let averageList : Array<any> = [];
+        let chartData : Array<any> = [];
+
+        this.summonerMatchData.forEach((data ,index)=> {
+            if(data.role == this.filterRole || this.filterRole == "ALL") {
+                let pressence = (data.kills + data.assists) / (data.teamKills);
+                pressence *= 100;
+                if(data.kills == 0 && data.assists == 0) {
+                    pressence = 0;
+                    if(data.teamKills == 0) pressence = average;
+                }
+                if(pressence > 100) {
+                    console.log(data.matchId)
+                }
+
+                average = ((average * index) + pressence) / (index + 1);
+                if(index == 0) average = pressence;
+
+                if(averageList.length >= this.nrOfMatchesAverage) averageList.shift();
+                averageList.push(pressence);
+
+                chartData.push([index, pressence, this.getAverageFromArray(averageList) ]);
+            }
+        });
+
+        this.killPressence_ChartOptions.title = "Kill pressence";
+        this.killPressence_average = Math.round(average * 100) / 100;
+        this.killPressence_ChartData = [['Match', 'Kill pressence','Average']].concat(chartData);
     }
 
     formatMatchesData(arr : Array<any>) {
