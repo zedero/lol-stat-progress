@@ -9,12 +9,13 @@ import {SummonerDataService} from '../../services/summoner-data.service'
     styleUrls: ['./summoner-graphs.component.css']
 })
 export class SummonerGraphsComponent implements OnInit {
-    summonerMatchData = [];
-    champions = [];
-    filterRole = "ALL";
+    summonerMatchData : Array<any> = [];
+    champions : Array<any> = [];
+    filterRole : string = "ALL";
+    nrOfMatchesAverage = 15;
+    nrOfLatestMatches = 150;
 
-    public gametime_ChartData;
-
+    summonerId = 65002229;
 
     public line_ChartOptions = {
         titleTextStyle: { color: '#FFF' },
@@ -39,8 +40,13 @@ export class SummonerGraphsComponent implements OnInit {
         }
     };
 
+    public gametime_ChartData;
     public gametime_ChartOptions = this.line_ChartOptions;
     public gametime_average = 0;
+
+    public winrate_ChartData;
+    public winrate_ChartOptions = this.line_ChartOptions;
+    public winrate_average = 0;
 
     constructor(private staticDataService: StaticDataService, private summonerDataService: SummonerDataService) {
     }
@@ -70,7 +76,7 @@ export class SummonerGraphsComponent implements OnInit {
     }
 
     getSummonerData() {
-        this.summonerDataService.getSummonerMatchData(19887289)
+        this.summonerDataService.getSummonerMatchData(this.summonerId)
             .subscribe(data => {
                 this.summonerMatchData = this.formatMatchesData(data);
                 this.renderUI()
@@ -83,39 +89,25 @@ export class SummonerGraphsComponent implements OnInit {
             });
     }
 
-    renderUi() {
-        /*
-         *  Only render charts when google chart is available
-         */
-
-        //google.charts.setOnLoadCallback(function(){
-            /*gametimeChart(_v);
-            gamesWonChart(_v);
-            wardsPerMinChart(_v);
-            csChart(_v);
-            goldChart(_v);
-            kdaChart(_v);
-            killPressenceChart(_v);
-            timeline(_v);*/
-            console.log('test');
-        //});
-    }
-
     renderUI() {
         this.renderGameTimeChart();
+        this.renderWinrateChart();
     }
 
     renderGameTimeChart() {
-        let average = 0;
-        let chartData = [];
-        let index = 0;
-        this.summonerMatchData.forEach(data => {
+        let average : number= 0;
+        let averageList : Array<any> = [];
+        let chartData : Array<any> = [];
+
+        this.summonerMatchData.forEach((data ,index)=> {
             if(data.role == this.filterRole || this.filterRole == "ALL") {
                 let gametime = Math.round(data.matchDuration / 60);
                 average = ((average * index) + gametime) / (index + 1);
                 if(index == 0) average = gametime;
-                chartData.push([index, gametime, Math.round( average ) ]);
-                index++;
+
+                if(averageList.length >= this.nrOfMatchesAverage) averageList.shift();
+                averageList.push(gametime);
+                chartData.push([index, gametime, Math.round( this.getAverageFromArray(averageList) ) ]);
             }
         });
 
@@ -124,9 +116,66 @@ export class SummonerGraphsComponent implements OnInit {
         this.gametime_ChartData = [['Match', 'Gametime','Average']].concat(chartData);
     }
 
-    formatMatchesData(arr) {
+    renderWinrateChart() {
+        var average : number = .5;
+    }
+
+
+
+    /*
+
+     function gamesWonChart(_v) {
+
+     var dataTable = new google.visualization.DataTable();
+     var average = .5;
+     var index = 100;
+
+     dataTable.addColumn('number', 'Match');
+     dataTable.addColumn('number', 'Winrate');
+     dataTable.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}})
+     dataTable.addColumn({type: 'string', role: 'style'});
+
+     _v.this.matchesData.forEach(function(data){
+     if(data.role == _v.this.filterRole || _v.this.filterRole == "ALL") {
+     var won = parseInt(data.winner);
+
+     average = ((average * index) + won) / (index + 1);
+     if(index == 0) average = .5;
+     if(won == 0) { won = 'No'} else {won = "Yes"}
+     dataTable.addRows([
+     [index-100, average*100, getTooltip(data.matchId,'Winrate',(Math.round(average * 10000) / 100) +'%'),'color: #6bdb8d']
+     ]);
+     index++;
+     }
+     });
+     _v.this.winrate = (Math.round(average * 10000) / 100);
+     var options = {
+     title: 'Winrate',
+     tooltip: {isHtml: true},
+     legend: {
+     position: 'bottom'
+     }
+     };
+     var chart = new google.visualization.LineChart(document.getElementById('gameswon'));
+     chartOptions.title = 'Winrate';
+     chartOptions.tooltip = {isHtml: true};
+     chart.draw(dataTable, chartOptions);
+
+     }
+
+     function getTooltip(matchId,type,value) {
+     return `<div class="tooltip">
+     <div><b>${matchId}</b></div>
+     <div>${type}: ${value}</div>
+     </div>`
+     }
+
+     */
+
+    formatMatchesData(arr : Array<any>) {
         let matches = [];
         let that = this;
+        arr = this.limitArrayLength(arr);
         arr.forEach(function (data, index) {
             let match = data;
             let timeInMin = (data.matchDuration / 60);
@@ -146,7 +195,7 @@ export class SummonerGraphsComponent implements OnInit {
         return matches;
     }
 
-    getRole(lane,role) {
+    getRole(lane : string , role : string ) {
         if(lane == "JUNGLE") {
             return "JUNGLE";
         } else if(lane == "MID") {
@@ -158,6 +207,18 @@ export class SummonerGraphsComponent implements OnInit {
         } else {
             return "CARRY";
         }
+    }
+
+    getAverageFromArray(arr : Array<number>) {
+        let total = 0;
+        arr.forEach(data => {
+            total = total + data;
+        });
+        return total / arr.length;
+    }
+
+    limitArrayLength(arr : Array<any>) {
+        return arr.slice(Math.max(arr.length - this.nrOfLatestMatches, 1))
     }
 
     private handleError(error: any) {
