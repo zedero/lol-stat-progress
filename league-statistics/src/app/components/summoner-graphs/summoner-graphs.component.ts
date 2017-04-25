@@ -13,7 +13,7 @@ export class SummonerGraphsComponent implements OnInit {
     champions : Array<any> = [];
     filterRole : string = "ALL";
     nrOfMatchesAverage = 15;
-    nrOfLatestMatches = 150;
+    nrOfLatestMatches = 150000;
 
     summonerId = 65002229;
 
@@ -39,13 +39,36 @@ export class SummonerGraphsComponent implements OnInit {
             }
         }
     };
+    public lineHtml_ChartOptions = {
+        titleTextStyle: { color: '#FFF' },
+        backgroundColor: '#263646',
+        colors: ['#6bdb8d','#6bdb8d'],
+        hAxis: {
+            textStyle: {
+                color: '#FFF'
+            }
+        },
+        vAxis: {
+            textStyle: {
+                color: '#FFF'
+            }
+        },
+        title: 'placeholder text',
+        legend: {
+            position: 'none',
+            textStyle: {
+                color: '#FFF'
+            }
+        },
+        tooltip : {isHtml: true}
+    };
 
     public gametime_ChartData;
     public gametime_ChartOptions = this.line_ChartOptions;
     public gametime_average = 0;
 
     public winrate_ChartData;
-    public winrate_ChartOptions = this.line_ChartOptions;
+    public winrate_ChartOptions = this.lineHtml_ChartOptions;
     public winrate_average = 0;
 
     constructor(private staticDataService: StaticDataService, private summonerDataService: SummonerDataService) {
@@ -117,60 +140,32 @@ export class SummonerGraphsComponent implements OnInit {
     }
 
     renderWinrateChart() {
-        var average : number = .5;
+        let average : number = .5;
+        let averageList : Array<any> = [];
+        let chartData : Array<any> = [];
+
+        this.summonerMatchData.forEach((data,index) => {
+            if(data.role == this.filterRole || this.filterRole == "ALL") {
+                let won = parseInt(data.winner);
+                average = ((average * (index+100)) + won) / (index + 101);
+
+                if(averageList.length >= this.nrOfMatchesAverage) averageList.shift();
+                averageList.push(won);
+                chartData.push([index, average * 100 ,this.getTooltip(data.matchId,'Winrate',(Math.round(average * 10000) / 100) +'%') ]);
+            }
+        });
+
+        this.winrate_ChartOptions.title = "Winrate";
+        this.winrate_average = Math.round(average*100);
+        this.winrate_ChartData = [['Match', 'Winrate',{'type': 'string', 'role': 'tooltip', 'p': {'html': true}}]].concat(chartData);
     }
 
-
-
-    /*
-
-     function gamesWonChart(_v) {
-
-     var dataTable = new google.visualization.DataTable();
-     var average = .5;
-     var index = 100;
-
-     dataTable.addColumn('number', 'Match');
-     dataTable.addColumn('number', 'Winrate');
-     dataTable.addColumn({'type': 'string', 'role': 'tooltip', 'p': {'html': true}})
-     dataTable.addColumn({type: 'string', role: 'style'});
-
-     _v.this.matchesData.forEach(function(data){
-     if(data.role == _v.this.filterRole || _v.this.filterRole == "ALL") {
-     var won = parseInt(data.winner);
-
-     average = ((average * index) + won) / (index + 1);
-     if(index == 0) average = .5;
-     if(won == 0) { won = 'No'} else {won = "Yes"}
-     dataTable.addRows([
-     [index-100, average*100, getTooltip(data.matchId,'Winrate',(Math.round(average * 10000) / 100) +'%'),'color: #6bdb8d']
-     ]);
-     index++;
-     }
-     });
-     _v.this.winrate = (Math.round(average * 10000) / 100);
-     var options = {
-     title: 'Winrate',
-     tooltip: {isHtml: true},
-     legend: {
-     position: 'bottom'
-     }
-     };
-     var chart = new google.visualization.LineChart(document.getElementById('gameswon'));
-     chartOptions.title = 'Winrate';
-     chartOptions.tooltip = {isHtml: true};
-     chart.draw(dataTable, chartOptions);
-
-     }
-
-     function getTooltip(matchId,type,value) {
-     return `<div class="tooltip">
-     <div><b>${matchId}</b></div>
-     <div>${type}: ${value}</div>
-     </div>`
-     }
-
-     */
+    getTooltip(matchId,type,value) {
+        return `<div class="tooltip">
+         <div><b>${matchId}</b></div>
+         <div>${type}: ${value}</div>
+         </div>`
+    }
 
     formatMatchesData(arr : Array<any>) {
         let matches = [];
