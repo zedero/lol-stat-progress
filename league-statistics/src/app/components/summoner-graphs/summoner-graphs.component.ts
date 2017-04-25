@@ -13,7 +13,7 @@ export class SummonerGraphsComponent implements OnInit {
     champions : Array<any> = [];
     filterRole : string = "ALL";
     nrOfMatchesAverage = 15;
-    nrOfLatestMatches = 150000;
+    nrOfLatestMatches = 150;
 
     summonerId = 65002229;
 
@@ -71,6 +71,10 @@ export class SummonerGraphsComponent implements OnInit {
     public winrate_ChartOptions = this.lineHtml_ChartOptions;
     public winrate_average = 0;
 
+    public wardsPerMin_ChartData;
+    public wardsPerMin_ChartOptions = this.line_ChartOptions;
+    public wardsPerMin_average = 0;
+
     constructor(private staticDataService: StaticDataService, private summonerDataService: SummonerDataService) {
     }
 
@@ -115,6 +119,7 @@ export class SummonerGraphsComponent implements OnInit {
     renderUI() {
         this.renderGameTimeChart();
         this.renderWinrateChart();
+        this.renderWardsPerMinChart();
     }
 
     renderGameTimeChart() {
@@ -147,11 +152,9 @@ export class SummonerGraphsComponent implements OnInit {
         this.summonerMatchData.forEach((data,index) => {
             if(data.role == this.filterRole || this.filterRole == "ALL") {
                 let won = parseInt(data.winner);
-                average = ((average * (index+100)) + won) / (index + 101);
+                average = ((average * (index+this.nrOfMatchesAverage)) + won) / (index + this.nrOfMatchesAverage + 1);
 
-                if(averageList.length >= this.nrOfMatchesAverage) averageList.shift();
-                averageList.push(won);
-                chartData.push([index, average * 100 ,this.getTooltip(data.matchId,'Winrate',(Math.round(average * 10000) / 100) +'%') ]);
+                chartData.push([index, average * this.nrOfMatchesAverage ,this.getTooltip(data.matchId,'Winrate',(Math.round(average * 10000) / 100) +'%') ]);
             }
         });
 
@@ -160,11 +163,26 @@ export class SummonerGraphsComponent implements OnInit {
         this.winrate_ChartData = [['Match', 'Winrate',{'type': 'string', 'role': 'tooltip', 'p': {'html': true}}]].concat(chartData);
     }
 
-    getTooltip(matchId,type,value) {
-        return `<div class="tooltip">
-         <div><b>${matchId}</b></div>
-         <div>${type}: ${value}</div>
-         </div>`
+    renderWardsPerMinChart() {
+        let average : number = 0;
+        let averageList : Array<any> = [];
+        let chartData : Array<any> = [];
+
+        this.summonerMatchData.forEach((data ,index)=> {
+            if(data.role == this.filterRole || this.filterRole == "ALL") {
+                average = ((average * index) + data.wardsPerMin) / (index + 1);
+                if(index == 0) average = data.wardsPerMin;
+
+                if(averageList.length >= this.nrOfMatchesAverage) averageList.shift();
+                averageList.push(data.wardsPerMin);
+
+                chartData.push([index, data.wardsPerMin, this.getAverageFromArray(averageList) ]);
+            }
+        });
+
+        this.wardsPerMin_ChartOptions.title = "Wards per minute";
+        this.wardsPerMin_average = Math.round(average * 100) / 100;
+        this.wardsPerMin_ChartData = [['Match', 'Wards per minute','Average']].concat(chartData);
     }
 
     formatMatchesData(arr : Array<any>) {
@@ -202,6 +220,13 @@ export class SummonerGraphsComponent implements OnInit {
         } else {
             return "CARRY";
         }
+    }
+
+    getTooltip(matchId,type,value) {
+        return `<div class="tooltip">
+         <div><b>${matchId}</b></div>
+         <div>${type}: ${value}</div>
+         </div>`
     }
 
     getAverageFromArray(arr : Array<number>) {

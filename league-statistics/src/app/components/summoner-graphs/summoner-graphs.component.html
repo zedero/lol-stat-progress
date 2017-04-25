@@ -14,5 +14,12 @@
                 <div id="line_chart" class="data-chart" [chartData]="winrate_ChartData" [chartOptions]= "winrate_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
+        <div class="col-sm-6">
+            <div class="user-stats__chart-container">
+                <div class="user-stats__average">Wards per minute:<span>  {{ wardsPerMin_average }} </span></div>
+                <!--<div id="gametime" class="data-chart"></div>-->
+                <div id="line_chart" class="data-chart" [chartData]="wardsPerMin_ChartData" [chartOptions]= "wardsPerMin_ChartOptions" chartType="LineChart" GoogleChart></div>
+            </div>
+        </div>
     </div>
 </div>
