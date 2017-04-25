@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {StaticDataService} from '../../services/static-data.service'
 import {SummonerDataService} from '../../services/summoner-data.service'
 
+
 @Component({
     selector: 'app-summoner-graphs',
     templateUrl: './summoner-graphs.component.html',
@@ -10,7 +11,36 @@ import {SummonerDataService} from '../../services/summoner-data.service'
 export class SummonerGraphsComponent implements OnInit {
     summonerMatchData = [];
     champions = [];
+    filterRole = "ALL";
 
+    public gametime_ChartData;
+
+
+    public line_ChartOptions = {
+        titleTextStyle: { color: '#FFF' },
+        backgroundColor: '#263646',
+        colors: ['#01689b','#6bdb8d'],
+        hAxis: {
+            textStyle: {
+                color: '#FFF'
+            }
+        },
+        vAxis: {
+            textStyle: {
+                color: '#FFF'
+            }
+        },
+        title: 'placeholder text',
+        legend: {
+            position: 'none',
+            textStyle: {
+                color: '#FFF'
+            }
+        }
+    };
+
+    public gametime_ChartOptions = this.line_ChartOptions;
+    public gametime_average = 0;
 
     constructor(private staticDataService: StaticDataService, private summonerDataService: SummonerDataService) {
     }
@@ -27,7 +57,6 @@ export class SummonerGraphsComponent implements OnInit {
                     data.forEach(function(champ){
                         that.champions[champ.id] = champ;
                     });
-                    console.log(this.champions);
 
                     this.getSummonerData();
                 }
@@ -44,7 +73,7 @@ export class SummonerGraphsComponent implements OnInit {
         this.summonerDataService.getSummonerMatchData(19887289)
             .subscribe(data => {
                 this.summonerMatchData = this.formatMatchesData(data);
-                console.log(this.summonerMatchData);
+                this.renderUI()
             },err => {
                 this.handleError(err);
                 let fthis = this;
@@ -70,6 +99,29 @@ export class SummonerGraphsComponent implements OnInit {
             timeline(_v);*/
             console.log('test');
         //});
+    }
+
+    renderUI() {
+        this.renderGameTimeChart();
+    }
+
+    renderGameTimeChart() {
+        let average = 0;
+        let chartData = [];
+        let index = 0;
+        this.summonerMatchData.forEach(data => {
+            if(data.role == this.filterRole || this.filterRole == "ALL") {
+                let gametime = Math.round(data.matchDuration / 60);
+                average = ((average * index) + gametime) / (index + 1);
+                if(index == 0) average = gametime;
+                chartData.push([index, gametime, Math.round( average ) ]);
+                index++;
+            }
+        });
+
+        this.gametime_ChartOptions.title = "gametime";
+        this.gametime_average = Math.round(average);
+        this.gametime_ChartData = [['Match', 'Gametime','Average']].concat(chartData);
     }
 
     formatMatchesData(arr) {

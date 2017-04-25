@@ -13,6 +13,7 @@ import {SummonerGraphsComponent} from './components/summoner-graphs/summoner-gra
 import {TeamAnalysisComponent} from './components/team-analysis/team-analysis.component';
 import {TankItemizerComponent} from './components/tank-itemizer/tank-itemizer.component';
 import { OrderByPipe } from './pipes/order-by.pipe';
+import { GoogleChart} from'../../node_modules/angular2-google-chart/directives/angular2-google-chart.directive';
 
 @NgModule({
     declarations: [
@@ -22,6 +23,7 @@ import { OrderByPipe } from './pipes/order-by.pipe';
         TeamAnalysisComponent,
         TankItemizerComponent,
         OrderByPipe,
+        GoogleChart,
     ],
     imports: [
         BrowserModule,

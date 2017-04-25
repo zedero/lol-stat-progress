@@ -12,5 +12,11 @@
 <body>
   <app-root>Loading...</app-root>
 </body>
-<script src="/assets/js/loader.js"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    // !important: You want to give this variable(var googleLoaded = false;). This is used to run multiple chart in your jade.
+    let googleLoaded = false;
+    // !important: Define which chart packages to preload.Because this package uses ChartWrappers you can use any chart type that Google supports, but if it // isn't loaded it will load it on demand.
+    let googleChartsPackagesToLoad = ['geochart'];
+</script>
 </html>

@@ -2,8 +2,9 @@
     <div class="row">
         <div class="col-sm-6">
             <div class="user-stats__chart-container">
-                <div class="user-stats__average">Average gametime:<span>  avgGameTime </span> minutes</div>
-                <div id="gametime" class="data-chart"></div>
+                <div class="user-stats__average">Average gametime:<span>  {{ gametime_average }} </span> minutes</div>
+                <!--<div id="gametime" class="data-chart"></div>-->
+                <div id="line_chart" class="data-chart" [chartData]="gametime_ChartData" [chartOptions]= "gametime_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
     </div>
