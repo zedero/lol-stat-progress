@@ -3,6 +3,8 @@ import { Http, Response }          from '@angular/http';
 
 //import {Observable}     from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
+import {Subject} from "rxjs/Subject";
+import {ReplaySubject} from "rxjs/ReplaySubject";
 //import 'rxjs/add/operator/catch';
 
 @Injectable()
@@ -12,7 +14,10 @@ export class SummonerDataService {
     private LOCATION = '/api';
     private HOST = this.SERVER_ADRESS + ":" + this.PORT + this.LOCATION;
 
+    summonerId$: Subject<number>;
+
     constructor(private http: Http) {
+        this.summonerId$ = new ReplaySubject(1);
     }
 
     getSummonersList() {

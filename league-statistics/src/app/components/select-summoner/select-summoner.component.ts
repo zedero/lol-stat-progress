@@ -35,6 +35,7 @@ export class SelectSummonerComponent implements OnInit {
             .subscribe(data => {
                 if(this.summoners == undefined && data.length != 0) {
                     this.selectedSummoner = data[0];
+                    this.summonerDataService.summonerId$.next(data[0].id);
                 }
                 if(data.length > 0) {
                     this.summoners = data;
@@ -82,11 +83,13 @@ export class SelectSummonerComponent implements OnInit {
 
     selectSummoner(event) {
         let id = event.target.value;
+        this.summonerDataService.summonerId$.next(id);
+
         this.summonerDataService.getSummonersList()
             .subscribe(data => {
-                this.selectedSummoner = data.filter(function ( obj ) {
+                this.selectedSummoner = data.find(function ( obj ) {
                     return obj.id == id;
-                })[0];
+                });
             });
     }
 
