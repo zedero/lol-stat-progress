@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {StaticDataService} from '../../services/static-data.service'
 import {SummonerDataService} from '../../services/summoner-data.service'
 
-
 @Component({
     selector: 'app-summoner-graphs',
     templateUrl: './summoner-graphs.component.html',
@@ -12,7 +11,7 @@ export class SummonerGraphsComponent implements OnInit {
     summonerMatchData : Array<any> = [];
     champions : Array<any> = [];
     filterRole : string = "ALL";
-    nrOfMatchesAverage = 15;
+    nrOfMatchesAverage = 20;
     nrOfLatestMatches = 150;
 
     summonerId = 65002229;
@@ -350,10 +349,10 @@ export class SummonerGraphsComponent implements OnInit {
     }
 
     getTooltip(matchId,type,value) {
-        return `<div class="tooltip">
-         <div><b>${matchId}</b></div>
-         <div>${type}: ${value}</div>
-         </div>`
+        return ` <div class="tooltip">
+                    <div><b>${matchId}</b></div>
+                    <div>${type}: ${value}</div>
+                 </div>`
     }
 
     getAverageFromArray(arr : Array<number>) {
