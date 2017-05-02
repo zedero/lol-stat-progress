@@ -12,14 +12,14 @@ const RIOT_API_URL = 'https://na1.api.riotgames.com/api/lol/na/';
 let   RIOT_API_REGION = 'na1';
 //const RIOT_API_URL_MASTERY = 'https://na.api.riotgames.com/championmastery/location/NA1/';
 const RIOT_API_URL_STATIC = 'https://global.api.riotgames.com/api/lol/static-data/na/';
-//TODO DEPRICATED API ENPOINTS BY JULY 24TH 2017!!!
+//TODO DEPRICATED API ENPOINTS BY JULY 24TH 2017!!!  ACCOUNTID: 226919565
 const RIOT_API_QUERRIES = {
-    summoner_by_name : 'v1.4/summoner/by-name/',    //TODO due to DEPRICATION => v3/summoner/by-name/
-    summoner_by_id : 'v1.4/summoner/',              //TODO due to DEPRICATION => v3/summoner/
-    matchlist : 'v2.2/matchlist/by-summoner/',      //TODO due to DEPRICATION => v3/match/by-summoner/
-    match : 'v2.2/match/',                          //TODO due to DEPRICATION => v3/match/
+    summoner_by_name : 'v1.4/summoner/by-name/',    //TODO https://na1.api.riotgames.com/lol/summoner/v3/summoners/by-name/
+    summoner_by_id : 'v1.4/summoner/',              //TODO https://na1.api.riotgames.com/lol/summoner/v3/summoners/
+    matchlist : 'v2.2/matchlist/by-summoner/',      //TODO https://na1.api.riotgames.com/lol/match/v3/matchlists/by-account/
+    match : 'v2.2/match/',                          //TODO https://na1.api.riotgames.com/lol/match/v3/matches/
     static : {
-        champions : 'v1.2/champion',                //TODO due to DEPRICATION => v3/champion
+        champions : 'v1.2/champion',                //TODO https://na1.api.riotgames.com/lol/static-data/v3/champions
         items : 'v3/items'
     }
 };
@@ -524,6 +524,15 @@ let server = app.listen(8080, 'localhost', function () {
    let host = server.address().address;
    let port = server.address().port;
    console.log("Api listening at http://%s:%s", host, port);
+
+
+    /*requestUserData('Imaqtpie');
+    requestUserData('Frozenw0lf');
+    requestUserData('Flemg');
+    requestUserData('Vuile hond');
+    requestUserData('CBasher');
+    requestUserData('I am Zedero');
+    requestUserData('Pienaarsteven');*/
    /*
     *   Update static data
     */
