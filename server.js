@@ -10,13 +10,14 @@ const RIOT_API_KEY = 'RGAPI-1765509c-a68e-4e52-8bd7-0350a7211a3b';
 const RIOT_API_URL = 'https://na.api.pvp.net/api/lol/na/';
 const RIOT_API_URL_MASTERY = 'https://na.api.riotgames.com/championmastery/location/NA1/';
 const RIOT_API_URL_STATIC = 'https://global.api.pvp.net/api/lol/static-data/na/';
+                                                    //TODO DEPRICATED API ENPOINTS BY JULY 24TH 2017!!!
 const RIOT_API_QUERRIES = {
-    summoner_by_name : 'v1.4/summoner/by-name/',
-    summoner_by_id : 'v1.4/summoner/',
-    matchlist : 'v2.2/matchlist/by-summoner/',
-    match : 'v2.2/match/',
+    summoner_by_name : 'v1.4/summoner/by-name/',    //TODO due to DEPRICATION => v3/summoner/by-name/
+    summoner_by_id : 'v1.4/summoner/',              //TODO due to DEPRICATION => v3/summoner/
+    matchlist : 'v2.2/matchlist/by-summoner/',      //TODO due to DEPRICATION => v3/match/by-summoner/
+    match : 'v2.2/match/',                          //TODO due to DEPRICATION => v3/match/
     static : {
-        champions : 'v1.2/champion',
+        champions : 'v1.2/champion',                //TODO due to DEPRICATION => v3/champion
         items : 'v3/items'
     }
 };

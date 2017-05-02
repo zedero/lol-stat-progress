@@ -18,6 +18,15 @@ export class SummonerGraphsComponent implements OnInit {
 
     summonerId = 65002229;
 
+    filterRoles: Array<string> = [
+        "ALL",
+        "TOP",
+        "JUNGLE",
+        "MID",
+        "CARRY",
+        "SUPPORT"
+    ];
+
     public line_ChartOptions = {
         titleTextStyle: {color: '#FFF'},
         backgroundColor: '#263646',
@@ -176,9 +185,21 @@ export class SummonerGraphsComponent implements OnInit {
     }
 
     renderWinrateChart() {
-        let average: number = .5;
+        /*TODO
+        * fix calculations */
+        let average: number = 0;
+        let index: number = 0;
         let averageList: Array<any> = [];
         let chartData: Array<any> = [];
+
+        this.summonerMatchData.forEach(data => {
+            if (data.role == this.filterRole || this.filterRole == "ALL") {
+                average += parseInt(data.winner);
+                index++;
+            }
+        });
+        average = average / index;
+        this.winrate_average = Math.round(average * 100);
 
         this.summonerMatchData.forEach((data, index) => {
             if (data.role == this.filterRole || this.filterRole == "ALL") {
@@ -190,7 +211,6 @@ export class SummonerGraphsComponent implements OnInit {
         });
 
         this.winrate_ChartOptions.title = "Winrate";
-        this.winrate_average = Math.round(average * 100);
         this.winrate_ChartData = [['Match', 'Winrate', {
             'type': 'string',
             'role': 'tooltip',

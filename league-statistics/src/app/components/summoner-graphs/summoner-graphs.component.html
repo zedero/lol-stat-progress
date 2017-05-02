@@ -1,3 +1,18 @@
+<div class="user-filter">
+    <div class="user-filter__user">
+
+    </div>
+    <div class="user-filter__filter" v-show="activeTab != 2"><span>Filter by role</span>
+        <select (change)="renderUI()"
+                [(ngModel)]="filterRole">
+            <option
+                *ngFor="let role of filterRoles" value="{{role}}"
+            >
+                {{role}}
+            </option>
+        </select>
+    </div>
+</div>
 <div class="user-stats">
     <div class="row">
         <div class="col-sm-6">
