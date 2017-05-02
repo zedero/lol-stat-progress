@@ -1,3 +1,4 @@
+//TODO ADD HTTPS OR SSL!!!!!!
 //var memwatch = require('memwatch-next');
 let express = require('express');
 let qs = require('querystring');
@@ -8,9 +9,10 @@ let request = require('request');
 const SUBDOMAIN = '/api';
 const RIOT_API_KEY = 'RGAPI-1765509c-a68e-4e52-8bd7-0350a7211a3b';
 const RIOT_API_URL = 'https://na1.api.riotgames.com/api/lol/na/';
+let   RIOT_API_REGION = 'na1';
 //const RIOT_API_URL_MASTERY = 'https://na.api.riotgames.com/championmastery/location/NA1/';
-const RIOT_API_URL_STATIC = 'https://global.api.pvp.net/api/lol/static-data/na/';
-                                                    //TODO DEPRICATED API ENPOINTS BY JULY 24TH 2017!!!
+const RIOT_API_URL_STATIC = 'https://global.api.riotgames.com/api/lol/static-data/na/';
+//TODO DEPRICATED API ENPOINTS BY JULY 24TH 2017!!!
 const RIOT_API_QUERRIES = {
     summoner_by_name : 'v1.4/summoner/by-name/',    //TODO due to DEPRICATION => v3/summoner/by-name/
     summoner_by_id : 'v1.4/summoner/',              //TODO due to DEPRICATION => v3/summoner/
@@ -21,6 +23,7 @@ const RIOT_API_QUERRIES = {
         items : 'v3/items'
     }
 };
+
 //memwatch.on('leak', function(info) { console.log(info) });
 /*
  *  Create database connection
@@ -58,6 +61,7 @@ let callRiotApiQueue = [];
 let callRiotApi = function(url, queryObject, callback, priority=false) {
     let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryObject);
     let fullUrl = url + queryString;
+    console.log(fullUrl);
     if(searchArrayForMatchingCall(callRiotApiQueue,fullUrl) === false) {
         if(priority) {
             /*
