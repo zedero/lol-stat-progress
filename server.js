@@ -8,7 +8,7 @@ let request = require('request');
 const SUBDOMAIN = '/api';
 const RIOT_API_KEY = 'RGAPI-1765509c-a68e-4e52-8bd7-0350a7211a3b';
 const RIOT_API_URL = 'https://na1.api.riotgames.com/api/lol/na/';
-const RIOT_API_URL_MASTERY = 'https://na.api.riotgames.com/championmastery/location/NA1/';
+//const RIOT_API_URL_MASTERY = 'https://na.api.riotgames.com/championmastery/location/NA1/';
 const RIOT_API_URL_STATIC = 'https://global.api.pvp.net/api/lol/static-data/na/';
                                                     //TODO DEPRICATED API ENPOINTS BY JULY 24TH 2017!!!
 const RIOT_API_QUERRIES = {
