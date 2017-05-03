@@ -8,18 +8,18 @@ let app = express();
 let request = require('request');
 const SUBDOMAIN = '/api';
 const RIOT_API_KEY = 'RGAPI-1765509c-a68e-4e52-8bd7-0350a7211a3b';
-const RIOT_API_URL = 'https://na1.api.riotgames.com/api/lol/na/';
+const RIOT_API_URL = 'https://na1.api.riotgames.com/lol/';
 let   RIOT_API_REGION = 'na1';
 //const RIOT_API_URL_MASTERY = 'https://na.api.riotgames.com/championmastery/location/NA1/';
-const RIOT_API_URL_STATIC = 'https://global.api.riotgames.com/api/lol/static-data/na/';
+const RIOT_API_URL_STATIC = 'https://na1.api.riotgames.com/lol/';
 //TODO DEPRICATED API ENPOINTS BY JULY 24TH 2017!!!  ACCOUNTID: 226919565
 const RIOT_API_QUERRIES = {
-    summoner_by_name : 'v1.4/summoner/by-name/',    //TODO https://na1.api.riotgames.com/lol/summoner/v3/summoners/by-name/
-    summoner_by_id : 'v1.4/summoner/',              //TODO https://na1.api.riotgames.com/lol/summoner/v3/summoners/
-    matchlist : 'v2.2/matchlist/by-summoner/',      //TODO https://na1.api.riotgames.com/lol/match/v3/matchlists/by-account/
-    match : 'v2.2/match/',                          //TODO https://na1.api.riotgames.com/lol/match/v3/matches/
+    summoner_by_name : 'summoner/v3/summoners/by-name/',    //TODO https://na1.api.riotgames.com/lol/summoner/v3/summoners/by-name/
+    summoner_by_id : 'summoner/v3/summoners/',              //TODO https://na1.api.riotgames.com/lol/summoner/v3/summoners/
+    matchlist : 'match/v3/matchlists/by-account/',          //TODO https://na1.api.riotgames.com/lol/match/v3/matchlists/by-account/
+    match : 'match/v3/matches/',                            //TODO https://na1.api.riotgames.com/lol/match/v3/matches/
     static : {
-        champions : 'v1.2/champion',                //TODO https://na1.api.riotgames.com/lol/static-data/v3/champions
+        champions : 'static-data/v3/champions',             //TODO https://na1.api.riotgames.com/lol/static-data/v3/champions
         items : 'v3/items'
     }
 };
@@ -29,10 +29,10 @@ const RIOT_API_QUERRIES = {
  *  Create database connection
  */
 let connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : 'root',
-  database: 'lolstat'
+    host     : 'localhost',
+    user     : 'root',
+    password : 'root',
+    database: 'lolstat',
 });//socketPath: '/Applications/MAMP/tmp/mysql/mysql.sock'
 connection.connect();
 
@@ -61,14 +61,13 @@ let callRiotApiQueue = [];
 let callRiotApi = function(url, queryObject, callback, priority=false) {
     let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryObject);
     let fullUrl = url + queryString;
-    console.log(fullUrl);
     if(searchArrayForMatchingCall(callRiotApiQueue,fullUrl) === false) {
         if(priority) {
             /*
-                Add new call to the 2nd position within the array.
-                It may never be the 1st position as when a call is
-                finished it takes the callback from the 1st item.
-            */
+             Add new call to the 2nd position within the array.
+             It may never be the 1st position as when a call is
+             finished it takes the callback from the 1st item.
+             */
 
             let pos = 0;
             if(callRiotApiQueue.length > 0) pos = 1;
@@ -109,13 +108,12 @@ let callRiotApiQueueLoop = function() {
                     }
                 } else {
                     if (!error && response.statusCode === 503) {
-                        callRiotApiQueue =[];
+                        //callRiotApiQueue =[];
                         console.log('==== RIOT API error ====');
                         console.log('API not available');
                         console.log('');
                         console.log(' - Clearing queue');
                         console.log('========================');
-                        callRiotApiQueue = [];
                         console.log('Queue empty');
                     } else {
                         console.log('==== RIOT API error ====');
@@ -263,11 +261,14 @@ let requestUserData = function(username) {
     }, function(body) {
         //console.log(body);
         body = JSON.parse(body);
-        Object.keys(body).forEach(function(key) {
-            connection.query('REPLACE INTO summoners SET ?', body[key], function(err, result) {
-              if (err) throw err;
-          });
+        connection.query('REPLACE INTO summoners SET ?', body, function(err, result) {
+            if (err) throw err;
         });
+        /*Object.keys(body).forEach(function(key) {
+            connection.query('REPLACE INTO summoners SET ?', body[key], function(err, result) {
+                if (err) throw err;
+            });
+        });*/
     },true);
 };
 
@@ -275,14 +276,19 @@ let requestSummonerData = function(id,callback = function(){}) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_id + id, {
 
     }, function(body) {
-
         body = JSON.parse(body);
+        connection.query('REPLACE INTO summoners SET ?', body, function(err, result) {
+            if (err) throw err;
+            callback();
+        });
+        /*
         Object.keys(body).forEach(function(key) {
             connection.query('REPLACE INTO summoners SET ?', body[key], function(err, result) {
                 if (err) throw err;
                 callback();
             });
         });
+        */
     },true);
 };
 
@@ -291,15 +297,15 @@ let requestSummonerData = function(id,callback = function(){}) {
 let requestStaticChampionData = function() {
     callRiotApi(RIOT_API_URL_STATIC + RIOT_API_QUERRIES.static.champions, {
         dataById : true,
-        champData : "tags,stats"
+        champListData : "tags,stats"
     }, function(body) {
         body = JSON.parse(body)['data'];
         Object.keys(body).forEach(function(key) {
             body[key].tags = JSON.stringify(body[key].tags);
             body[key].stats = JSON.stringify(body[key].stats);
             connection.query('INSERT INTO static_champions SET ? ON DUPLICATE KEY UPDATE id=VALUES(id),name=VALUES(name),title=VALUES(title),tags=VALUES(tags),`key`=VALUES(`key`),`stats`=VALUES(`stats`)', body[key], function(err, result) {
-              if (err) throw err;
-          });
+                if (err) throw err;
+            });
         });
     },true);
 };
@@ -307,7 +313,7 @@ let requestStaticChampionData = function() {
 let getMissingDataCounter = 0;
 let requestLatestMatches = function(userid,callback = function(){}) {
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.matchlist + userid, {
-        seasons: ""
+        //seasons: ""
     }, function(body) {
         let temp = JSON.parse(body);
         callback();
@@ -315,7 +321,9 @@ let requestLatestMatches = function(userid,callback = function(){}) {
             let data = temp['matches'];
             getMissingDataCounter += data.length;
             data.forEach(function(_data){
-                _data.summonerId = userid;
+                _data.summonerId = userid; //TODO: Depricated REMOVE THIS IN A LATER STAGE.
+                _data.accountId = userid;
+                _data.matchId = _data.gameId;
                 connection.query('REPLACE INTO matches SET ?', _data, function(err, result) {
                     if (err) throw err;
                     getMissingDataCounter--;
@@ -352,10 +360,10 @@ let formatMatchData = function(matchId,userId) {
     //TODO create a worker for this task in the future
 
     let QUERY = 'SELECT * FROM raw_match_data';
-        QUERY += ' LEFT JOIN matches ON raw_match_data.matchId =  ' + matchId;
-        QUERY += ' AND raw_match_data.matchId=matches.matchId AND matches.summonerId = '+ userId;
-        QUERY += ' WHERE raw_match_data.matchId = ' + matchId;
-        QUERY += ' AND matches.summonerId = ' + userId;
+    QUERY += ' LEFT JOIN matches ON raw_match_data.matchId =  ' + matchId;
+    QUERY += ' AND raw_match_data.matchId=matches.matchId AND matches.summonerId = '+ userId;
+    QUERY += ' WHERE raw_match_data.matchId = ' + matchId;
+    QUERY += ' AND matches.summonerId = ' + userId;
     //console.log(QUERY);
     connection.query(QUERY, function(err, row) {
         if (err) throw err;
@@ -410,11 +418,11 @@ let formatSummonersAvailableMatchData = function (userId) {
      *  TODO Make query more efficient by checking if an formatted match exists.
      */
     let QUERY = 'SELECT matchId FROM matches WHERE summonerId = ' + userId;
-        QUERY = 'SELECT distinct matchId FROM raw_match_data WHERE NOT EXISTS (SELECT formatted_match_data.matchId FROM formatted_match_data WHERE raw_match_data.matchId = formatted_match_data.matchId)';
+    QUERY = 'SELECT distinct matchId FROM raw_match_data WHERE NOT EXISTS (SELECT formatted_match_data.matchId FROM formatted_match_data WHERE raw_match_data.matchId = formatted_match_data.matchId)';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
         rows.forEach(function(row){
-             setTimeout(function(){
+            setTimeout(function(){
                 formatMatchData(row.matchId , userId)
             }, 10);
             //formatMatchData(row.matchId , userId);
@@ -440,8 +448,8 @@ let formatAllSummonersAvailableMatchData = function (userId) {
 
 let getParticipantId = function(participantIdentities , userId) {
     /*
-        TODO add an extra method to get the pId when identity list is empty
-    */
+     TODO add an extra method to get the pId when identity list is empty
+     */
     let id = -1;
     Object.keys(participantIdentities).forEach(function(element, index, array){
         let participant = participantIdentities[index];
@@ -492,8 +500,8 @@ let getMissingRawData = function() {
         rows.forEach(function(row){
 
             //if(limCount < limit) {
-                //console.log('Total requests left:',rows.length)
-                requestMatchData(row.matchId);
+            //console.log('Total requests left:',rows.length)
+            requestMatchData(row.matchId);
             //}
             //limCount++;
         });
@@ -521,58 +529,50 @@ let formatAllChampionData = function() {
  * Server initialization
  */
 let server = app.listen(8080, 'localhost', function () {
-   let host = server.address().address;
-   let port = server.address().port;
-   console.log("Api listening at http://%s:%s", host, port);
+    let host = server.address().address;
+    let port = server.address().port;
+    console.log("Api listening at http://%s:%s", host, port);
+
+    /*
+     *   Update static data
+     */
+    requestStaticChampionData();
 
 
-    /*requestUserData('Imaqtpie');
-    requestUserData('Frozenw0lf');
-    requestUserData('Flemg');
-    requestUserData('Vuile hond');
-    requestUserData('CBasher');
-    requestUserData('I am Zedero');
-    requestUserData('Pienaarsteven');*/
-   /*
-    *   Update static data
-    */
-   requestStaticChampionData();
+    /*
+     *   Format any matches that is not yet formatted
+     */
+    formatAllChampionData();
 
+    /*
+     *   Start the update cycle. This gets missing match data
+     */
 
-   /*
-    *   Format any matches that is not yet formatted
-    */
-   formatAllChampionData();
-
-   /*
-    *   Start the update cycle. This gets missing match data
-    */
-
-   getMissingRawData();
+    getMissingRawData();
 
 });
 
 /*TODO
 
-    GET TOTAL OBJECTIVES
-    GET OBJECTIVES / MINUTE or 10 minutes
+ GET TOTAL OBJECTIVES
+ GET OBJECTIVES / MINUTE or 10 minutes
 
-    "teamId": 100,
-    "winner": false,
-    "firstBlood": false,
-    "firstTower": true,
-    "firstInhibitor": false,
-    "firstBaron": false,
-    "firstDragon": true,
-    "firstRiftHerald": true,
-    "towerKills": 2,
-    "inhibitorKills": 0,
-    "baronKills": 0,
-    "dragonKills": 1,
-    "riftHeraldKills": 1,
-    "vilemawKills": 0,
-    "dominionVictoryScore": 0
-*/
+ "teamId": 100,
+ "winner": false,
+ "firstBlood": false,
+ "firstTower": true,
+ "firstInhibitor": false,
+ "firstBaron": false,
+ "firstDragon": true,
+ "firstRiftHerald": true,
+ "towerKills": 2,
+ "inhibitorKills": 0,
+ "baronKills": 0,
+ "dragonKills": 1,
+ "riftHeraldKills": 1,
+ "vilemawKills": 0,
+ "dominionVictoryScore": 0
+ */
 
 /*
  Get all champion mastery entries sorted by number of champion points descending (RPC)

@@ -16,7 +16,8 @@ export class SelectSummonerComponent implements OnInit {
         "name": "",
         "summonerLevel": 0,
         "revisionDate": 0,
-        "profileIconId": 0
+        "profileIconId": 0,
+        "accountId": 0
     };
     test;
     updating = false;
@@ -67,7 +68,7 @@ export class SelectSummonerComponent implements OnInit {
                     err => {
                         this.handleError(err);
                     });
-            this.summonerDataService.updateSummonerMatchData(this.selectedSummoner.id)
+            this.summonerDataService.updateSummonerMatchData(this.selectedSummoner.accountId)
                 .subscribe(
                     data => {
                         this.updating = false;
