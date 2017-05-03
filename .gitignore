@@ -2,7 +2,7 @@ node_modules
 dist
 test
 .DS_Store
-api-key.js
+api_key.js
 
 # IDE project files
 .idea
