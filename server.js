@@ -1,10 +1,12 @@
 //TODO ADD HTTPS OR SSL!!!!!!
+var apiKey = require('./api_key');
+
 //var memwatch = require('memwatch-next');
 let express = require('express');
 let qs = require('querystring');
 let mysql = require('mysql');
 let app = express();
-var apiKey = require('./api_key');
+
 //var fs = require("fs");
 let request = require('request');
 const SUBDOMAIN = '/api';
