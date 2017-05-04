@@ -22,7 +22,7 @@ const RIOT_API_QUERRIES = {
     matchlist : 'match/v3/matchlists/by-account/',
     match : 'match/v3/matches/',
     static : {
-        champions : 'static-data/v3/champions',      
+        champions : 'static-data/v3/champions',
         versions : 'static-data/v3/versions',
         items : 'v3/items'
     }
@@ -157,11 +157,10 @@ let callRiotApiQueueLoop = function() {
  */
 let createQueryUrl = function(params) {
     let esc = encodeURIComponent;
-    let query = Object.keys(params)
+    return Object.keys(params)
         .map(k => esc(k) + '=' + esc(params[k]))
         .join('&');
-    return query;
-}
+};
 
 let searchArrayForMatchingCall = function(arr,query) {
     let found = false;
@@ -171,7 +170,7 @@ let searchArrayForMatchingCall = function(arr,query) {
         }
     });
     return found;
-}
+};
 
 
 //==============================================================================
@@ -369,7 +368,7 @@ let requestLatestMatches = function(userid,callback = function(){}) {
                 connection.query('REPLACE INTO matches SET ?', _data, function(err, result) {
                     if (err) throw err;
                     getMissingDataCounter--;
-                    if(getMissingDataCounter==0) {
+                    if(getMissingDataCounter===0) {
                         getMissingRawData();
                     }
                 });
@@ -505,7 +504,7 @@ let getParticipantId = function(participantIdentities , userId) {
     let id = -1;
     Object.keys(participantIdentities).forEach(function(element, index, array){
         let participant = participantIdentities[index];
-        if(participant.player.accountId == userId) {
+        if(participant.player.accountId === userId) {
             id = participant.participantId;
         }
     });
@@ -538,7 +537,7 @@ let getHasTeamWon = function(teams, pId) {
         pId = 0;
     }
 
-    if(teams[pId].win == "Win") {
+    if(teams[pId].win === "Win") {
         return 1;
     } else {
         return 0;
@@ -546,8 +545,7 @@ let getHasTeamWon = function(teams, pId) {
 };
 
 let getMissingRawData = function() {
-    let QUERY = 'SELECT distinct matchId FROM matches';
-    QUERY = 'SELECT distinct matchId FROM matches WHERE NOT EXISTS (SELECT raw_match_data.matchId FROM raw_match_data WHERE matches.matchId = raw_match_data.matchId)';
+    let QUERY = 'SELECT distinct matchId FROM matches WHERE NOT EXISTS (SELECT raw_match_data.matchId FROM raw_match_data WHERE matches.matchId = raw_match_data.matchId)';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
         let limit = 1;
@@ -562,7 +560,7 @@ let getMissingRawData = function() {
             //limCount++;
         });
 
-        if(rows.length == 0) {
+        if(rows.length === 0) {
             formatAllChampionData();
         }
     });
@@ -608,37 +606,3 @@ let server = app.listen(8080, 'localhost', function () {
     getMissingRawData();
 
 });
-
-/*TODO
-
- GET TOTAL OBJECTIVES
- GET OBJECTIVES / MINUTE or 10 minutes
-
- "teamId": 100,
- "winner": false,
- "firstBlood": false,
- "firstTower": true,
- "firstInhibitor": false,
- "firstBaron": false,
- "firstDragon": true,
- "firstRiftHerald": true,
- "towerKills": 2,
- "inhibitorKills": 0,
- "baronKills": 0,
- "dragonKills": 1,
- "riftHeraldKills": 1,
- "vilemawKills": 0,
- "dominionVictoryScore": 0
- */
-
-/*
- Get all champion mastery entries sorted by number of champion points descending (RPC)
- /championmastery/location/{location}/player/{playerId}/champions
-
-
-
-
-
-
-
- */
