@@ -9,6 +9,7 @@ import 'rxjs/add/operator/toPromise';
     templateUrl: './select-summoner.component.html',
     styleUrls: ['./select-summoner.component.css']
 })
+
 export class SelectSummonerComponent implements OnInit {
     summoners;
     selectedSummoner = {
@@ -17,7 +18,7 @@ export class SelectSummonerComponent implements OnInit {
         "summonerLevel": 0,
         "revisionDate": 0,
         "profileIconId": 0,
-        "accountId": 0
+        "accountId": -1
     };
     test;
     updating = false;
@@ -36,7 +37,7 @@ export class SelectSummonerComponent implements OnInit {
             .subscribe(data => {
                 if(this.summoners == undefined && data.length != 0) {
                     this.selectedSummoner = data[0];
-                    this.summonerDataService.summonerId$.next(data[0].id);
+                    this.summonerDataService.summonerId$.next(data[0].accountId);
                 }
                 if(data.length > 0) {
                     this.summoners = data;
@@ -52,7 +53,6 @@ export class SelectSummonerComponent implements OnInit {
 
     updateSummoner() {
         this.apiError = false;
-
         if (!this.updating) {
             this.updating = true;
             this.summonerDataService.updateSummonerProfileData(this.selectedSummoner.id)
@@ -61,7 +61,7 @@ export class SelectSummonerComponent implements OnInit {
                         if(!data.startedUpdate) {
                             if(data.length > 0) {
                                 this.summoners = data;
-                                this.selectSummoner({target: {value: this.selectedSummoner.id}});
+                                this.selectSummoner({target: {value: this.selectedSummoner.accountId}});
                             }
                         }
                     },
@@ -83,13 +83,13 @@ export class SelectSummonerComponent implements OnInit {
     }
 
     selectSummoner(event) {
-        let id = event.target.value;
-        this.summonerDataService.summonerId$.next(id);
+        let accountId = event.target.value;
+        this.summonerDataService.summonerId$.next(accountId);
 
         this.summonerDataService.getSummonersList()
             .subscribe(data => {
                 this.selectedSummoner = data.find(function ( obj ) {
-                    return obj.id == id;
+                    return obj.accountId == accountId;
                 });
             });
     }

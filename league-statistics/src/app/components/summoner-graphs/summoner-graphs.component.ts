@@ -14,7 +14,7 @@ export class SummonerGraphsComponent implements OnInit {
     champions: Array<any> = [];
     filterRole: string = "ALL";
     nrOfMatchesAverage: number = 20;
-    nrOfLatestMatches: number = 150;
+    nrOfLatestMatches: number = 250;
 
     summonerId = 65002229;
 
@@ -163,10 +163,10 @@ export class SummonerGraphsComponent implements OnInit {
     }
 
     renderGameTimeChart() {
+        if(!this.summonerMatchData.length) return;
         let average: number = 0;
         let averageList: Array<any> = [];
         let chartData: Array<any> = [];
-
         this.summonerMatchData.forEach((data, index) => {
             if (data.role == this.filterRole || this.filterRole == "ALL") {
                 let gametime = Math.round(data.matchDuration / 60);

@@ -118,6 +118,13 @@ let callRiotApiQueueLoop = function() {
                         console.log(' - Clearing queue');
                         console.log('========================');
                         console.log('Queue empty');
+                    } else if(!error && response.statusCode === 404){
+                        console.log('==== RIOT API error ====');
+                        console.log('Status code: ',response.statusCode);
+                        console.log(callRiotApiQueue[0]);
+                        callRiotApiQueue.shift();
+                        console.log('Data not found. Removing call from queue.');
+                        console.log('========================');
                     } else {
                         console.log('==== RIOT API error ====');
                         console.log('Status code: ',response.statusCode);
@@ -381,7 +388,7 @@ let formatMatchData = function(matchId,userId) {
                     userId : userId,
                     matchId : matchId,
                     participantId : pId,
-                    matchDuration : rawdata.matchDuration,
+                    matchDuration : rawdata.gameDuration,
                     goldEarned : rawdata.participants[arrPos].stats.goldEarned,
                     visionWardsBoughtInGame: rawdata.participants[arrPos].stats.visionWardsBoughtInGame,
                     wardsPlaced: rawdata.participants[arrPos].stats.wardsPlaced,
@@ -389,7 +396,7 @@ let formatMatchData = function(matchId,userId) {
                     kills : rawdata.participants[arrPos].stats.kills,
                     deaths : rawdata.participants[arrPos].stats.deaths,
                     assists : rawdata.participants[arrPos].stats.assists,
-                    minionsKilled : rawdata.participants[arrPos].stats.minionsKilled,
+                    minionsKilled : rawdata.participants[arrPos].stats.totalMinionsKilled,//minionsKilled,
                     neutralMinionsKilled : rawdata.participants[arrPos].stats.neutralMinionsKilled,
                     champLevel : rawdata.participants[arrPos].stats.champLevel,
                     champion : rawdata.participants[arrPos].championId,
@@ -397,12 +404,21 @@ let formatMatchData = function(matchId,userId) {
                     role : row[0].role,
                     queue : row[0].queue,
                     season : row[0].season,
-                    matchCreation : rawdata.matchCreation,
+                    matchCreation : rawdata.gameCreation,
                     teamKills : teamscore.teamKills,
                     teamDeaths : teamscore.teamDeaths,
                     teamAssists : teamscore.teamAssists,
                     timeline : JSON.stringify(rawdata.participants[arrPos].timeline),
-                    winner : teamwin
+                    winner : teamwin,
+                    visionScore : rawdata.participants[arrPos].stats.visionScore,
+                    timeCCingOthers : rawdata.participants[arrPos].stats.timeCCingOthers,
+                    damageDealtToObjectives : rawdata.participants[arrPos].stats.damageDealtToObjectives,
+                    damageDealtToTurrets : rawdata.participants[arrPos].stats.damageDealtToTurrets,
+                    objectivePlayerScore : rawdata.participants[arrPos].stats.objectivePlayerScore,
+                    combatPlayerScore : rawdata.participants[arrPos].stats.combatPlayerScore,
+                    totalPlayerScore : rawdata.participants[arrPos].stats.totalPlayerScore,
+                    totalScoreRank : rawdata.participants[arrPos].stats.totalScoreRank,
+
                 };
                 connection.query('REPLACE INTO formatted_match_data SET ?', data, function(err, result) {
                     if (err) throw err;
@@ -419,6 +435,7 @@ let formatMatchData = function(matchId,userId) {
 let formatSummonersAvailableMatchData = function (userId) {
     /*
      *  TODO Make query more efficient by checking if an formatted match exists.
+     *  TODO MAKE QUERY TAKE ACCOUNTID SO WE DONT HAVE TO FILL THE userID FIELD WITH ACCOUNTID DATA
      */
     let QUERY = 'SELECT matchId FROM matches WHERE summonerId = ' + userId;
     QUERY = 'SELECT distinct matchId FROM raw_match_data WHERE NOT EXISTS (SELECT formatted_match_data.matchId FROM formatted_match_data WHERE raw_match_data.matchId = formatted_match_data.matchId)';
@@ -456,7 +473,7 @@ let getParticipantId = function(participantIdentities , userId) {
     let id = -1;
     Object.keys(participantIdentities).forEach(function(element, index, array){
         let participant = participantIdentities[index];
-        if(participant.player.summonerId == userId) {
+        if(participant.player.accountId == userId) {
             id = participant.participantId;
         }
     });
@@ -489,7 +506,11 @@ let getHasTeamWon = function(teams, pId) {
         pId = 0;
     }
 
-    return teams[pId].winner;
+    if(teams[pId].win == "Win") {
+        return 1;
+    } else {
+        return 0;
+    }
 };
 
 let getMissingRawData = function() {
@@ -521,7 +542,7 @@ let formatAllChampionData = function() {
         if (err) throw err;
         //console.log(rows);
         rows.forEach(function(data){
-            formatSummonersAvailableMatchData(data.id);
+            formatSummonersAvailableMatchData(data.accountId);
         })
     });
 };

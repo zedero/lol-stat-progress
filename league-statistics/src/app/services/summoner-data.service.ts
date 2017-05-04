@@ -27,18 +27,21 @@ export class SummonerDataService {
     }
 
     updateSummonerMatchData(summonerId) {
+        // ID = accountId
         return this.http
             .get(this.HOST + '/updateSummonerMatchData?userId=' + summonerId)
             .map((res: Response) => res.json());
     }
 
     updateSummonerProfileData(summonerId) {
+        // ID = summonerId
         return this.http
             .get(this.HOST + '/updateSummonerData?userId=' + summonerId)
             .map((res: Response) => res.json());
     }
 
     getSummonerMatchData(summonerId) {
+        // ID = accountId
         return this.http
             .get(this.HOST + '/getSummonerMatchData?userId=' + summonerId)
             .map((res: Response) => res.json());
