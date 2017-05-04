@@ -205,8 +205,7 @@ export class SummonerGraphsComponent implements OnInit {
             if (data.role == this.filterRole || this.filterRole == "ALL") {
                 let won = parseInt(data.winner);
                 average = ((average * (index + this.nrOfMatchesAverage)) + won) / (index + this.nrOfMatchesAverage + 1);
-
-                chartData.push([index, average * this.nrOfMatchesAverage, this.getTooltip(data.matchId, 'Winrate', (Math.round(average * 10000) / 100) + '%')]);
+                chartData.push([index, (Math.round(average * 10000) / 100), this.getTooltip(data.matchId, 'Winrate', (Math.round(average * 10000) / 100) + '%')]);
             }
         });
 
