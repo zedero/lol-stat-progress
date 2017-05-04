@@ -382,7 +382,7 @@ export class SummonerGraphsComponent implements OnInit {
         this.summonerMatchData.forEach((data, index) => {
             if(data.matchCreation > 1492891516800) {
                 if (data.role == this.filterRole || this.filterRole == "ALL") {
-                    average = ((average * index) + data.damageDealtToTurrets) / (index + 1);
+                    average = ((average * chartData.length) + data.damageDealtToTurrets) / (chartData.length + 1);
                     if (index == 0) average = data.damageDealtToTurrets;
 
                     if (averageList.length >= this.nrOfMatchesAverage) averageList.shift();

@@ -27,5 +27,11 @@ export class StaticDataService {
             .map((res: Response) => res.json());
     }
 
+    getVersion() {
+        return this.http
+            .get(this.HOST + '/getVersion')
+            .map((res: Response) => res.json());
+    }
+
 }
 

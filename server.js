@@ -1,5 +1,5 @@
 //TODO ADD HTTPS OR SSL!!!!!!
-var apiKey = require('./api_key');
+let apiKey = require('./api_key');
 
 //var memwatch = require('memwatch-next');
 let express = require('express');
@@ -11,18 +11,19 @@ let app = express();
 let request = require('request');
 const SUBDOMAIN = '/api';
 const RIOT_API_KEY = apiKey.apiKey;
-const RIOT_API_URL = 'https://na1.api.riotgames.com/lol/';
-let   RIOT_API_REGION = 'na1';
+const RIOT_API_REGION = 'na1';
+const RIOT_API_URL = 'https://'+RIOT_API_REGION+'.api.riotgames.com/lol/';
+
 //const RIOT_API_URL_MASTERY = 'https://na.api.riotgames.com/championmastery/location/NA1/';
 const RIOT_API_URL_STATIC = 'https://na1.api.riotgames.com/lol/';
-//TODO DEPRICATED API ENPOINTS BY JULY 24TH 2017!!!  ACCOUNTID: 226919565
 const RIOT_API_QUERRIES = {
-    summoner_by_name : 'summoner/v3/summoners/by-name/',    //TODO https://na1.api.riotgames.com/lol/summoner/v3/summoners/by-name/
-    summoner_by_id : 'summoner/v3/summoners/',              //TODO https://na1.api.riotgames.com/lol/summoner/v3/summoners/
-    matchlist : 'match/v3/matchlists/by-account/',          //TODO https://na1.api.riotgames.com/lol/match/v3/matchlists/by-account/
-    match : 'match/v3/matches/',                            //TODO https://na1.api.riotgames.com/lol/match/v3/matches/
+    summoner_by_name : 'summoner/v3/summoners/by-name/',
+    summoner_by_id : 'summoner/v3/summoners/',
+    matchlist : 'match/v3/matchlists/by-account/',
+    match : 'match/v3/matches/',
     static : {
-        champions : 'static-data/v3/champions',             //TODO https://na1.api.riotgames.com/lol/static-data/v3/champions
+        champions : 'static-data/v3/champions',      
+        versions : 'static-data/v3/versions',
         items : 'v3/items'
     }
 };
@@ -201,6 +202,19 @@ app.get(SUBDOMAIN + '/getChampions', function (req, res) {
     });
 });
 
+app.get(SUBDOMAIN + '/getVersion', function (req, res) {
+    res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+    });
+    let QUERY = 'SELECT * FROM version WHERE id = 1';
+    connection.query(QUERY, function(err, rows) {
+        if (err) throw err;
+        rows[0].id = undefined;
+        res.end( JSON.stringify( rows[0] ) );
+    });
+});
+
 app.get(SUBDOMAIN + '/getItems', function (req, res) {
     res.writeHead(200, {
         'Content-Type': 'application/json',
@@ -214,12 +228,21 @@ app.get(SUBDOMAIN + '/getItems', function (req, res) {
 });
 
 app.get(SUBDOMAIN + '/getSummonerMatchData', function (req, res) {
-    res.writeHead(200, {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-    });
     let queryData = qs.parse(req._parsedUrl.query);
     let userId = queryData.userId;
+    if(userId === undefined) {
+        res.writeHead(400, {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        });
+        res.end();
+        return;
+    } else {
+        res.writeHead(200, {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        });
+    }
 
     formatSummonersAvailableMatchData(userId);
     let QUERY = 'SELECT * FROM formatted_match_data WHERE userId = ' + userId;
@@ -316,6 +339,15 @@ let requestStaticChampionData = function() {
             connection.query('INSERT INTO static_champions SET ? ON DUPLICATE KEY UPDATE id=VALUES(id),name=VALUES(name),title=VALUES(title),tags=VALUES(tags),`key`=VALUES(`key`),`stats`=VALUES(`stats`)', body[key], function(err, result) {
                 if (err) throw err;
             });
+        });
+    },true);
+};
+
+let requestVersionData = function() {
+    callRiotApi(RIOT_API_URL_STATIC + RIOT_API_QUERRIES.static.versions, {}, function(body) {
+        let _data = [{ id:1, version: JSON.parse(body)[0] }];
+        connection.query('REPLACE INTO version SET ?', _data, function(err, data) {
+            if (err) throw err;
         });
     },true);
 };
@@ -561,6 +593,7 @@ let server = app.listen(8080, 'localhost', function () {
      *   Update static data
      */
     requestStaticChampionData();
+    requestVersionData();
 
 
     /*
