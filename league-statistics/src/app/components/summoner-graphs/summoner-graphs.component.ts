@@ -73,33 +73,37 @@ export class SummonerGraphsComponent implements OnInit {
         tooltip: {isHtml: true}
     };
 
-    public gametime_ChartData;
+    public gametime_ChartData = [];
     public gametime_ChartOptions = this.line_ChartOptions;
     public gametime_average = 0;
 
-    public winrate_ChartData;
+    public winrate_ChartData = [];
     public winrate_ChartOptions = this.lineHtml_ChartOptions;
     public winrate_average = 0;
 
-    public wardsPerMin_ChartData;
+    public wardsPerMin_ChartData = [];
     public wardsPerMin_ChartOptions = this.line_ChartOptions;
     public wardsPerMin_average = 0;
 
-    public creepScore_ChartData;
+    public creepScore_ChartData = [];
     public creepScore_ChartOptions = this.line_ChartOptions;
     public creepScore_average = 0;
 
-    public goldPerMin_ChartData;
+    public goldPerMin_ChartData = [];
     public goldPerMin_ChartOptions = this.line_ChartOptions;
     public goldPerMin_average = 0;
 
-    public kda_ChartData;
+    public kda_ChartData = [];
     public kda_ChartOptions = this.line_ChartOptions;
     public kda_average = 0;
 
-    public killPressence_ChartData;
+    public killPressence_ChartData = [];
     public killPressence_ChartOptions = this.line_ChartOptions;
     public killPressence_average = 0;
+
+    public damageDealtToTurrets_ChartData = [];
+    public damageDealtToTurrets_ChartOptions = this.line_ChartOptions;
+    public damageDealtToTurrets_average = 0;
 
     constructor(private staticDataService: StaticDataService, private summonerDataService: SummonerDataService) {
     }
@@ -157,6 +161,7 @@ export class SummonerGraphsComponent implements OnInit {
             this.renderGoldPerMinChart();
             this.renderKDAChart();
             this.renderKillPressenceChart();
+            this.damageDealtToTurretsChart();
         } else {
             setTimeout(this.renderUI ,100);
         }
@@ -179,9 +184,13 @@ export class SummonerGraphsComponent implements OnInit {
             }
         });
 
-        this.gametime_ChartOptions.title = "gametime";
-        this.gametime_average = Math.round(average);
-        this.gametime_ChartData = [['Match', 'Gametime', 'Average']].concat(chartData);
+        if(chartData.length == 0) {
+            this.gametime_ChartData = [];
+        } else {
+            this.gametime_ChartOptions.title = "gametime";
+            this.gametime_average = Math.round(average);
+            this.gametime_ChartData = [['Match', 'Gametime', 'Average']].concat(chartData);
+        }
     }
 
     renderWinrateChart() {
@@ -209,12 +218,16 @@ export class SummonerGraphsComponent implements OnInit {
             }
         });
 
-        this.winrate_ChartOptions.title = "Winrate";
-        this.winrate_ChartData = [['Match', 'Winrate', {
-            'type': 'string',
-            'role': 'tooltip',
-            'p': {'html': true}
-        }]].concat(chartData);
+        if(chartData.length == 0) {
+            this.winrate_ChartData = [];
+        } else {
+            this.winrate_ChartOptions.title = "Winrate";
+            this.winrate_ChartData = [['Match', 'Winrate', {
+                'type': 'string',
+                'role': 'tooltip',
+                'p': {'html': true}
+            }]].concat(chartData);
+        }
     }
 
     renderWardsPerMinChart() {
@@ -233,10 +246,13 @@ export class SummonerGraphsComponent implements OnInit {
                 chartData.push([index, data.wardsPerMin, this.getAverageFromArray(averageList)]);
             }
         });
-
-        this.wardsPerMin_ChartOptions.title = "Wards per minute";
-        this.wardsPerMin_average = Math.round(average * 100) / 100;
-        this.wardsPerMin_ChartData = [['Match', 'Wards per minute', 'Average']].concat(chartData);
+        if(chartData.length == 0) {
+            this.wardsPerMin_ChartData = [];
+        } else {
+            this.wardsPerMin_ChartOptions.title = "Wards per minute";
+            this.wardsPerMin_average = Math.round(average * 100) / 100;
+            this.wardsPerMin_ChartData = [['Match', 'Wards per minute', 'Average']].concat(chartData);
+        }
     }
 
     renderCreepScoreChart() {
@@ -255,10 +271,13 @@ export class SummonerGraphsComponent implements OnInit {
                 chartData.push([index, data.csPerMin, this.getAverageFromArray(averageList)]);
             }
         });
-
-        this.creepScore_ChartOptions.title = "Creep score per minute";
-        this.creepScore_average = Math.round(average * 100) / 100;
-        this.creepScore_ChartData = [['Match', 'Creep score per minute', 'Average']].concat(chartData);
+        if(chartData.length == 0) {
+            this.creepScore_ChartData = [];
+        } else {
+            this.creepScore_ChartOptions.title = "Creep score per minute";
+            this.creepScore_average = Math.round(average * 100) / 100;
+            this.creepScore_ChartData = [['Match', 'Creep score per minute', 'Average']].concat(chartData);
+        }
     }
 
     renderGoldPerMinChart() {
@@ -277,10 +296,13 @@ export class SummonerGraphsComponent implements OnInit {
                 chartData.push([index, data.goldPerMin, this.getAverageFromArray(averageList)]);
             }
         });
-
-        this.goldPerMin_ChartOptions.title = "Gold score per minute";
-        this.goldPerMin_average = Math.round(average * 100) / 100;
-        this.goldPerMin_ChartData = [['Match', 'Gold score per minute', 'Average']].concat(chartData);
+        if(chartData.length == 0) {
+            this.goldPerMin_ChartData = [];
+        } else {
+            this.goldPerMin_ChartOptions.title = "Gold score per minute";
+            this.goldPerMin_average = Math.round(average * 100) / 100;
+            this.goldPerMin_ChartData = [['Match', 'Gold score per minute', 'Average']].concat(chartData);
+        }
     }
 
     renderKDAChart() {
@@ -307,10 +329,13 @@ export class SummonerGraphsComponent implements OnInit {
                 chartData.push([index, KDA, this.getAverageFromArray(averageList)]);
             }
         });
-
-        this.kda_ChartOptions.title = "KDA";
-        this.kda_average = Math.round(average * 100) / 100;
-        this.kda_ChartData = [['Match', 'KDA', 'Average']].concat(chartData);
+        if(chartData.length == 0) {
+            this.kda_ChartData = [];
+        } else {
+            this.kda_ChartOptions.title = "KDA";
+            this.kda_average = Math.round(average * 100) / 100;
+            this.kda_ChartData = [['Match', 'KDA', 'Average']].concat(chartData);
+        }
     }
 
     renderKillPressenceChart() {//killPressence
@@ -339,10 +364,42 @@ export class SummonerGraphsComponent implements OnInit {
                 chartData.push([index, pressence, this.getAverageFromArray(averageList)]);
             }
         });
+        if(chartData.length == 0) {
+            this.killPressence_ChartData = [];
+        } else {
+            this.killPressence_ChartOptions.title = "Kill pressence";
+            this.killPressence_average = Math.round(average * 100) / 100;
+            this.killPressence_ChartData = [['Match', 'Kill pressence', 'Average']].concat(chartData);
+        }
+    }
 
-        this.killPressence_ChartOptions.title = "Kill pressence";
-        this.killPressence_average = Math.round(average * 100) / 100;
-        this.killPressence_ChartData = [['Match', 'Kill pressence', 'Average']].concat(chartData);
+
+    damageDealtToTurretsChart() {
+        let average: number = 0;
+        let averageList: Array<any> = [];
+        let chartData: Array<any> = [];
+
+        this.summonerMatchData.forEach((data, index) => {
+            if(data.matchCreation > 1492891516800) {
+                if (data.role == this.filterRole || this.filterRole == "ALL") {
+                    average = ((average * index) + data.damageDealtToTurrets) / (index + 1);
+                    if (index == 0) average = data.damageDealtToTurrets;
+
+                    if (averageList.length >= this.nrOfMatchesAverage) averageList.shift();
+                    averageList.push(data.damageDealtToTurrets);
+
+                    chartData.push([index, data.damageDealtToTurrets, this.getAverageFromArray(averageList)]);
+                }
+            }
+        });
+
+        if(chartData.length == 0) {
+            this.damageDealtToTurrets_ChartData = [];
+        } else {
+            this.damageDealtToTurrets_ChartOptions.title = "Damage to turrets";
+            this.damageDealtToTurrets_average = Math.round(average);
+            this.damageDealtToTurrets_ChartData = [['Match', 'Damage dealt to turrets', 'Average']].concat(chartData);
+        }
     }
 
     formatMatchesData(arr: Array<any>) {

@@ -15,53 +15,60 @@
 </div>
 <div class="user-stats">
     <div class="row">
-        <div class="col-sm-6">
+        <div class="col-sm-6" [hidden]="this.gametime_ChartData.length == 0">
             <div class="user-stats__chart-container">
                 <div class="user-stats__average">Average gametime:<span>  {{ gametime_average }} </span> minutes</div>
                 <!--<div id="gametime" class="data-chart"></div>-->
                 <div id="line_chart" class="data-chart" [chartData]="gametime_ChartData" [chartOptions]= "gametime_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6" [hidden]="this.winrate_ChartData.length == 0">
             <div class="user-stats__chart-container">
                 <div class="user-stats__average">Winrate:<span>  {{ winrate_average }}% </span></div>
                 <!--<div id="gametime" class="data-chart"></div>-->
                 <div id="line_chart" class="data-chart" [chartData]="winrate_ChartData" [chartOptions]= "winrate_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6" [hidden]="this.wardsPerMin_ChartData.length == 0">
             <div class="user-stats__chart-container">
                 <div class="user-stats__average">Wards per minute:<span>  {{ wardsPerMin_average }} </span></div>
                 <!--<div id="gametime" class="data-chart"></div>-->
                 <div id="line_chart" class="data-chart" [chartData]="wardsPerMin_ChartData" [chartOptions]= "wardsPerMin_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6" [hidden]="this.creepScore_ChartData.length == 0">
             <div class="user-stats__chart-container">
                 <div class="user-stats__average">Creep score:<span>  {{ creepScore_average }} </span></div>
                 <!--<div id="gametime" class="data-chart"></div>-->
                 <div id="line_chart" class="data-chart" [chartData]="creepScore_ChartData" [chartOptions]= "creepScore_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6" [hidden]="this.goldPerMin_ChartData.length == 0">
             <div class="user-stats__chart-container">
                 <div class="user-stats__average">Gold per minute:<span>  {{ goldPerMin_average }} </span></div>
                 <!--<div id="gametime" class="data-chart"></div>-->
                 <div id="line_chart" class="data-chart" [chartData]="goldPerMin_ChartData" [chartOptions]= "goldPerMin_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6" [hidden]="this.kda_ChartData.length == 0">
             <div class="user-stats__chart-container">
                 <div class="user-stats__average">KDA:<span>  {{ kda_average }} </span></div>
                 <!--<div id="gametime" class="data-chart"></div>-->
                 <div id="line_chart" class="data-chart" [chartData]="kda_ChartData" [chartOptions]= "kda_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6" [hidden]="this.killPressence_ChartData.length == 0">
             <div class="user-stats__chart-container">
                 <div class="user-stats__average">Kill pressence:<span>  {{ killPressence_average }} </span></div>
                 <!--<div id="gametime" class="data-chart"></div>-->
                 <div id="line_chart" class="data-chart" [chartData]="killPressence_ChartData" [chartOptions]= "killPressence_ChartOptions" chartType="LineChart" GoogleChart></div>
+            </div>
+        </div>
+        <div class="col-sm-6" [hidden]="this.damageDealtToTurrets_ChartData.length == 0">
+            <div class="user-stats__chart-container">
+                <div class="user-stats__average">Damage dealt to turrets:<span>  {{ damageDealtToTurrets_average }} </span></div>
+                <!--<div id="gametime" class="data-chart"></div>-->
+                <div id="line_chart" class="data-chart" [chartData]="damageDealtToTurrets_ChartData" [chartOptions]= "damageDealtToTurrets_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
         <!-- damage dealt to objectives -->
