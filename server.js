@@ -512,20 +512,21 @@ let getParticipantId = function(participantIdentities , userId) {
 };
 
 let getTeamScore = function(participants, pId) {
+    let teamSize = participants.length / 2;
     let team = {
         teamKills: 0,
         teamDeaths: 0,
         teamAssists: 0
     }
-    if(pId > 5) {
-        pId = 5;
+    if(pId > teamSize) {
+        pId = teamSize;
     } else {
         pId = 0;
     }
-    for (i = pId; i <= pId + 4; i++) {
-        team.teamKills += participants[i].stats.kills
-        team.teamAssists += participants[i].stats.assists
-        team.teamDeaths += participants[i].stats.deaths
+    for (i = pId; i <= pId + teamSize - 1; i++) {
+        team.teamKills += participants[i].stats.kills;
+        team.teamAssists += participants[i].stats.assists;
+        team.teamDeaths += participants[i].stats.deaths;
     }
     return team;
 };
