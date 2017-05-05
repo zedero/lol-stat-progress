@@ -2,21 +2,18 @@
 let apiKey = require('./api_key');
 let config = require('./config');
 
-//var memwatch = require('memwatch-next');
 let express = require('express');
 let qs = require('querystring');
 let mysql = require('mysql');
 let app = express();
 
-//var fs = require("fs");
 let request = require('request');
 const SUBDOMAIN = '/api';
 const RIOT_API_KEY = apiKey.apiKey;
 const RIOT_API_REGION = 'na1';
 const RIOT_API_URL = 'https://'+RIOT_API_REGION+'.api.riotgames.com/lol/';
-
-//const RIOT_API_URL_MASTERY = 'https://na.api.riotgames.com/championmastery/location/NA1/';
 const RIOT_API_URL_STATIC = 'https://na1.api.riotgames.com/lol/';
+
 const RIOT_API_QUERRIES = {
     summoner_by_name : 'summoner/v3/summoners/by-name/',
     summoner_by_id : 'summoner/v3/summoners/',
@@ -29,7 +26,6 @@ const RIOT_API_QUERRIES = {
     }
 };
 
-//memwatch.on('leak', function(info) { console.log(info) });
 /*
  *  Create database connection
  */
