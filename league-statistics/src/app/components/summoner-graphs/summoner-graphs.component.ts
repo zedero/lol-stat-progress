@@ -74,35 +74,35 @@ export class SummonerGraphsComponent implements OnInit {
     };
 
     public gametime_ChartData = [];
-    public gametime_ChartOptions = this.line_ChartOptions;
+    public gametime_ChartOptions = Object.assign({}, this.line_ChartOptions);
     public gametime_average = 0;
 
     public winrate_ChartData = [];
-    public winrate_ChartOptions = this.lineHtml_ChartOptions;
+    public winrate_ChartOptions = Object.assign({}, this.lineHtml_ChartOptions);
     public winrate_average = 0;
 
     public wardsPerMin_ChartData = [];
-    public wardsPerMin_ChartOptions = this.line_ChartOptions;
+    public wardsPerMin_ChartOptions = Object.assign({}, this.line_ChartOptions);
     public wardsPerMin_average = 0;
 
     public creepScore_ChartData = [];
-    public creepScore_ChartOptions = this.line_ChartOptions;
+    public creepScore_ChartOptions = Object.assign({}, this.line_ChartOptions);
     public creepScore_average = 0;
 
     public goldPerMin_ChartData = [];
-    public goldPerMin_ChartOptions = this.line_ChartOptions;
+    public goldPerMin_ChartOptions = Object.assign({}, this.line_ChartOptions);
     public goldPerMin_average = 0;
 
     public kda_ChartData = [];
-    public kda_ChartOptions = this.line_ChartOptions;
+    public kda_ChartOptions = Object.assign({}, this.line_ChartOptions);
     public kda_average = 0;
 
     public killPressence_ChartData = [];
-    public killPressence_ChartOptions = this.line_ChartOptions;
+    public killPressence_ChartOptions = Object.assign({}, this.line_ChartOptions);
     public killPressence_average = 0;
 
     public damageDealtToTurrets_ChartData = [];
-    public damageDealtToTurrets_ChartOptions = this.line_ChartOptions;
+    public damageDealtToTurrets_ChartOptions = Object.assign({}, this.line_ChartOptions);
     public damageDealtToTurrets_average = 0;
 
     constructor(private staticDataService: StaticDataService, private summonerDataService: SummonerDataService) {
@@ -187,7 +187,7 @@ export class SummonerGraphsComponent implements OnInit {
         if(chartData.length == 0) {
             this.gametime_ChartData = [];
         } else {
-            this.gametime_ChartOptions.title = "gametime";
+            this.gametime_ChartOptions.title = "Gametime";
             this.gametime_average = Math.round(average);
             this.gametime_ChartData = [['Match', 'Gametime', 'Average']].concat(chartData);
         }

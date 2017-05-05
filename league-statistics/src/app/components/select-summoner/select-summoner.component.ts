@@ -3,6 +3,7 @@ import {SummonerDataService} from "../../services/summoner-data.service";
 
 import { SummonersData } from '../../summoners-data';
 import 'rxjs/add/operator/toPromise';
+import {StaticDataService} from "../../services/static-data.service";
 
 @Component({
     selector: 'select-summoner',
@@ -12,6 +13,7 @@ import 'rxjs/add/operator/toPromise';
 
 export class SelectSummonerComponent implements OnInit {
     summoners;
+    version = 0;
     selectedSummoner = {
         "id": -1,
         "name": "",
@@ -24,11 +26,25 @@ export class SelectSummonerComponent implements OnInit {
     updating = false;
     apiError = false;
 
-    constructor(private summonerDataService: SummonerDataService) {
+    constructor(private summonerDataService: SummonerDataService, private staticDataService: StaticDataService) {
     }
 
     ngOnInit() {
         this.getSummoners();
+        this.getVersion();
+    }
+
+    getVersion() {
+        this.staticDataService.getVersion()
+            .subscribe(data => {
+                this.version = data.version;
+            },err => {
+                this.handleError(err);
+                let fthis = this;
+                setTimeout(function(){
+                    fthis.getVersion();
+                }, 1000);
+            });
     }
 
     getSummoners() {

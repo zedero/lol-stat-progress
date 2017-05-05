@@ -112,13 +112,14 @@ let callRiotApiQueueLoop = function() {
                     }
                 } else {
                     if (!error && response.statusCode === 503) {
-                        //callRiotApiQueue =[];
+                        callRiotApiQueue.push(callRiotApiQueue.shift());
                         console.log('==== RIOT API error ====');
                         console.log('API not available');
                         console.log('');
-                        console.log(' - Clearing queue');
+                        //console.log(callRiotApiQueue[0]);
+                        console.log(' - Pushing call to other place in the queue');
                         console.log('========================');
-                        console.log('Queue empty');
+                        //console.log('Queue empty');
                     } else if(!error && response.statusCode === 404){
                         console.log('==== RIOT API error ====');
                         console.log('Status code: ',response.statusCode);
