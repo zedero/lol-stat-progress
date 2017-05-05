@@ -26,10 +26,12 @@ const RIOT_API_QUERRIES = {
     }
 };
 
+
+
 /*
  *  Create database connection
  */
-let connection = mysql.createConnection(config.database.local);
+let connection = mysql.createConnection(config.database);
 connection.connect();
 
 
@@ -584,8 +586,8 @@ let server = app.listen(8080, 'localhost', function () {
     /*
      *   Update static data
      */
-    requestStaticChampionData();
     requestVersionData();
+    requestStaticChampionData();
 
 
     /*
@@ -596,7 +598,6 @@ let server = app.listen(8080, 'localhost', function () {
     /*
      *   Start the update cycle. This gets missing match data
      */
-
     getMissingRawData();
 
 });
