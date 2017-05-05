@@ -1,5 +1,6 @@
 //TODO ADD HTTPS OR SSL!!!!!!
 let apiKey = require('./api_key');
+let config = require('./config');
 
 //var memwatch = require('memwatch-next');
 let express = require('express');
@@ -32,12 +33,7 @@ const RIOT_API_QUERRIES = {
 /*
  *  Create database connection
  */
-let connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : 'root',
-    database: 'lolstat',
-});//socketPath: '/Applications/MAMP/tmp/mysql/mysql.sock'
+let connection = mysql.createConnection(config.database.local);
 connection.connect();
 
 

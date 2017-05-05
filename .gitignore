@@ -3,6 +3,7 @@ dist
 test
 .DS_Store
 api_key.js
+config.js
 
 # IDE project files
 .idea
