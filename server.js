@@ -31,8 +31,39 @@ const RIOT_API_QUERRIES = {
 /*
  *  Create database connection
  */
-let connection = mysql.createConnection(config.database);
-connection.connect();
+/*let connection = mysql.createConnection(config.database);
+connection.connect();*/
+
+let pool = mysql.createPool(config.database);
+let connection = {
+    query: function(){
+        let sql_args = [];
+        let args = [];
+        for(let i=0; i<arguments.length; i++){
+            args.push(arguments[i]);
+        }
+        let callback = args[args.length-1]; //last arg is callback
+        pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                return callback(err);
+            }
+            if(args.length > 2){
+                sql_args = args[1];
+            }
+            connection.query(args[0], sql_args, function(err, results) {
+                connection.release(); // always put connection back in pool after last query
+                if(err){
+                    console.log(err);
+                    return callback(err);
+                }
+                callback(null, results);
+            });
+        });
+    }
+};
+
+
 
 
 //==============================================================================
@@ -410,6 +441,7 @@ let formatMatchData = function(matchId,userId) {
                 let teamwin = getHasTeamWon(rawdata.teams,pId);
                 let teamscore = getTeamScore(rawdata.participants , pId);
                 let arrPos = pId -1;
+
                 let data = {
                     userId : userId,
                     matchId : matchId,
@@ -499,7 +531,7 @@ let getParticipantId = function(participantIdentities , userId) {
     let id = -1;
     Object.keys(participantIdentities).forEach(function(element, index, array){
         let participant = participantIdentities[index];
-        if(participant.player.accountId === userId) {
+        if(participant.player.currentAccountId === userId) {
             id = participant.participantId;
         }
     });
@@ -578,7 +610,7 @@ let formatAllChampionData = function() {
 /*
  * Server initialization
  */
-let server = app.listen(8080, 'localhost', function () {
+let server = app.listen(13370, '0.0.0.0', function () {
     let host = server.address().address;
     let port = server.address().port;
     console.log("Api listening at http://%s:%s", host, port);

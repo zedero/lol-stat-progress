@@ -198,13 +198,13 @@ export class AnalyzeTeamcompService {
             if(AD_DM_RATIO > .64) {
                 console.log('The team deals extreme ammounts of physical damage (' + Math.round(AD_DM_RATIO*100) +'%)' );
             } else {
-                console.log('The team deals more physical then physical damage (' + Math.round(AD_DM_RATIO*100) +'%)');
+                console.log('The team deals more physical then magic damage (' + Math.round(AD_DM_RATIO*100) +'%)');
             }
         } else if(AD_DM_RATIO < .41) {
             if(AD_DM_RATIO < .36) {
                 console.log('The team deals extreme ammounts of magic damage (' + Math.round(100-(AD_DM_RATIO*100)) +'%)');
             } else {
-                console.log('The team deals more magic then magic damage (' + Math.round(100-(AD_DM_RATIO*100)) +'%)');
+                console.log('The team deals more magic then ad damage (' + Math.round(100-(AD_DM_RATIO*100)) +'%)');
             }
         } else {
             console.log('The team deals mixed damage (' + Math.round(AD_DM_RATIO*100) +'% AD / '+Math.round(100-(AD_DM_RATIO*100))+' % MD)');

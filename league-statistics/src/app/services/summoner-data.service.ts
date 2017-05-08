@@ -9,8 +9,8 @@ import {ReplaySubject} from "rxjs/ReplaySubject";
 
 @Injectable()
 export class SummonerDataService {
-    private SERVER_ADRESS = 'http://localhost';
-    private PORT = 8080;
+    private SERVER_ADRESS = 'http://0.0.0.0';//'http://85.214.156.29';
+    private PORT = 13370;
     private LOCATION = '/api';
     private HOST = this.SERVER_ADRESS + ":" + this.PORT + this.LOCATION;
 
