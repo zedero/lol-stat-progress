@@ -3,12 +3,13 @@ import { Http, Response }          from '@angular/http';
 
 //import {Observable}     from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
+import {environment} from "../../environments/environment";
 //import 'rxjs/add/operator/catch';
 
 @Injectable()
 export class StaticDataService {
-    private SERVER_ADRESS = 'http://0.0.0.0';//http://85.214.156.29';
-    private PORT = 13370;
+    private SERVER_ADRESS = environment.SERVER_ADRESS;
+    private PORT = environment.PORT;
     private LOCATION = '/api';
     private HOST = this.SERVER_ADRESS + ":" + this.PORT + this.LOCATION;
 
