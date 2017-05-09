@@ -207,9 +207,11 @@ let removeFirstItemFromQueue = function() {
  */
 let createQueryUrl = function(params) {
     let esc = encodeURIComponent;
-    return Object.keys(params)
-        .map(k => esc(k) + '=' + esc(params[k]))
-        .join('&');
+    let query = [];
+    params.forEach(data => {
+        query.push(Object.keys(data).map(k => esc(k) + '=' + esc(data[k]))[0]);
+    });
+    return query.join('&');
 };
 
 let searchArrayForMatchingCall = function(arr,query) {
@@ -249,7 +251,7 @@ app.get(SUBDOMAIN + '/getLiveGameData', function (req, res) {
     let userId = queryData.userId;
     userId = 35590582;
 
-    callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.active_game + userId, {},
+    callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.active_game + userId, [],
         function(body) {
         res.end( body );
     },true);
@@ -354,9 +356,9 @@ app.get(SUBDOMAIN + '/updateSummonerData', function (req, res) {
  */
 
 let requestUserData = function(username) {
-    callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_name + username, {
+    callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_name + username, [
 
-    }, function(body) {
+    ], function(body) {
         //console.log(body);
         body = JSON.parse(body);
         connection.query('REPLACE INTO summoners SET ?', body, function(err, result) {
@@ -371,9 +373,9 @@ let requestUserData = function(username) {
 };
 
 let requestSummonerData = function(id,callback = function(){}) {
-    callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_id + id, {
+    callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.summoner_by_id + id, [
 
-    }, function(body) {
+    ], function(body) {
         body = JSON.parse(body);
         connection.query('REPLACE INTO summoners SET ?', body, function(err, result) {
             if (err) throw err;
@@ -393,11 +395,11 @@ let requestSummonerData = function(id,callback = function(){}) {
 
 
 let requestStaticChampionData = function() {
-    callRiotApi(RIOT_API_URL_STATIC + RIOT_API_QUERRIES.static.champions, {
-        dataById : true,
-        champListData : "tags",
-        champListData : "stats"
-    }, function(body) {
+    callRiotApi(RIOT_API_URL_STATIC + RIOT_API_QUERRIES.static.champions, [
+        {dataById : true},
+        {champListData : "tags"},
+        {champListData : "stats"}
+    ], function(body) {
         body = JSON.parse(body)['data'];
         Object.keys(body).forEach(function(key) {
             body[key].tags = JSON.stringify(body[key].tags);
@@ -410,7 +412,7 @@ let requestStaticChampionData = function() {
 };
 
 let requestVersionData = function() {
-    callRiotApi(RIOT_API_URL_STATIC + RIOT_API_QUERRIES.static.versions, {}, function(body) {
+    callRiotApi(RIOT_API_URL_STATIC + RIOT_API_QUERRIES.static.versions, [], function(body) {
         let _data = [{ id:1, version: JSON.parse(body)[0] }];
         connection.query('REPLACE INTO version SET ?', _data, function(err, data) {
             if (err) throw err;
@@ -420,9 +422,9 @@ let requestVersionData = function() {
 
 let getMissingDataCounter = 0;
 let requestLatestMatches = function(userid,callback = function(){}) {
-    callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.matchlist + userid, {
-        //seasons: ""
-    }, function(body) {
+    callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.matchlist + userid, [
+
+        ], function(body) {
         let temp = JSON.parse(body);
         callback();
         if(temp.totalGames > 0) {
@@ -448,9 +450,9 @@ let requestLatestMatches = function(userid,callback = function(){}) {
 };
 
 let requestMatchData = function(matchid) {
-    callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.match + matchid, {
-        includeTimeline: false
-    }, function(body) {
+    callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.match + matchid, [
+        {includeTimeline: false}
+        ], function(body) {
         let data = {
             matchId : matchid,
             data: body
