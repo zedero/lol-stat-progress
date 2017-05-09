@@ -3,6 +3,12 @@ import {Injectable} from '@angular/core';
 @Injectable()
 export class AnalyzeTeamcompService {
 
+    damage = '';
+    defence = '';
+    crowdControl = '';
+    healing = '';
+    shields = '';
+
     staticChampionData;
     averages = {
         attack:0,
@@ -196,67 +202,83 @@ export class AnalyzeTeamcompService {
         // Damage
         if(AD_DM_RATIO > .59) {
             if(AD_DM_RATIO > .64) {
-                console.log('The team deals extreme ammounts of physical damage (' + Math.round(AD_DM_RATIO*100) +'%)' );
+                this.damage = 'The team deals extreme ammounts of physical damage (' + Math.round(AD_DM_RATIO*100) +'%)';
             } else {
-                console.log('The team deals more physical then magic damage (' + Math.round(AD_DM_RATIO*100) +'%)');
+                this.damage = 'The team deals more physical then magic damage (' + Math.round(AD_DM_RATIO*100) +'%)';
             }
         } else if(AD_DM_RATIO < .41) {
             if(AD_DM_RATIO < .36) {
-                console.log('The team deals extreme ammounts of magic damage (' + Math.round(100-(AD_DM_RATIO*100)) +'%)');
+                this.damage = 'The team deals extreme ammounts of magic damage (' + Math.round(100-(AD_DM_RATIO*100)) +'%)';
             } else {
-                console.log('The team deals more magic then ad damage (' + Math.round(100-(AD_DM_RATIO*100)) +'%)');
+                this.damage = 'The team deals more magic then ad damage (' + Math.round(100-(AD_DM_RATIO*100)) +'%)';
             }
         } else {
-            console.log('The team deals mixed damage (' + Math.round(AD_DM_RATIO*100) +'% AD / '+Math.round(100-(AD_DM_RATIO*100))+' % MD)');
+            this.damage = 'The team deals mixed damage (' + Math.round(AD_DM_RATIO*100) +'% AD / '+Math.round(100-(AD_DM_RATIO*100))+' % MD)';
         }
+        console.log(this.damage);
 
         //--------
         // Defence
         if(def >= 40) {
-            console.log("Team has a extremely resilliant composition");
+            this.defence = "Team has a extremely resilliant composition";
         } else if(def >= 30) {
-            console.log("Team has a resilliant composition");
+            this.defence = "Team has a resilliant composition";
         } else if (def >= 20){
-            console.log("Team has a moderately resilliant composition");
+            this.defence = "Team has a moderately resilliant composition";
         } else {
-            console.log("Team has a squishy composition.");
+            this.defence = "Team has a squishy composition.";
         }
+        console.log(this.defence);
 
         //--------
         // Crowd control
 
         if (cc >= this.threshold.cc.ludicrous) {
-            console.log("Team has ludicrous ammounts of Crowd Control. All aboard the CC train");
+            this.crowdControl = "Team has ludicrous ammounts of Crowd Control. All aboard the CC train";
         } else if (cc >= this.threshold.cc.dangerous) {
-            console.log("Team has dangerous ammounts of Crowd Control. Strongly recommed itemizing against it");
+            this.crowdControl = "Team has dangerous ammounts of Crowd Control. Strongly recommed itemizing against it";
         } else if (cc >= this.threshold.cc.high) {
-            console.log("Team has high ammounts of Crowd Control. Consider itemizing against it");
+            this.crowdControl = "Team has high ammounts of Crowd Control. Consider itemizing against it";
         } else if (cc > this.threshold.cc.medium) {
-            console.log("Team has medium ammounts of Crowd Control");
+            this.crowdControl = "Team has medium ammounts of Crowd Control";
         } else if (cc >= this.threshold.cc.low) {
-            console.log("Team has low ammounts of Crowd Control");
+            this.crowdControl = "Team has low ammounts of Crowd Control";
         } else {
-            console.log("Team has no Crowd Control");
+            this.crowdControl = "Team has no Crowd Control";
         }
+        console.log(this.crowdControl);
 
         //--------
         // Healing
         if(heal >= 20) {
-            console.log("Team has a large ammount of healing. Highly consider buying  Morellonomicon's, Executioner's Calling or Mortal Reminder");
+            this.healing = "Team has a large ammount of healing. Highly consider buying  Morellonomicon's, Executioner's Calling or Mortal Reminder";
         } else if (heal >= 11){
-            console.log("Team has some fair ammount of healing. Consider itemizing against it later during the game.");
+            this.healing = "Team has some fair ammount of healing. Consider itemizing against it later during the game.";
+        } else {
+            this.healing = '';
         }
+        console.log(this.healing);
 
         //--------
         // Shields
         if(shield >= 20) {
-            console.log("Team has a extreme ammount of shields.");
+            this.shields = "Team has a extreme ammount of shields.";
         } else if(shield >= 13) {
-            console.log("Team has a large ammount of shields.");
+            this.shields = "Team has a large ammount of shields.";
         } else if (shield >= 9){
-            console.log("Team has some fair ammount of shields.");
+            this.shields = "Team has some fair ammount of shields.";
+        } else {
+            this.shields = '';
         }
+        console.log(this.shields);
 
+        return  {
+            damage : this.damage,
+            defence : this.defence,
+            crowdControl : this.crowdControl,
+            healing : this.healing,
+            shields : this.shields,
+        };
 
     }
 

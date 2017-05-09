@@ -10,6 +10,14 @@ import {AnalyzeTeamcompService} from '../../factories/analyze-teamcomp.service'
 export class TeamAnalysisComponent implements OnInit {
     champions;
 
+    analysis = {
+        damage : '',
+        defence : '',
+        crowdControl : '',
+        healing : '',
+        shields : '',
+    };
+
     lanes = [{
         lane:"top",
         champ: 50, //Swain
@@ -107,9 +115,9 @@ export class TeamAnalysisComponent implements OnInit {
             console.log("Heal: ",heal);
             console.log("Shield: ",shield);*/
 
-            this.analyzeTeamcompService.judgementOnData(this.teamdata);
+            this.analysis = this.analyzeTeamcompService.judgementOnData(this.teamdata);
         }else{
-            this.analyzeTeamcompService.judgementOnData(this.teamdata);
+            this.analysis = this.analyzeTeamcompService.judgementOnData(this.teamdata);
         }
     }
 

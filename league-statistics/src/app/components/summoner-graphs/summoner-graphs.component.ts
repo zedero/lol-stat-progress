@@ -105,6 +105,14 @@ export class SummonerGraphsComponent implements OnInit {
     public damageDealtToTurrets_ChartOptions = Object.assign({}, this.line_ChartOptions);
     public damageDealtToTurrets_average = 0;
 
+    public damageDealtToObjectives_ChartData = [];
+    public damageDealtToObjectives_ChartOptions = Object.assign({}, this.line_ChartOptions);
+    public damageDealtToObjectives_average = 0;
+
+    public visionScore_ChartData = [];
+    public visionScore_ChartOptions = Object.assign({}, this.line_ChartOptions);
+    public visionScore_average = 0;
+
     constructor(private staticDataService: StaticDataService, private summonerDataService: SummonerDataService) {
     }
 
@@ -162,6 +170,8 @@ export class SummonerGraphsComponent implements OnInit {
             this.renderKDAChart();
             this.renderKillPressenceChart();
             this.damageDealtToTurretsChart();
+            this.damageDealtToObjectivesChart();
+            this.visionScoreChart();
         } else {
             setTimeout(this.renderUI ,100);
         }
@@ -399,6 +409,62 @@ export class SummonerGraphsComponent implements OnInit {
             this.damageDealtToTurrets_ChartOptions.title = "Damage to turrets";
             this.damageDealtToTurrets_average = Math.round(average);
             this.damageDealtToTurrets_ChartData = [['Match', 'Damage dealt to turrets', 'Average']].concat(chartData);
+        }
+    }
+
+    damageDealtToObjectivesChart() {
+        let average: number = 0;
+        let averageList: Array<any> = [];
+        let chartData: Array<any> = [];
+
+        this.summonerMatchData.forEach((data, index) => {
+            if(data.matchCreation > 1494002077950) {
+                if (data.role == this.filterRole || this.filterRole == "ALL") {
+                    average = ((average * chartData.length) + data.damageDealtToObjectives) / (chartData.length + 1);
+                    if (index == 0) average = data.damageDealtToObjectives;
+
+                    if (averageList.length >= this.nrOfMatchesAverage) averageList.shift();
+                    averageList.push(data.damageDealtToObjectives);
+
+                    chartData.push([index, data.damageDealtToObjectives, this.getAverageFromArray(averageList)]);
+                }
+            }
+        });
+
+        if(chartData.length == 0) {
+            this.damageDealtToObjectives_ChartData = [];
+        } else {
+            this.damageDealtToObjectives_ChartOptions.title = "Damage to objectives";
+            this.damageDealtToObjectives_average = Math.round(average);
+            this.damageDealtToObjectives_ChartData = [['Match', 'Damage dealt to objectives', 'Average']].concat(chartData);
+        }
+    }
+
+    visionScoreChart() {
+        let average: number = 0;
+        let averageList: Array<any> = [];
+        let chartData: Array<any> = [];
+
+        this.summonerMatchData.forEach((data, index) => {
+            if(data.matchCreation > 1494002077950) {
+                if (data.role == this.filterRole || this.filterRole == "ALL") {
+                    average = ((average * chartData.length) + data.visionScore) / (chartData.length + 1);
+                    if (index == 0) average = data.visionScore;
+
+                    if (averageList.length >= this.nrOfMatchesAverage) averageList.shift();
+                    averageList.push(data.visionScore);
+
+                    chartData.push([index, data.visionScore, this.getAverageFromArray(averageList)]);
+                }
+            }
+        });
+
+        if(chartData.length == 0) {
+            this.visionScore_ChartData = [];
+        } else {
+            this.visionScore_ChartOptions.title = "Damage to objectives";
+            this.visionScore_average = Math.round(average);
+            this.visionScore_ChartData = [['Match', 'Vision score', 'Average']].concat(chartData);
         }
     }
 

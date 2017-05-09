@@ -36,6 +36,13 @@
                 <div id="line_chart" class="data-chart" [chartData]="wardsPerMin_ChartData" [chartOptions]= "wardsPerMin_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
+        <div class="col-sm-6" [hidden]="this.visionScore_ChartData.length == 0">
+            <div class="user-stats__chart-container">
+                <div class="user-stats__average">Vision Score:<span>  {{ visionScore_average }} </span></div>
+                <!--<div id="gametime" class="data-chart"></div>-->
+                <div id="line_chart" class="data-chart" [chartData]="visionScore_ChartData" [chartOptions]= "visionScore_ChartOptions" chartType="LineChart" GoogleChart></div>
+            </div>
+        </div>
         <div class="col-sm-6" [hidden]="this.creepScore_ChartData.length == 0">
             <div class="user-stats__chart-container">
                 <div class="user-stats__average">Creep score:<span>  {{ creepScore_average }} </span></div>
@@ -71,11 +78,16 @@
                 <div id="line_chart" class="data-chart" [chartData]="damageDealtToTurrets_ChartData" [chartOptions]= "damageDealtToTurrets_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
+        <div class="col-sm-6" [hidden]="this.damageDealtToObjectives_ChartData.length == 0">
+            <div class="user-stats__chart-container">
+                <div class="user-stats__average">Damage dealt to objectives:<span>  {{ damageDealtToObjectives_average }} </span></div>
+                <!--<div id="gametime" class="data-chart"></div>-->
+                <div id="line_chart" class="data-chart" [chartData]="damageDealtToObjectives_ChartData" [chartOptions]= "damageDealtToObjectives_ChartOptions" chartType="LineChart" GoogleChart></div>
+            </div>
+        </div>
         <!-- TODO WHEN IMPLEMENTED -->
         <!-- change damage dealt to towers to damage dealt to objectives -->
         <!-- time CCing others score )-->
-        <!-- vision score -->
-        <!-- DamageToObjectives score -->
         <!-- PlayerScore -->
     </div>
 </div>
