@@ -88,9 +88,10 @@ app.get(SUBDOMAIN + '/test', function(req, res) {
  *  RIOT api functions
  */
 let callRiotApiQueue = [];
-let callRiotApi = function(url, queryObject, callback, priority=false) {
-    let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryObject);
+let callRiotApi = function(url, queryArray, callback, priority=false) {
+    let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryArray);
     let fullUrl = url + queryString;
+    let errorFallback =  function(){};
     if(searchArrayForMatchingCall(callRiotApiQueue,fullUrl) === false) {
         if(priority) {
             /*
@@ -104,6 +105,7 @@ let callRiotApi = function(url, queryObject, callback, priority=false) {
             callRiotApiQueue.splice(pos,0,{
                 url:        fullUrl,
                 callback:   callback,
+                errorFallback: errorFallback,
                 isCalled:   false,
                 retryCount : 0
             });
@@ -111,6 +113,7 @@ let callRiotApi = function(url, queryObject, callback, priority=false) {
             callRiotApiQueue.push({
                 url:        fullUrl,
                 callback:   callback,
+                errorFallback: errorFallback,
                 isCalled:   false,
                 retryCount : 0
             });
