@@ -88,10 +88,9 @@ app.get(SUBDOMAIN + '/test', function(req, res) {
  *  RIOT api functions
  */
 let callRiotApiQueue = [];
-let callRiotApi = function(url, queryArray, callback, priority=false) {
+let callRiotApi = function(url, queryArray, callback, errorFallback, priority=false) {
     let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryArray);
     let fullUrl = url + queryString;
-    let errorFallback =  function(){};
     if(searchArrayForMatchingCall(callRiotApiQueue,fullUrl) === false) {
         if(priority) {
             /*
@@ -163,6 +162,8 @@ let callRiotApiQueueLoop = function() {
                         console.log('==== RIOT API error ====');
                         console.log('Status code: ',response.statusCode);
                         console.log(callRiotApiQueue[0]);
+                        //DO ERROR CALLBACK;
+                        callRiotApiQueue[0].errorFallback();
                         callRiotApiQueue.shift();
                         console.log('Data not found. Removing call from queue.');
                         console.log('========================');
@@ -242,19 +243,25 @@ app.get(SUBDOMAIN + '/getSummoners', function (req, res) {
 });
 
 app.get(SUBDOMAIN + '/getLiveGameData', function (req, res) {
-    res.writeHead(200, {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-    });
 
     let queryData = qs.parse(req._parsedUrl.query);
     let userId = queryData.userId;
     userId = 35590582;
 
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.active_game + userId, [],
-        function(body) {
-        res.end( body );
-    },true);
+        function (body) {
+            res.writeHead(200, {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            });
+            res.end(body);
+        }, function () {
+            res.writeHead(404, {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            });
+            res.end();
+        }, true);
 });
 
 app.get(SUBDOMAIN + '/getChampions', function (req, res) {
@@ -369,6 +376,8 @@ let requestUserData = function(username) {
                 if (err) throw err;
             });
         });*/
+    },function(){
+
     },true);
 };
 
@@ -389,6 +398,8 @@ let requestSummonerData = function(id,callback = function(){}) {
             });
         });
         */
+    },function(){
+
     },true);
 };
 
@@ -408,6 +419,8 @@ let requestStaticChampionData = function() {
                 if (err) throw err;
             });
         });
+    },function(){
+
     },true);
 };
 
@@ -417,6 +430,8 @@ let requestVersionData = function() {
         connection.query('REPLACE INTO version SET ?', _data, function(err, data) {
             if (err) throw err;
         });
+    },function(){
+
     },true);
 };
 
@@ -446,6 +461,8 @@ let requestLatestMatches = function(userid,callback = function(){}) {
             console.log("No recorded matches available for " + userid + " during season SEASON2017")
         }
         temp = null;
+    },function(){
+
     },true);
 };
 
@@ -461,6 +478,8 @@ let requestMatchData = function(matchid) {
             if (err) throw err;
             formatAllChampionData()
         });
+    },function(){
+
     },false);
 };
 
