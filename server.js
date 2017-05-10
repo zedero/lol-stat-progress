@@ -245,8 +245,8 @@ app.get(SUBDOMAIN + '/getSummoners', function (req, res) {
 app.get(SUBDOMAIN + '/getLiveGameData', function (req, res) {
 
     let queryData = qs.parse(req._parsedUrl.query);
-    let userId = queryData.userId;
-    userId = 35590582;
+    let userId = queryData.summonerId;
+    //userId = 35590582;
 
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.active_game + userId, [],
         function (body) {
