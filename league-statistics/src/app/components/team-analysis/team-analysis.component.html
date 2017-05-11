@@ -1,5 +1,20 @@
 <div class="user-stats">
     <div class="row">
+        <div class="col-sm-12">
+            <select  [(ngModel)]="selectedSummoner">
+                <option selected value="0">Choose an summoner</option>
+                <option
+                    *ngFor="let summoner of summoners" value="{{summoner.id}}"
+                >
+                    {{summoner.name}}
+                </option>
+            </select>
+            <button (click)="getLiveData($event)">get live data</button>
+            {{selectedSummoner}}
+        </div>
+        <div class="col-sm-12" [hidden]="isSummonerIngame">
+            Summoner is not ingame
+        </div>
         <div class="col-sm-4">
             <h2>Blue</h2>
             <div class="row">
@@ -10,7 +25,7 @@
                     <select (change)="setChampionInTeam($event.target.value,0)">
                         <option
                             *ngFor="let champion of champions" value="{{champion.id}}"
-                            [selected]="champion.id == teamdata[0].selectedChamp"
+                            [selected]="champion.id == teamdata[0][0].selectedChamp"
                         >
                             {{champion.name}}
                         </option>
@@ -25,7 +40,7 @@
                     <select (change)="setChampionInTeam($event.target.value,1)">
                         <option
                             *ngFor="let champion of champions" value="{{champion.id}}"
-                            [selected]="champion.id == teamdata[1].selectedChamp"
+                            [selected]="champion.id == teamdata[0][1].selectedChamp"
                         >
                             {{champion.name}}
                         </option>
@@ -40,7 +55,7 @@
                     <select (change)="setChampionInTeam($event.target.value,2)">
                         <option
                             *ngFor="let champion of champions" value="{{champion.id}}"
-                            [selected]="champion.id == teamdata[2].selectedChamp"
+                            [selected]="champion.id == teamdata[0][2].selectedChamp"
                         >
                             {{champion.name}}
                         </option>
@@ -55,7 +70,7 @@
                     <select (change)="setChampionInTeam($event.target.value,3)">
                         <option
                             *ngFor="let champion of champions" value="{{champion.id}}"
-                            [selected]="champion.id == teamdata[3].selectedChamp"
+                            [selected]="champion.id == teamdata[0][3].selectedChamp"
                         >
                             {{champion.name}}
                         </option>
@@ -70,7 +85,7 @@
                     <select (change)="setChampionInTeam($event.target.value,4)">
                         <option
                             *ngFor="let champion of champions" value="{{champion.id}}"
-                            [selected]="champion.id == teamdata[4].selectedChamp"
+                            [selected]="champion.id == teamdata[0][4].selectedChamp"
                         >
                             {{champion.name}}
                         </option>
@@ -82,7 +97,90 @@
                 <button (click)="analyseTeamcomp($event)">analyze</button>
             </div>
         </div>
-        <div class="col-sm-12">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-4">
+            <h2>Red</h2>
+            <div class="row">
+                <div class="col-sm-4">
+                    Top
+                </div>
+                <div class="col-sm-8">
+                    <select (change)="setChampionInTeam($event.target.value,0,1)">
+                        <option
+                            *ngFor="let champion of champions" value="{{champion.id}}"
+                            [selected]="champion.id == teamdata[1][0].selectedChamp"
+                        >
+                            {{champion.name}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    Jungle
+                </div>
+                <div class="col-sm-8">
+                    <select (change)="setChampionInTeam($event.target.value,1,1)">
+                        <option
+                            *ngFor="let champion of champions" value="{{champion.id}}"
+                            [selected]="champion.id == teamdata[1][1].selectedChamp"
+                        >
+                            {{champion.name}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    Mid
+                </div>
+                <div class="col-sm-8">
+                    <select (change)="setChampionInTeam($event.target.value,2,1)">
+                        <option
+                            *ngFor="let champion of champions" value="{{champion.id}}"
+                            [selected]="champion.id == teamdata[1][2].selectedChamp"
+                        >
+                            {{champion.name}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    ADC
+                </div>
+                <div class="col-sm-8">
+                    <select (change)="setChampionInTeam($event.target.value,3,1)">
+                        <option
+                            *ngFor="let champion of champions" value="{{champion.id}}"
+                            [selected]="champion.id == teamdata[1][3].selectedChamp"
+                        >
+                            {{champion.name}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    Support
+                </div>
+                <div class="col-sm-8">
+                    <select (change)="setChampionInTeam($event.target.value,4,1)">
+                        <option
+                            *ngFor="let champion of champions" value="{{champion.id}}"
+                            [selected]="champion.id == teamdata[1][4].selectedChamp"
+                        >
+                            {{champion.name}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <!--<button (click)="analyseTeamcomp($event)">analyze</button>-->
+            </div>
+        </div>
+        <div class="col-sm-6">
             <br>
             <br>
             <div class="row">
@@ -90,19 +188,43 @@
                     <h2>Team analysis</h2>
                 </div>
                 <div class="col-sm-12">
-                    {{ analysis.damage }}
+                    {{ analysisBlue.damage }}
                 </div>
                 <div class="col-sm-12">
-                    {{ analysis.defence }}
+                    {{ analysisBlue.defence }}
                 </div>
                 <div class="col-sm-12">
-                    {{ analysis.crowdControl }}
+                    {{ analysisBlue.crowdControl }}
                 </div>
                 <div class="col-sm-12">
-                    {{ analysis.healing }}
+                    {{ analysisBlue.healing }}
                 </div>
                 <div class="col-sm-12">
-                    {{ analysis.shields }}
+                    {{ analysisBlue.shields }}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <br>
+            <br>
+            <div class="row">
+                <div class="col-sm-12">
+                    <h2>Team analysis</h2>
+                </div>
+                <div class="col-sm-12">
+                    {{ analysisRed.damage }}
+                </div>
+                <div class="col-sm-12">
+                    {{ analysisRed.defence }}
+                </div>
+                <div class="col-sm-12">
+                    {{ analysisRed.crowdControl }}
+                </div>
+                <div class="col-sm-12">
+                    {{ analysisRed.healing }}
+                </div>
+                <div class="col-sm-12">
+                    {{ analysisRed.shields }}
                 </div>
             </div>
         </div>

@@ -47,5 +47,11 @@ export class SummonerDataService {
             .get(this.HOST + '/getSummonerMatchData?userId=' + summonerId)
             .map((res: Response) => res.json());
     }
+
+    getLiveSummonerGameData(summonerId) {
+        return this.http
+            .get(this.HOST + '/getLiveGameData?summonerId=' + summonerId)
+            .map((res: Response) => res.json());
+    }
 }
 

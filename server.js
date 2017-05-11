@@ -10,7 +10,7 @@ let app = express();
 let request = require('request');
 const SUBDOMAIN = '/api';
 const RIOT_API_KEY = apiKey.apiKey;
-const RIOT_API_REGION = 'na1';
+let RIOT_API_REGION = 'na1';
 const RIOT_API_URL = 'https://'+RIOT_API_REGION+'.api.riotgames.com/lol/';
 const RIOT_API_URL_STATIC = 'https://na1.api.riotgames.com/lol/';
 
@@ -169,7 +169,7 @@ let callRiotApiQueueLoop = function() {
                         console.log('========================');
                     } else {
                         console.log('==== RIOT API error ====');
-                        console.log('Status code: ',response.statusCode);
+                        console.log('Status code: ',response);
                         if( response !== undefined ){
                             console.log(response.headers);//['x-rate-limit-count']
                         }
@@ -246,7 +246,6 @@ app.get(SUBDOMAIN + '/getLiveGameData', function (req, res) {
 
     let queryData = qs.parse(req._parsedUrl.query);
     let userId = queryData.summonerId;
-    //userId = 35590582;
 
     callRiotApi(RIOT_API_URL + RIOT_API_QUERRIES.active_game + userId, [],
         function (body) {

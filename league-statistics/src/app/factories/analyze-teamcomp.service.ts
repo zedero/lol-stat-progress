@@ -169,6 +169,7 @@ export class AnalyzeTeamcompService {
     }
 
     judgementOnData(data) {
+        console.log(data);
         let ad = this.getAttackStrength(data),
             md = this.getMagicStrength(data),
             defa = this.getDefenceArmourStrength(data),
@@ -215,7 +216,7 @@ export class AnalyzeTeamcompService {
         } else {
             this.damage = 'The team deals mixed damage (' + Math.round(AD_DM_RATIO*100) +'% AD / '+Math.round(100-(AD_DM_RATIO*100))+' % MD)';
         }
-        console.log(this.damage);
+        //console.log(this.damage);
 
         //--------
         // Defence
@@ -246,7 +247,7 @@ export class AnalyzeTeamcompService {
         } else {
             this.crowdControl = "Team has no Crowd Control";
         }
-        console.log(this.crowdControl);
+        //console.log(this.crowdControl);
 
         //--------
         // Healing
@@ -257,7 +258,7 @@ export class AnalyzeTeamcompService {
         } else {
             this.healing = '';
         }
-        console.log(this.healing);
+        //console.log(this.healing);
 
         //--------
         // Shields
@@ -270,7 +271,7 @@ export class AnalyzeTeamcompService {
         } else {
             this.shields = '';
         }
-        console.log(this.shields);
+        //console.log(this.shields);
 
         return  {
             damage : this.damage,
