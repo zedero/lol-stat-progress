@@ -181,6 +181,7 @@ export class TeamAnalysisComponent implements OnInit {
     }
 
     getLiveData() {
+        this.isSummonerIngame = true;
         this.summonerDataService.getLiveSummonerGameData(this.selectedSummoner)
             .subscribe(data => {
                 console.log(data);

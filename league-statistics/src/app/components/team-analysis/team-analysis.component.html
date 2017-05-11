@@ -10,10 +10,7 @@
                 </option>
             </select>
             <button (click)="getLiveData($event)">get live data</button>
-            {{selectedSummoner}}
-        </div>
-        <div class="col-sm-12" [hidden]="isSummonerIngame">
-            Summoner is not ingame
+            <span [hidden]="isSummonerIngame">Summoner is not ingame</span>
         </div>
         <div class="col-sm-4">
             <h2>Blue</h2>
@@ -91,10 +88,6 @@
                         </option>
                     </select>
                 </div>
-            </div>
-
-            <div>
-                <button (click)="analyseTeamcomp($event)">analyze</button>
             </div>
         </div>
         <div class="col-sm-4"></div>
@@ -178,6 +171,11 @@
 
             <div>
                 <!--<button (click)="analyseTeamcomp($event)">analyze</button>-->
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div>
+                <button (click)="analyseTeamcomp($event)">analyze</button>
             </div>
         </div>
         <div class="col-sm-6">
