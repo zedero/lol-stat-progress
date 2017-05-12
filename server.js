@@ -20,6 +20,7 @@ const RIOT_API_QUERRIES = {
     matchlist : 'match/v3/matchlists/by-account/',
     match : 'match/v3/matches/',
     active_game : 'spectator/v3/active-games/by-summoner/',
+    //these calls do not count to the rate limit and can be called in parallel to other calls
     static : {
         champions : 'static-data/v3/champions',
         versions : 'static-data/v3/versions',
@@ -88,9 +89,23 @@ app.get(SUBDOMAIN + '/test', function(req, res) {
  *  RIOT api functions
  */
 let callRiotApiQueue = [];
-let callRiotApi = function(url, queryArray, callback, errorFallback, priority=false) {
+let callRiotApi = function(url, queryArray, callback, errorFallback, priority=false, parallelCall = false) {
     let queryString = '?api_key=' + RIOT_API_KEY + '&' + createQueryUrl(queryArray);
     let fullUrl = url + queryString;
+
+    if(parallelCall) {
+        parallelCallRiotApi({
+            url: url,
+            queryArray: queryArray,
+            fullUrl: fullUrl,
+            callback: callback,
+            errorFallback: errorFallback,
+            isCalled:   false,
+            retryCount : 0
+        });
+        return;
+    }
+
     if(searchArrayForMatchingCall(callRiotApiQueue,fullUrl) === false) {
         if(priority) {
             /*
@@ -123,6 +138,21 @@ console.log('Started queue system');
 let callRiotApiLoop = setInterval(function() {
     callRiotApiQueueLoop();
 }, 1300);
+
+let parallelCallRiotApi = function(call) {
+    console.log('Making parallel call to riot api: ', call.url);
+    request(call.fullUrl, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+            call.callback(body, response);
+        } else {
+            console.log('==== RIOT API error ====');
+            console.log('Error requesting data through an parallel call');
+            console.log('Pushing call to regular call queue');
+            console.log('========================');
+            callRiotApi(call.url, call.queryArray, call.callBack, call.errorFallback, true, false);
+        }
+    });
+};
 
 let callRiotApiQueueLoop = function() {
     if(callRiotApiQueue.length > 0 ) {
@@ -420,7 +450,7 @@ let requestStaticChampionData = function() {
         });
     },function(){
 
-    },true);
+    },true,true);
 };
 
 let requestVersionData = function() {
@@ -431,7 +461,7 @@ let requestVersionData = function() {
         });
     },function(){
 
-    },true);
+    },true,true);
 };
 
 let getMissingDataCounter = 0;
