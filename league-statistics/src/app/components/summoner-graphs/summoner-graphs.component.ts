@@ -392,13 +392,14 @@ export class SummonerGraphsComponent implements OnInit {
         this.summonerMatchData.forEach((data, index) => {
             if(data.matchCreation > 1492891516800) {
                 if (data.role == this.filterRole || this.filterRole == "ALL") {
-                    average = ((average * chartData.length) + data.damageDealtToTurrets) / (chartData.length + 1);
-                    if (index == 0) average = data.damageDealtToTurrets;
+                    let gametime = Math.round(data.matchDuration / 60);
+                    average = ((average * chartData.length) + ( data.damageDealtToTurrets / gametime )) / (chartData.length + 1);
+                    if (index == 0) average = data.damageDealtToTurrets / gametime;
 
                     if (averageList.length >= this.nrOfMatchesAverage) averageList.shift();
-                    averageList.push(data.damageDealtToTurrets);
+                    averageList.push(data.damageDealtToTurrets / gametime);
 
-                    chartData.push([index, data.damageDealtToTurrets, this.getAverageFromArray(averageList)]);
+                    chartData.push([index, data.damageDealtToTurrets / gametime, this.getAverageFromArray(averageList)]);
                 }
             }
         });
@@ -406,8 +407,8 @@ export class SummonerGraphsComponent implements OnInit {
         if(chartData.length == 0) {
             this.damageDealtToTurrets_ChartData = [];
         } else {
-            this.damageDealtToTurrets_ChartOptions.title = "Damage to turrets";
-            this.damageDealtToTurrets_average = Math.round(average);
+            this.damageDealtToTurrets_ChartOptions.title = "Damage to turrets / min";
+            this.damageDealtToTurrets_average = Math.round(average * 100) / 100;
             this.damageDealtToTurrets_ChartData = [['Match', 'Damage dealt to turrets', 'Average']].concat(chartData);
         }
     }
@@ -420,13 +421,14 @@ export class SummonerGraphsComponent implements OnInit {
         this.summonerMatchData.forEach((data, index) => {
             if(data.matchCreation > 1494002077950) {
                 if (data.role == this.filterRole || this.filterRole == "ALL") {
-                    average = ((average * chartData.length) + data.damageDealtToObjectives) / (chartData.length + 1);
-                    if (index == 0) average = data.damageDealtToObjectives;
+                    let gametime = Math.round(data.matchDuration / 60);
+                    average = ((average * chartData.length) + ( data.damageDealtToObjectives / gametime)) / (chartData.length + 1);
+                    if (index == 0) average = data.damageDealtToObjectives / gametime;
 
                     if (averageList.length >= this.nrOfMatchesAverage) averageList.shift();
-                    averageList.push(data.damageDealtToObjectives);
+                    averageList.push(data.damageDealtToObjectives / gametime);
 
-                    chartData.push([index, data.damageDealtToObjectives, this.getAverageFromArray(averageList)]);
+                    chartData.push([index, data.damageDealtToObjectives / gametime, this.getAverageFromArray(averageList)]);
                 }
             }
         });
@@ -434,8 +436,8 @@ export class SummonerGraphsComponent implements OnInit {
         if(chartData.length == 0) {
             this.damageDealtToObjectives_ChartData = [];
         } else {
-            this.damageDealtToObjectives_ChartOptions.title = "Damage to objectives";
-            this.damageDealtToObjectives_average = Math.round(average);
+            this.damageDealtToObjectives_ChartOptions.title = "Damage to objectives / min";
+            this.damageDealtToObjectives_average = Math.round(average * 100) / 100;
             this.damageDealtToObjectives_ChartData = [['Match', 'Damage dealt to objectives', 'Average']].concat(chartData);
         }
     }
@@ -448,13 +450,14 @@ export class SummonerGraphsComponent implements OnInit {
         this.summonerMatchData.forEach((data, index) => {
             if(data.matchCreation > 1494002077950) {
                 if (data.role == this.filterRole || this.filterRole == "ALL") {
-                    average = ((average * chartData.length) + data.visionScore) / (chartData.length + 1);
-                    if (index == 0) average = data.visionScore;
+                    let gametime = Math.round(data.matchDuration / 60);
+                    average = ((average * chartData.length) + ( data.visionScore / gametime )) / (chartData.length + 1);
+                    if (index == 0) average = data.visionScore/gametime;
 
                     if (averageList.length >= this.nrOfMatchesAverage) averageList.shift();
-                    averageList.push(data.visionScore);
+                    averageList.push( (data.visionScore / gametime) );
 
-                    chartData.push([index, data.visionScore, this.getAverageFromArray(averageList)]);
+                    chartData.push([index, data.visionScore / gametime, this.getAverageFromArray(averageList)]);
                 }
             }
         });
@@ -462,8 +465,8 @@ export class SummonerGraphsComponent implements OnInit {
         if(chartData.length == 0) {
             this.visionScore_ChartData = [];
         } else {
-            this.visionScore_ChartOptions.title = "Damage to objectives";
-            this.visionScore_average = Math.round(average);
+            this.visionScore_ChartOptions.title = "Visionscore per minute";
+            this.visionScore_average = Math.round(average * 1000) / 1000;
             this.visionScore_ChartData = [['Match', 'Vision score', 'Average']].concat(chartData);
         }
     }
