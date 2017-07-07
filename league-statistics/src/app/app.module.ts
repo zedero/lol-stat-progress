@@ -14,6 +14,7 @@ import {TeamAnalysisComponent} from './components/team-analysis/team-analysis.co
 import {TankItemizerComponent} from './components/tank-itemizer/tank-itemizer.component';
 import { OrderByPipe } from './pipes/order-by.pipe';
 import { GoogleChart} from'../../node_modules/angular2-google-chart/directives/angular2-google-chart.directive';
+import { AboutComponent } from './components/about/about.component';
 
 @NgModule({
     declarations: [
@@ -24,6 +25,7 @@ import { GoogleChart} from'../../node_modules/angular2-google-chart/directives/a
         TankItemizerComponent,
         OrderByPipe,
         GoogleChart,
+        AboutComponent,
     ],
     imports: [
         BrowserModule,
@@ -42,6 +44,10 @@ import { GoogleChart} from'../../node_modules/angular2-google-chart/directives/a
             {
                 path: 'tank-itemizer',
                 component: TankItemizerComponent
+            },
+            {
+                path: 'about',
+                component: AboutComponent
             }
         ])
     ],
