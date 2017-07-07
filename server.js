@@ -137,7 +137,7 @@ let callRiotApi = function(url, queryArray, callback, errorFallback, priority=fa
 console.log('Started queue system');
 let callRiotApiLoop = setInterval(function() {
     callRiotApiQueueLoop();
-}, 1300);
+}, 1200);
 
 let parallelCallRiotApi = function(call) {
     console.log('Making parallel call to riot api: ', call.url);
