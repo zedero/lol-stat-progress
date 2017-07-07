@@ -113,6 +113,10 @@ export class SummonerGraphsComponent implements OnInit {
     public visionScore_ChartOptions = Object.assign({}, this.line_ChartOptions);
     public visionScore_average = 0;
 
+    public timeCCingOthers_ChartData = [];
+    public timeCCingOthers_ChartOptions = Object.assign({}, this.line_ChartOptions);
+    public timeCCingOthers_average = 0;
+
     constructor(private staticDataService: StaticDataService, private summonerDataService: SummonerDataService) {
     }
 
@@ -172,6 +176,7 @@ export class SummonerGraphsComponent implements OnInit {
             this.damageDealtToTurretsChart();
             this.damageDealtToObjectivesChart();
             this.visionScoreChart();
+            this.timeCCingOthersChart();
         } else {
             setTimeout(this.renderUI ,100);
         }
@@ -468,6 +473,35 @@ export class SummonerGraphsComponent implements OnInit {
             this.visionScore_ChartOptions.title = "Visionscore per minute";
             this.visionScore_average = Math.round(average * 1000) / 1000;
             this.visionScore_ChartData = [['Match', 'Vision score', 'Average']].concat(chartData);
+        }
+    }
+
+    timeCCingOthersChart() {
+        let average: number = 0;
+        let averageList: Array<any> = [];
+        let chartData: Array<any> = [];
+
+        this.summonerMatchData.forEach((data, index) => {
+            if(data.matchCreation > 1497559651891) {
+                if (data.role == this.filterRole || this.filterRole == "ALL") {
+                    let gametime = Math.round(data.matchDuration / 60);
+                    average = ((average * chartData.length) + ( data.timeCCingOthers / gametime )) / (chartData.length + 1);
+                    if (index == 0) average = data.timeCCingOthers/gametime;
+
+                    if (averageList.length >= this.nrOfMatchesAverage) averageList.shift();
+                    averageList.push( (data.timeCCingOthers / gametime) );
+
+                    chartData.push([index, data.timeCCingOthers / gametime, this.getAverageFromArray(averageList)]);
+                }
+            }
+        });
+
+        if(chartData.length == 0) {
+            this.timeCCingOthers_ChartData = [];
+        } else {
+            this.timeCCingOthers_ChartOptions.title = "CCing others per minute";
+            this.timeCCingOthers_average = Math.round(average * 1000) / 1000;
+            this.timeCCingOthers_ChartData = [['Match', 'Time CCing other per min', 'Average']].concat(chartData);
         }
     }
 

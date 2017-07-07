@@ -85,6 +85,13 @@
                 <div id="line_chart" class="data-chart" [chartData]="damageDealtToObjectives_ChartData" [chartOptions]= "damageDealtToObjectives_ChartOptions" chartType="LineChart" GoogleChart></div>
             </div>
         </div>
+        <div class="col-sm-6" [hidden]="this.timeCCingOthers_ChartData.length == 0">
+            <div class="user-stats__chart-container">
+                <div class="user-stats__average">Time CCing others:<span>  {{ timeCCingOthers_average }} </span></div>
+                <!--<div id="gametime" class="data-chart"></div>-->
+                <div id="line_chart" class="data-chart" [chartData]="timeCCingOthers_ChartData" [chartOptions]= "timeCCingOthers_ChartOptions" chartType="LineChart" GoogleChart></div>
+            </div>
+        </div>
         <!-- TODO WHEN IMPLEMENTED -->
         <!-- change damage dealt to towers to damage dealt to objectives -->
         <!-- time CCing others score )-->
