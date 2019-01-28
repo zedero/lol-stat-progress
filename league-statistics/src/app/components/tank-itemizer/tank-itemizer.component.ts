@@ -71,6 +71,9 @@ export class TankItemizerComponent implements OnInit {
     }
 
     calculateEffectiveHealth() {
+        if (!this.champions) {
+            return;
+        }
         let adRatio = .5;
         if (this.championLevel > 18) {
             this.championLevel = 18;
