@@ -5,6 +5,7 @@
 
 export const environment = {
     production: false,
-    SERVER_ADRESS: 'http://0.0.0.0',
+    // SERVER_ADRESS: 'http://0.0.0.0',
+    SERVER_ADRESS: 'http://localhost',
     PORT: 13370
 };

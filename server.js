@@ -6,6 +6,7 @@ let express = require('express');
 let qs = require('querystring');
 let mysql = require('mysql');
 let app = express();
+let cors = require('cors');
 
 let request = require('request');
 const SUBDOMAIN = '/api';
@@ -13,20 +14,35 @@ const RIOT_API_KEY = apiKey.apiKey;
 let RIOT_API_REGION = 'na1';
 const RIOT_API_URL = 'https://'+RIOT_API_REGION+'.api.riotgames.com/lol/';
 const RIOT_API_URL_STATIC = 'https://na1.api.riotgames.com/lol/';
+const DD_VERSION = '9.2.1'
 
 const RIOT_API_QUERRIES = {
-    summoner_by_name : 'summoner/v3/summoners/by-name/',
-    summoner_by_id : 'summoner/v3/summoners/',
-    matchlist : 'match/v3/matchlists/by-account/',
-    match : 'match/v3/matches/',
-    active_game : 'spectator/v3/active-games/by-summoner/',
+    summoner_by_name : 'summoner/v4/summoners/by-name/',
+    summoner_by_id : 'summoner/v4/summoners/',
+    matchlist : 'match/v4/matchlists/by-account/',
+    match : 'match/v4/matches/',
+    active_game : 'spectator/v4/active-games/by-summoner/',
     //these calls do not count to the rate limit and can be called in parallel to other calls
     static : {
-        champions : 'static-data/v3/champions',
-        versions : 'static-data/v3/versions',
-        items : 'v3/items'
+        champions : `http://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/data/en_US/champion.json`,
+        versions : 'https://ddragon.leagueoflegends.com/api/versions.json',
+        items : `http://ddragon.leagueoflegends.com/cdn/${DD_VERSION}/data/en_US/item.json`
     }
 };
+
+let originsWhitelist = [
+  'http://localhost:4200',      //this is my front-end url for development
+  'localhost:4200/',
+];
+let corsOptions = {
+  origin: function(origin, callback){
+    var isWhitelisted = originsWhitelist.indexOf(origin) !== -1;
+    callback(null, isWhitelisted);
+  },
+  credentials:true
+}
+app.use(cors(corsOptions));
+
 
 //https://na1.api.riotgames.com/lol/spectator/v3/active-games/by-summoner/390600
 
@@ -348,7 +364,7 @@ app.get(SUBDOMAIN + '/getSummonerMatchData', function (req, res) {
     }
 
     formatSummonersAvailableMatchData(userId);
-    let QUERY = 'SELECT * FROM formatted_match_data WHERE userId = ' + userId;
+    let QUERY = 'SELECT * FROM formatted_match_data WHERE userId = "' + userId + '"';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
         res.end( JSON.stringify( rows ) );
@@ -435,16 +451,13 @@ let requestSummonerData = function(id,callback = function(){}) {
 
 
 let requestStaticChampionData = function() {
-    callRiotApi(RIOT_API_URL_STATIC + RIOT_API_QUERRIES.static.champions, [
-        {dataById : true},
-        {champListData : "tags"},
-        {champListData : "stats"}
-    ], function(body) {
+    callRiotApi(RIOT_API_QUERRIES.static.champions, [],
+      function(body) {
         body = JSON.parse(body)['data'];
         Object.keys(body).forEach(function(key) {
             body[key].tags = JSON.stringify(body[key].tags);
             body[key].stats = JSON.stringify(body[key].stats);
-            connection.query('INSERT INTO static_champions SET ? ON DUPLICATE KEY UPDATE id=VALUES(id),name=VALUES(name),title=VALUES(title),tags=VALUES(tags),`key`=VALUES(`key`),`stats`=VALUES(`stats`)', body[key], function(err, result) {
+            connection.query('INSERT INTO static_champions SET ? ON DUPLICATE KEY UPDATE id=VALUES(id),name=VALUES(name),title=VALUES(title),tags=VALUES(tags),`key`=VALUES(`key`),`stats`=VALUES(`stats`)', mapChampionData(body[key]), function(err, result) {
                 if (err) throw err;
             });
         });
@@ -453,8 +466,20 @@ let requestStaticChampionData = function() {
     },true,true);
 };
 
+const mapChampionData = function(championData) {
+    let data = {
+      id: championData.key,
+      name: championData.name,
+      title: championData.title,
+      key: championData.key,
+      tags: championData.tags,
+      stats: championData.stats,
+    }
+    return data;
+}
+
 let requestVersionData = function() {
-    callRiotApi(RIOT_API_URL_STATIC + RIOT_API_QUERRIES.static.versions, [], function(body) {
+    callRiotApi(RIOT_API_QUERRIES.static.versions, [], function(body) {
         let _data = [{ id:1, version: JSON.parse(body)[0] }];
         connection.query('REPLACE INTO version SET ?', _data, function(err, data) {
             if (err) throw err;
@@ -474,6 +499,7 @@ let requestLatestMatches = function(userid,callback = function(){}) {
         if(temp.totalGames > 0) {
             let data = temp['matches'];
             getMissingDataCounter += data.length;
+            console.log(data[0])
             data.forEach(function(_data){
                 _data.summonerId = userid; //TODO: Depricated REMOVE THIS IN A LATER STAGE.
                 _data.accountId = userid;
@@ -519,9 +545,9 @@ let formatMatchData = function(matchId,userId) {
 
     let QUERY = 'SELECT * FROM raw_match_data';
     QUERY += ' LEFT JOIN matches ON raw_match_data.matchId =  ' + matchId;
-    QUERY += ' AND raw_match_data.matchId=matches.matchId AND matches.summonerId = '+ userId;
+    QUERY += ' AND raw_match_data.matchId=matches.matchId AND matches.summonerId = "'+ userId + '"';
     QUERY += ' WHERE raw_match_data.matchId = ' + matchId;
-    QUERY += ' AND matches.summonerId = ' + userId;
+    QUERY += ' AND matches.summonerId = "' + userId + '"';
     //console.log(QUERY);
     connection.query(QUERY, function(err, row) {
         if (err) throw err;
@@ -689,22 +715,28 @@ let formatAllChampionData = function() {
     let QUERY = 'SELECT * FROM summoners';
     connection.query(QUERY, function(err, rows) {
         if (err) throw err;
-        //console.log(rows);
         rows.forEach(function(data){
             formatSummonersAvailableMatchData(data.accountId);
         })
     });
 };
 
-
 //==============================================================================
 /*
  * Server initialization
  */
-let server = app.listen(13370, '0.0.0.0', function () {
+let server = app.listen(13370, 'localhost', function () {
     let host = server.address().address;
     let port = server.address().port;
     console.log("Api listening at http://%s:%s", host, port);
+
+
+   /*
+   *   Test calls
+   */
+    // requestUserData('imaqtpie');
+    // requestUserData('i am zedero'); //rVEMWWBxNtuiEtNT3be8R4ateeKRHi-a0pm2pK8vdXjy7LolaXcbRVGrGfJZbThUb1vDC7QjiBAxew
+
 
     /*
      *   Update static data
