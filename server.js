@@ -12,6 +12,7 @@ let request = require('request');
 const SUBDOMAIN = '/api';
 const RIOT_API_KEY = apiKey.apiKey;
 let RIOT_API_REGION = 'na1';
+RIOT_API_REGION = 'euw1';
 const RIOT_API_URL = 'https://'+RIOT_API_REGION+'.api.riotgames.com/lol/';
 const RIOT_API_URL_STATIC = 'https://na1.api.riotgames.com/lol/';
 const DD_VERSION = '9.2.1'
@@ -734,7 +735,7 @@ let server = app.listen(13370, 'localhost', function () {
    /*
    *   Test calls
    */
-    // requestUserData('imaqtpie');
+    // requestUserData('Wh4tsuppp');
     // requestUserData('i am zedero'); //rVEMWWBxNtuiEtNT3be8R4ateeKRHi-a0pm2pK8vdXjy7LolaXcbRVGrGfJZbThUb1vDC7QjiBAxew
 
 
