@@ -735,8 +735,7 @@ let server = app.listen(13370, 'localhost', function () {
    /*
    *   Test calls
    */
-    // requestUserData('Wh4tsuppp');
-    // requestUserData('i am zedero'); //rVEMWWBxNtuiEtNT3be8R4ateeKRHi-a0pm2pK8vdXjy7LolaXcbRVGrGfJZbThUb1vDC7QjiBAxew
+    // requestUserData('USERNAME');
 
 
     /*
